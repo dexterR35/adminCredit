@@ -7,21 +7,27 @@ import {
 } from "firebase/auth";
 
 const auth = getAuth();
-const auth2 = getAuth();
 
 // Function to check if the user is already authenticated
 export const checkAuthStatus = (setUser) => {
+  const authUserString = sessionStorage.getItem("authUser");
+
+  if (authUserString) {
+    // If user data is present in sessionStorage, parse and set the user
+    const authUser = JSON.parse(authUserString);
+    setUser(authUser);
+    return; // Exit early, no need to proceed with onAuthStateChanged
+  }
+
+  // If no user data in sessionStorage, proceed with the auth state change listener
   const unsubscribe = onAuthStateChanged(auth, (user) => {
     try {
       if (user) {
         // User is signed in
         setUser(user);
-        sessionStorage.setItem("authUser", JSON.stringify(user));
-        console.log(auth2.currentUser, "test2");
-        console.log(auth2.currentUser.uid, "test2");
+        console.log(auth.currentUser, "auth.currentUser");
       } else {
         setUser(null);
-        sessionStorage.removeItem("authUser");
       }
     } catch (error) {
       console.error("Authentication status error:", error.message);
@@ -40,8 +46,8 @@ export const login = async (email, password) => {
       email,
       password
     );
-    const user = userCredential.user;
-    return user;
+    // const user = userCredential.user;
+    return userCredential.user;
   } catch (error) {
     console.error("Authentication error:", error.message);
     throw new Error(`Authentication error: ${error.message}`);
@@ -52,7 +58,7 @@ export const logout = async () => {
   try {
     // Sign out the user
     await signOut(auth);
-
+    sessionStorage.clear();
     console.log("Logout successful");
   } catch (error) {
     console.error("Logout error:", error.message);
