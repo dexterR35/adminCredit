@@ -1,6 +1,6 @@
 // src/components/LoginPage/LoginPage.jsx
 import { useState } from "react";
-import { fetchCustomerData } from "../../services/firestoreService";
+// import { fetchCustomerData } from "../../services/firestoreService";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
@@ -25,7 +25,7 @@ const LoginPage = ({ setUser }) => {
         testPassword
       );
       // Once authenticated, fetch data from Firestore
-      await fetchCustomerData();
+      // await fetchCustomerData();
       const authUser = userCredential.user;
       sessionStorage.setItem("authUser", JSON.stringify(authUser));
       setUser(authUser);

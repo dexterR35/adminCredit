@@ -2,44 +2,30 @@
 import { useEffect, useState } from "react";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { logout } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie"; // Import useCookies hook
 
 const UserDataPage = () => {
   const [customerData, setCustomerData] = useState([]);
-  const navigate = useNavigate();
-  const [cookies, removeCookie] = useCookies(["idToken"]);
+  // const [cookies, removeCookie] = useCookies(["idToken"]);
   useEffect(() => {
-    if (!cookies.idToken) {
-      // If not authenticated, navigate to the login page
-      navigate("/login");
-    } else {
-      // If authenticated, fetch user data
-      fetchData();
-    }
-  }, [cookies.idToken, navigate]);
+    console.log("Fetching data...");
+    fetchData();
+  }, []);
   const fetchData = async () => {
     const db = getFirestore();
-
     try {
       const querySnapshot = await getDocs(collection(db, "oc_data"));
       const data = querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        customerInfo: doc.data().customer_data.customer_info,
-        bankingStatus: doc.data().banking_status,
-        status: doc.data().status,
-        files: doc.data().customer_data.customer_files,
+        customerInfo: doc.data().formData,
       }));
-      console.log(data);
-      setCustomerData(data);
+      console.log(data, "data");
+      // setCustomerData(data);
     } catch (error) {
       console.error("Error fetching data from Firestore:", error.message);
     }
   };
   const handleLogout = async () => {
-    removeCookie("idToken");
     await logout();
-    navigate("/login");
   };
 
   return (
@@ -61,26 +47,7 @@ const UserDataPage = () => {
         <tbody>
           {customerData.map((customer) => (
             <tr key={customer.id}>
-              <td>{customer.customerInfo.name}</td>
-              <td>{customer.customerInfo.email}</td>
-              <td>{customer.customerInfo.phone}</td>
-              <td>{customer.customerInfo.selectedDate}</td>
-              <td>{customer.customerInfo.aboutUs}</td>
-              <td>
-                {" "}
-                {customer.bankingStatus?.negative
-                  ? Object.entries(customer.bankingStatus.negative).map(
-                      ([key, value]) => (
-                        <div key={key}>
-                          <strong>{key}:</strong> {value}
-                        </div>
-                      )
-                    )
-                  : "N/A"}
-              </td>
-
-              <td>{customer.status}</td>
-              <td>{customer.files}</td>
+              <td>{customer.customerInfo}</td>
             </tr>
           ))}
         </tbody>

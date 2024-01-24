@@ -7,13 +7,12 @@ import {
 } from "react-router-dom";
 import LoginPage from "./components/LoginPage/LoginPage";
 import UserDataPage from "./components/UserData/UserData";
-
 import { useEffect, useState } from "react";
-import { checkAuthStatus } from "./services/authService"; // Import the checkAuthStatus function
+import { checkAuthStatus } from "./services/authService";
 
 const App = () => {
-  const [user, setUser] = useState(null); // Initialize user state
-  const [loading, setLoading] = useState(true); // Loading state
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check authentication status and update user state
@@ -21,7 +20,6 @@ const App = () => {
       setUser(authUser);
       setLoading(false);
     });
-
     // Return a cleanup function to unsubscribe when the component unmounts
     return () => {
       if (unsubscribe && typeof unsubscribe === "function") {
@@ -51,7 +49,7 @@ const App = () => {
               path="/user-data"
               element={user ? <UserDataPage /> : <Navigate to="/login" />}
             />
-            {/* Redirect to login if not authenticated */}
+            Redirect to login if not authenticated
             <Route
               path="/*"
               element={
