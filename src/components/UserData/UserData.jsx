@@ -12,16 +12,18 @@ const UserDataPage = () => {
     fetchData();
   }, []);
   const fetchData = async () => {
-    // Assuming you have already initialized your Firebase app
     const db = getFirestore();
 
     try {
       const querySnapshot = await getDocs(collection(db, "oc_customers"));
       const data = querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        customerInfo: doc.data().customer_data.customer_info,
+        bankingStatus: doc.data().banking_status,
+        status: doc.data().status,
+        files: doc.data().customer_data.customer_files,
       }));
-
+      console.log(data);
       setCustomerData(data);
     } catch (error) {
       console.error("Error fetching data from Firestore:", error.message);
@@ -31,23 +33,46 @@ const UserDataPage = () => {
     await logout();
     navigate("/login");
   };
+
   return (
     <div>
       <h2>User Data</h2>
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Email</th>
+            <th>phone</th>
+            <th>jobDate</th>
+            <th>aboutUs</th>
+            <th>bankHistory</th>
+            <th>status</th>
+            <th>files</th>
           </tr>
         </thead>
         <tbody>
           {customerData.map((customer) => (
             <tr key={customer.id}>
-              <td>{customer.id}</td>
-              <td>{customer.name}</td>
-              <td>{customer.email}</td>
+              <td>{customer.customerInfo.name}</td>
+              <td>{customer.customerInfo.email}</td>
+              <td>{customer.customerInfo.phone}</td>
+              <td>{customer.customerInfo.selectedDate}</td>
+              <td>{customer.customerInfo.aboutUs}</td>
+              <td>
+                {" "}
+                {customer.bankingStatus?.negative
+                  ? Object.entries(customer.bankingStatus.negative).map(
+                      ([key, value]) => (
+                        <div key={key}>
+                          <strong>{key}:</strong> {value}
+                        </div>
+                      )
+                    )
+                  : "N/A"}
+              </td>
+
+              <td>{customer.status}</td>
+              <td>{customer.files}</td>
             </tr>
           ))}
         </tbody>
