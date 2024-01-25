@@ -10,6 +10,7 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import UserDataPage from "./components/UserData/UserData";
 import { checkAuthStatus } from "./services/authService";
 import LoaderPage from "./components/LoadingPage";
+
 const App = () => {
   const [user, setUser] = useState(null);
 
@@ -46,6 +47,7 @@ const App = () => {
             path="/user-data"
             element={user ? <UserDataPage /> : <Navigate to="/login" />}
           />
+
           <Route
             path="/*"
             element={

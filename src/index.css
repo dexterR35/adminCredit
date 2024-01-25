@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  body {
+    font-family: sans-serif;
+  }
+  thead tr th {
+    padding: 1em 0;
+    font-size: 0.9em;
+    border: 1px solid #585858;
+    width: 10%;
+  }
+
+  tbody tr td {
+    /* Your custom styles for all <td> elements in the <tbody> */
+    /* Example: */
+    padding: 0.5em 0.5em;
+    border: 1px solid #585858;
+    font-size: 0.9em;
+  }
+
+  h2 {
+    text-align: center;
+    color: #ff6600;
+    font-size: 2rem;
+  }
+  button {
+    background: lightblue;
+    padding: 0.5em 2em;
+    border-radius: 5px;
+    outline: none;
+    border: none;
+    box-shadow: 2px 2px 3px lightslategray;
+    font-size: 0.9em;
+    text-transform: capitalize;
+    font-weight: bold;
+  }
+}

@@ -32,7 +32,7 @@ const LoginPage = ({ setUser }) => {
     }
   };
   return (
-    <div className="container w-full h-screen flex items-center justify-center flex-col">
+    <div className="container mx-auto w-full h-screen flex items-center justify-center flex-col">
       <div className="bg-white w-[50%] h-[300px] flex flex-col justify-center items-center font-sans">
         <p className="text-md uppercase font-bold">ObtineCredit.ro</p>
         <input
