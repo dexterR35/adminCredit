@@ -16,14 +16,12 @@ const Loader = () => {
   if (isLoading) {
     // You can customize the loader UI here
     return (
-      <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-red-500 text-white">
+      <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-red-500 text-white z-[1000]">
         Loading...
         {/* You can add additional styling or loading animation here */}
       </div>
     );
   }
-
-  // Return null when not loading to hide the component
   return null;
 };
 

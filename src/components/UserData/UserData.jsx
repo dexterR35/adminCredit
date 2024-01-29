@@ -16,11 +16,11 @@ const UserDataPage = () => {
       setLoading(true);
       const querySnapshot = await getDocs(collection(db, "oc_data"));
       const data = querySnapshot.docs.map((doc) => {
-        const { customer_status, customer_info } = doc.data();
+        const { customer_status, customer_info, timestamp } = doc.data();
 
         // Function to recursively map nested objects and arrays
         const mapNestedData = (data) => {
-          console.log(data, "test");
+          // console.log(data, "test");
           if (Array.isArray(data)) {
             return data.map((item) => mapNestedData(item));
           } else if (typeof data === "object" && data !== null) {
@@ -39,10 +39,16 @@ const UserDataPage = () => {
           id: doc.id,
           customer_status: customer_status,
           customer_info: mappedCustomerInfo,
+          timestamp: timestamp.toMillis(),
         };
       });
-
-      console.log(data, "data");
+      data.sort((a, b) => {
+        const dateA = new Date(a.formattedDate);
+        const dateB = new Date(b.formattedDate);
+        console.log("dateA:", dateA, "dateB:", dateB);
+        return dateA - dateB;
+      });
+      console.log(data.timestamp, "data");
 
       setCustomerData(data);
     } catch (error) {
@@ -51,34 +57,37 @@ const UserDataPage = () => {
       setLoading(false);
     }
   };
-
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Months are 0-based
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
   return (
     <>
       {isLoading && <Loader />}
       <HeaderUser />
-      <div className="container border border-red-400 p-2 h-full mx-auto">
-        <h2>User Data</h2>
-        <table className="w-full border border-collapse border-spacing-2">
-          <thead className="rounded-md bg-red-200">
-            <tr>
+      <h2>Clienti ObtineCredit</h2>
+      <div className="container p-2 h-[60vh] overflow-scroll mx-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="sticky top-[-10px]">
               <th>Nume</th>
               <th>Telefon</th>
-
-              <th>BANKS</th>
-              <th>IFN</th>
-              <th>OTHERS</th>
+              <th>Banci</th>
+              <th>Ifn</th>
+              <th>Diverse</th>
               <th>Istoric Bancar</th>
-              <th>jobDate</th>
+              <th>D.angajarii</th>
               <th>aboutUs</th>
+              <th>JoinDate</th>
               <th>Email</th>
             </tr>
           </thead>
           <tbody>
             {customerData.map((customer) => (
-              <tr
-                key={customer.id}
-                className="p-2 cursor-pointer hover:bg-red-500 hover:text-white transition-colors"
-              >
+              <tr key={customer.id}>
                 <td>{customer.customer_info.formData.name}</td>
                 <td>{customer.customer_info.formData.phone}</td>
 
@@ -115,9 +124,11 @@ const UserDataPage = () => {
 
                 <td>
                   {customer.customer_info.banking_info.bankHistory === false ? (
-                    <div className="bg-green-300 w-full h-full">Nu are</div>
+                    <div className="bg-green-300 w-full h-full">
+                      Nu are Istoric
+                    </div>
                   ) : (
-                    <div className="bg-red-300 w-full h-full">Active</div>
+                    <div className="bg-red-300 w-full h-full">Are Istoric</div>
                   )}
                 </td>
                 <td>
@@ -126,6 +137,7 @@ const UserDataPage = () => {
                     : "Nu are"}
                 </td>
                 <td>{customer.customer_info.formData.aboutUs}</td>
+                <td>{formatDate(customer.timestamp)}</td>
                 <td>{customer.customer_info.formData.email}</td>
               </tr>
             ))}

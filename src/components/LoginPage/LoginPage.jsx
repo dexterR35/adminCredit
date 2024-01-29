@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { Login } from "../../services/authService";
 
 const LoginPage = ({ setUser }) => {
   const [email, setEmail] = useState("");
@@ -12,23 +13,13 @@ const LoginPage = ({ setUser }) => {
     try {
       const testEmail = "florin@gmail.com";
       const testPassword = "123456";
-      // const trimmedEmail = email.trim();
-      // const trimmedPassword = password.trim();
-      const authMethod = getAuth();
-      const userCredential = await signInWithEmailAndPassword(
-        authMethod,
-        testEmail,
-        testPassword
-      );
+      const authUser = await Login(testEmail, testPassword);
 
-      const authUser = userCredential.user;
       sessionStorage.setItem("authUser", JSON.stringify(authUser));
       setUser(authUser);
       navigate("/user-data");
     } catch (error) {
       console.error("Login error:", error.message);
-    } finally {
-      console.error("finally:");
     }
   };
   return (

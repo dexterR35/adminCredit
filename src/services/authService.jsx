@@ -39,14 +39,13 @@ export const checkAuthStatus = (setUser) => {
 };
 
 // Function to perform login
-export const login = async (email, password) => {
+export const Login = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
       password
     );
-    // const user = userCredential.user;
     return userCredential.user;
   } catch (error) {
     console.error("Authentication error:", error.message);
@@ -54,7 +53,7 @@ export const login = async (email, password) => {
   }
 };
 
-export const logout = async () => {
+export const Logout = async () => {
   try {
     // Sign out the user
     await signOut(auth);

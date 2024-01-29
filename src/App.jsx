@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import LoginPage from "./components/LoginPage/LoginPage";
 import UserDataPage from "./components/UserData/UserData";
 import { checkAuthStatus } from "./services/authService";
-import LoaderPage from "./components/LoadingPage";
+// import LoaderPage from "./components/LoadingPage";
 
 const App = () => {
   const [user, setUser] = useState(null);

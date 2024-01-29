@@ -1,12 +1,12 @@
-import { logout } from "../../services/authService";
+import { Logout } from "../../services/authService";
 
 const handleLogout = async () => {
-  await logout();
+  await Logout();
 };
 
 const HeaderUser = () => {
   return (
-    <div className="h-16 bg-red-500 w-full flex justify-end items-center px-8 mb-20">
+    <div className="h-16 bg-gray-500 w-full flex justify-end items-center px-8 mb-20">
       <button onClick={handleLogout}>Logout</button>
     </div>
   );

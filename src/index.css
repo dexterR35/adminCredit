@@ -12,15 +12,34 @@
     border: 1px solid #585858;
     width: 10%;
   }
+  thead tr {
+    background: crimson;
+    color: white;
+    text-transform: uppercase;
+  }
+  tbody tr {
+    cursor: pointer;
+    padding: 0px;
+  }
+  tbody tr:hover {
+    background: crimson;
+    color: white;
+    transition: all 0.3s ease;
+  }
 
   tbody tr td {
     /* Your custom styles for all <td> elements in the <tbody> */
     /* Example: */
-    padding: 0.5em 0.5em;
+    padding: 1em 0.5em;
     border: 1px solid #585858;
     font-size: 0.9em;
+    height: 5em;
   }
-
+  tbody tr td div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   h2 {
     text-align: center;
     color: #ff6600;
