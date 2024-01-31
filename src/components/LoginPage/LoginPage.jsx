@@ -11,8 +11,8 @@ const LoginPage = ({ setUser }) => {
 
   const handleLogin = async () => {
     try {
-      const testEmail = "florin@gmail.com";
-      const testPassword = "123456";
+      const testEmail = email.trim();
+      const testPassword = password.trim();
       const authUser = await Login(testEmail, testPassword);
 
       sessionStorage.setItem("authUser", JSON.stringify(authUser));
