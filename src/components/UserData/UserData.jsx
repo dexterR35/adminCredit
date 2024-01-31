@@ -1,6 +1,12 @@
 // src/components/UserDataPage/UserDataPage.jsx
 import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import HeaderUser from "../../components/UserData/HeaderUser";
 import Loader from "../../components/LoadingPage";
 const UserDataPage = () => {
@@ -14,7 +20,9 @@ const UserDataPage = () => {
     const db = getFirestore();
     try {
       setLoading(true);
-      const querySnapshot = await getDocs(collection(db, "oc_data"));
+      const qDesc = collection(db, "oc_data");
+      const orderedQuery = query(qDesc, orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(orderedQuery);
       const data = querySnapshot.docs.map((doc) => {
         const { customer_status, customer_info, timestamp } = doc.data();
 
@@ -39,16 +47,11 @@ const UserDataPage = () => {
           id: doc.id,
           customer_status: customer_status,
           customer_info: mappedCustomerInfo,
-          timestamp: timestamp.toMillis(),
+          timestamp: timestamp.toDate(),
         };
       });
-      data.sort((a, b) => {
-        const dateA = new Date(a.formattedDate);
-        const dateB = new Date(b.formattedDate);
-        console.log("dateA:", dateA, "dateB:", dateB);
-        return dateA - dateB;
-      });
-      console.log(data.timestamp, "data");
+
+      // console.log(data.timestamp, "data");
 
       setCustomerData(data);
     } catch (error) {
@@ -57,12 +60,18 @@ const UserDataPage = () => {
       setLoading(false);
     }
   };
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Months are 0-based
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+  const formatTimestamp = (timestampInMillis) => {
+    const timeStampString = new Date(timestampInMillis);
+    const formattedTimestamp = timeStampString
+      .toLocaleString("ro-RO", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+
+        hour12: true,
+      })
+      .replace("la", "/");
+    return formattedTimestamp;
   };
   return (
     <>
@@ -80,8 +89,8 @@ const UserDataPage = () => {
               <th>Diverse</th>
               <th>Istoric Bancar</th>
               <th>D.angajarii</th>
-              <th>aboutUs</th>
-              <th>JoinDate</th>
+              <th>Despre noi</th>
+              <th>D.Aplicarii</th>
               <th>Email</th>
             </tr>
           </thead>
@@ -137,7 +146,7 @@ const UserDataPage = () => {
                     : "Nu are"}
                 </td>
                 <td>{customer.customer_info.formData.aboutUs}</td>
-                <td>{formatDate(customer.timestamp)}</td>
+                <td>{formatTimestamp(customer.timestamp)}</td>
                 <td>{customer.customer_info.formData.email}</td>
               </tr>
             ))}

@@ -13,17 +13,17 @@
     width: 10%;
   }
   thead tr {
-    background: crimson;
+    background: rgb(3, 21, 32);
     color: white;
     text-transform: uppercase;
   }
   tbody tr {
     cursor: pointer;
-    padding: 0px;
+    height: 5em;
   }
   tbody tr:hover {
-    background: crimson;
-    color: white;
+    background: rgb(134 239 172);
+    color: black;
     transition: all 0.3s ease;
   }
 
@@ -33,7 +33,7 @@
     padding: 1em 0.5em;
     border: 1px solid #585858;
     font-size: 0.9em;
-    height: 5em;
+    font-weight: 500;
   }
   tbody tr td div {
     display: flex;
@@ -42,16 +42,18 @@
   }
   h2 {
     text-align: center;
-    color: #ff6600;
+    color: #1d1d1d;
     font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
   }
   button {
-    background: lightblue;
-    padding: 0.5em 2em;
+    background: white;
+    padding: 0.4em 2em;
     border-radius: 5px;
     outline: none;
     border: none;
-    box-shadow: 2px 2px 3px lightslategray;
+    /* box-shadow: 2px 2px 3px lightslategray; */
     font-size: 0.9em;
     text-transform: capitalize;
     font-weight: bold;
