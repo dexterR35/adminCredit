@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
+import { toast } from "react-toastify";
 
 const auth = getAuth();
 
@@ -46,9 +47,19 @@ export const Login = async (email, password) => {
       email,
       password
     );
+    toast.success("Login successful!");
     return userCredential.user;
   } catch (error) {
-    console.error("Authentication error:", error.message);
+    if (
+      error.code === "auth/invalid-email" ||
+      error.code === "auth/user-not-found"
+    ) {
+      // Show specific notification for invalid credentials
+      toast.error("Invalid credentials. Please try again.");
+    } else {
+      // Show general error notification for other types of authentication errors
+      toast.error(`Authentication error: ${error.message}`);
+    }
     throw new Error(`Authentication error: ${error.message}`);
   }
 };
@@ -59,8 +70,10 @@ export const Logout = async () => {
     await signOut(auth);
     sessionStorage.clear();
     console.log("Logout successful");
+    toast.succes("Logout successful!");
   } catch (error) {
     console.error("Logout error:", error.message);
+    toast.error(`Logout error: ${error.message}`);
     throw error; // Re-throw the error to propagate it to the caller, if needed.
   }
 };

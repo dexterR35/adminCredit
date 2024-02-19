@@ -1,14 +1,12 @@
 // src/App.js
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import LoginPage from "./components/LoginPage/LoginPage";
 import UserDataPage from "./components/UserData/UserData";
 import { checkAuthStatus } from "./services/authService";
+import { BrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // This imports default styling
 // import LoaderPage from "./components/LoadingPage";
 
 const App = () => {
@@ -21,41 +19,53 @@ const App = () => {
     });
 
     // Return a cleanup function to unsubscribe when the component unmounts
-    return () => {
-      if (unsubscribe && typeof unsubscribe === "function") {
-        unsubscribe();
-      }
-    };
+    return () => unsubscribe?.();
   }, []);
 
   return (
     <>
-      <Router>
+      {" "}
+      <BrowserRouter>
+        <ToastContainer />
         {/* {user && <LoaderPage />}{" "} */}
         <Routes>
           <Route
-            path="/login"
+            path="/admin/login"
             element={
               user ? (
-                <Navigate to="/user-data" />
+                <Navigate to="/admin/user-data" />
               ) : (
                 <LoginPage setUser={setUser} />
               )
             }
           />
           <Route
-            path="/user-data"
-            element={user ? <UserDataPage /> : <Navigate to="/login" />}
+            path="/admin"
+            element={
+              user ? (
+                <Navigate to="/admin/user-data" /> // If user is logged in, redirect to user data within admin
+              ) : (
+                <Navigate to="/login" /> // If not logged in, redirect to login page
+              )
+            }
+          />
+          <Route
+            path="/admin/user-data"
+            element={
+              user ? (
+                <UserDataPage /> // Only show UserDataPage if user is logged in
+              ) : (
+                <Navigate to="/admin/login" /> // If not logged in, redirect to login page
+              )
+            }
           />
 
           <Route
             path="/*"
-            element={
-              user ? <Navigate to="/user-data" /> : <Navigate to="/login" />
-            }
+            element={<Navigate to="/admin/login" />} // Redirect all undefined routes to /admin
           />
         </Routes>
-      </Router>
+      </BrowserRouter>
     </>
   );
 };

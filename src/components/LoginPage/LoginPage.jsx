@@ -43,13 +43,10 @@ const LoginPage = ({ setUser }) => {
 
         <button
           onClick={handleLogin}
-          className="btn w-1/3 bg-red-500 rounded mx-auto my-4 p-2 text-white"
+          className="btn w-1/3 bg-red-500 rounded mx-auto my-4 p-2 text-white uppercase"
         >
           Login
         </button>
-        <a href="#" className="font-sm">
-          reseteaza parola
-        </a>
       </div>
     </div>
   );
