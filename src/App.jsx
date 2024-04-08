@@ -35,7 +35,7 @@ const App = () => {
         <ToastContainer />
         <main className="flex-grow">
           <HeaderUser />
-          <section className="p-6 xl:max-w-5xl xl:mx-auto">
+          <section className="p-6 xl:max-w-6xl xl:mx-auto">
             {children}
           </section>
         </main>
@@ -60,6 +60,7 @@ const App = () => {
             path="/contractUsers"
             element={user ? <UserContract /> : <Navigate to="/login" />}
           />
+
         </Routes>
       </Layout>
 
