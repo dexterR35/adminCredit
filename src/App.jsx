@@ -1,72 +1,70 @@
+import React, { useEffect, useState } from 'react';
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
-} from "react-router-dom";
-import { useEffect, useState } from "react";
-import LoginPage from "./components/LoginPage/LoginPage";
-import UserDataPage from "./components/UserData/UserData";
-import { checkAuthStatus } from "./services/authService";
+} from 'react-router-dom';
+import HomePage from './components/HomePage';
+import LoginPage from './components/LoginPage/LoginPage';
+import UserDataPage from './components/UserData/CustomersPage';
+// import AboutUsPage from './components/AboutUsPage'; // Assuming you have an AboutUs component
+import AsideMenu from './components/AsideMenu';
 
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // This imports default styling
-// import LoaderPage from "./components/LoadingPage";
+import { checkAuthStatus } from './services/Hooks';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const [user, setUser] = useState(null);
 
+
   useEffect(() => {
-    // Check authentication status and update user state
     const unsubscribe = checkAuthStatus((authUser) => {
       setUser(authUser);
     });
 
-    // Return a cleanup function to unsubscribe when the component unmounts
     return () => unsubscribe?.();
   }, []);
 
+  // Layout component that includes the AsideMenu and a section for children components
+  const Layout = ({ children }) => {
+    return (
+      <div className="flex">
+        <AsideMenu />
+        <ToastContainer />
+        <main className="flex-grow">
+          {/* Section with specified class names for styling */}
+          <section className="p-6 xl:max-w-6xl xl:mx-auto">
+            {children}
+          </section>
+        </main>
+      </div>
+    );
+  };
+
   return (
     <Router>
-      <ToastContainer />
-      {/* {user && <LoaderPage />} */}
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            user ? (
-              <Navigate to="/user-data" />
-            ) : (
-              <LoginPage setUser={setUser} />
-            )
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            user ? (
-              <Navigate to="/user-data" /> // If user is logged in, redirect to user data within admin
-            ) : (
-              <Navigate to="/login" /> // Corrected Redirect to login page within admin
-            )
-          }
-        />
-        <Route
-          path="/user-data"
-          element={
-            user ? (
-              <UserDataPage /> // Only show UserDataPage if user is logged in
-            ) : (
-              <Navigate to="/login" /> // If not logged in, redirect to login page within admin
-            )
-          }
-        />
 
-        <Route
-          path="/*"
-          element={<Navigate to="/login" />} // Redirect all undefined routes to admin login
-        />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage user={user} />} />
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/" /> : <LoginPage setUser={setUser} />}
+          />
+          <Route
+            path="/user-data"
+            element={user ? <UserDataPage /> : <Navigate to="/login" />}
+          />
+          {/* <Route
+            path="/about"
+            element={user ? <AboutUsPage /> : <Navigate to="/login" />}
+          /> */}
+          {/* Add more routes as needed */}
+        </Routes>
+      </Layout>
+
     </Router>
   );
 };

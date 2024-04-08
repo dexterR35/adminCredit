@@ -1,18 +1,21 @@
-// src/services/authService.js
+
+import { useState, useEffect } from 'react';
+import { getFirestore, collection, getDocs, query, orderBy } from 'firebase/firestore';
 import {
   getAuth,
   signOut,
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
+
 import { toast } from "react-toastify";
 
-const auth = getAuth();
 
+const auth = getAuth();
 // Function to check if the user is already authenticated
+
 export const checkAuthStatus = (setUser) => {
   const authUserString = sessionStorage.getItem("authUser");
-
   if (authUserString) {
     // If user data is present in sessionStorage, parse and set the user
     const authUser = JSON.parse(authUserString);
@@ -34,7 +37,6 @@ export const checkAuthStatus = (setUser) => {
       console.error("Authentication status error:", error.message);
     }
   });
-
   // Return a cleanup function to unsubscribe when the component unmounts
   return () => unsubscribe();
 };
@@ -76,4 +78,71 @@ export const Logout = async () => {
     toast.error(`Logout error: ${error.message}`);
     throw error; // Re-throw the error to propagate it to the caller, if needed.
   }
+};
+
+export const FormatTimestamp = (timestampInMillis) => {
+  const timeStampString = new Date(timestampInMillis);
+  const formattedTimestamp = timeStampString
+    .toLocaleString("ro-RO", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+
+      hour12: true,
+    })
+    .replace("la", "/");
+  return formattedTimestamp;
+};
+
+
+export const FetchCustomersData = () => {
+  const [customerData, setCustomerData] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      const db = getFirestore();
+      setLoading(true);
+      try {
+        const qDesc = collection(db, "oc_data");
+        const orderedQuery = query(qDesc, orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(orderedQuery);
+        const data = querySnapshot.docs.map(doc => {
+          const { customer_status, customer_info, timestamp } = doc.data();
+          // Assuming mapNestedData is defined here or imported
+          const mapNestedData = (data) => {
+            if (Array.isArray(data)) {
+              return data.map(item => mapNestedData(item));
+            } else if (typeof data === 'object' && data !== null) {
+              return Object.keys(data).reduce((acc, key) => {
+                acc[key] = mapNestedData(data[key]);
+                return acc;
+              }, {});
+            } else {
+              return data;
+            }
+          };
+          const mappedCustomerInfo = mapNestedData(customer_info);
+
+          return {
+            id: doc.id,
+            customer_status,
+            customer_info: mappedCustomerInfo,
+            timestamp: timestamp.toDate(),
+          };
+        });
+        setCustomerData(data);
+      } catch (error) {
+        console.error('Error fetching data from Firestore:', error.message);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
+
+  return { customerData, isLoading, error };
 };

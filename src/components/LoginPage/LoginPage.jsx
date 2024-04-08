@@ -1,8 +1,7 @@
 // src/components/LoginPage/LoginPage.jsx
 import { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Login } from "../../services/authService";
+import { Login } from "../../services/Hooks";
 
 const LoginPage = ({ setUser }) => {
   const [email, setEmail] = useState("");
@@ -14,7 +13,6 @@ const LoginPage = ({ setUser }) => {
       const testEmail = email.trim();
       const testPassword = password.trim();
       const authUser = await Login(testEmail, testPassword);
-
       sessionStorage.setItem("authUser", JSON.stringify(authUser));
       setUser(authUser);
       navigate("/user-data");
