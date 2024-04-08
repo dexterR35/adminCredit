@@ -132,7 +132,7 @@ export const FetchCustomersData = () => {
         console.error('Error fetching data from Firestore:', error.message);
 
       } finally {
-
+        console.log("finish");
       }
     };
 
@@ -148,19 +148,23 @@ export const FetchContractData = () => {
 
   useEffect(() => {
     const fetchContracts = async () => {
-      const contractCollectionRef = collection(db, "contracts");
-      const contractSnapshot = await getDocs(contractCollectionRef);
-      const contractList = contractSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setContracts(contractList);
+      try {
+        const contractCollectionRef = collection(db, "contracts");
+        const contractSnapshot = await getDocs(contractCollectionRef);
+        const contractList = contractSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setContracts(contractList);
+        console.log("Contracts fetched successfully:", contractList);
+      } catch (error) {
+        console.error("Failed to fetch contracts:", error);
+      }
     };
-
     fetchContracts();
-  }, []);
 
-  return { contracts }
+  }, []); // Empty dependency array ensures this effect runs only once
+
+  return { contracts };
 };
-
 
