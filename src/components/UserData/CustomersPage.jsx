@@ -1,12 +1,12 @@
 
-import HeaderUser from "../HeaderUser";
+
 import { FetchCustomersData, FormatTimestamp } from "../../services/Hooks";
 
 const UserDataPage = () => {
   const { customerData } = FetchCustomersData();
   return (
     <>
-      <HeaderUser />
+
       <h2>Clienti ObtineCredit</h2>
       {/* <button onClick={fetchCustomers} className="btn-fetch-data">Fetch Data</button> */}
       <div className="container p-2 h-[60vh] overflow-scroll mx-auto">

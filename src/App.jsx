@@ -6,9 +6,9 @@ import {
   Navigate,
 } from 'react-router-dom';
 import HomePage from './components/HomePage';
+import HeaderUser from "./components/HeaderUser"
 import LoginPage from './components/LoginPage/LoginPage';
 import UserDataPage from './components/UserData/CustomersPage';
-// import AboutUsPage from './components/AboutUsPage'; // Assuming you have an AboutUs component
 import AsideMenu from './components/AsideMenu';
 
 import { checkAuthStatus } from './services/Hooks';
@@ -23,7 +23,6 @@ const App = () => {
     const unsubscribe = checkAuthStatus((authUser) => {
       setUser(authUser);
     });
-
     return () => unsubscribe?.();
   }, []);
 
@@ -34,8 +33,8 @@ const App = () => {
         <AsideMenu />
         <ToastContainer />
         <main className="flex-grow">
-          {/* Section with specified class names for styling */}
-          <section className="p-6 xl:max-w-6xl xl:mx-auto">
+          <HeaderUser />
+          <section className="p-6 xl:max-w-5xl xl:mx-auto">
             {children}
           </section>
         </main>
@@ -45,7 +44,6 @@ const App = () => {
 
   return (
     <Router>
-
       <Layout>
         <Routes>
           <Route path="/" element={<HomePage user={user} />} />
@@ -57,11 +55,6 @@ const App = () => {
             path="/user-data"
             element={user ? <UserDataPage /> : <Navigate to="/login" />}
           />
-          {/* <Route
-            path="/about"
-            element={user ? <AboutUsPage /> : <Navigate to="/login" />}
-          /> */}
-          {/* Add more routes as needed */}
         </Routes>
       </Layout>
 

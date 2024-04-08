@@ -11,9 +11,9 @@ function AsideMenu() {
     ];
 
     return (
-        <aside className='h-screen bg-green-300 max-w-[20%]'>
-            <nav>
-                <ul>
+        <aside className='h-screen bg-red-300 w-52'>
+            <nav className='h-[60%] mt-20 ml-6'>
+                <ul className='flex flex-col space-y-4 text-md font-bold capitalize'>
                     {links.map((link, index) => (
                         <li key={index}>
                             <Link to={link.path}>{link.label}</Link>
