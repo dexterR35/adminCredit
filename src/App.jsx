@@ -8,7 +8,8 @@ import {
 import HomePage from './components/HomePage';
 import HeaderUser from "./components/HeaderUser"
 import LoginPage from './components/LoginPage/LoginPage';
-import UserDataPage from './components/UserData/CustomersPage';
+import UserSite from './components/UserData/CustomersPage';
+import UserContract from './components/UserData/ContractPage';
 import AsideMenu from './components/AsideMenu';
 
 import { checkAuthStatus } from './services/Hooks';
@@ -52,8 +53,12 @@ const App = () => {
             element={user ? <Navigate to="/" /> : <LoginPage setUser={setUser} />}
           />
           <Route
-            path="/user-data"
-            element={user ? <UserDataPage /> : <Navigate to="/login" />}
+            path="/customers"
+            element={user ? <UserSite /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/contractUsers"
+            element={user ? <UserContract /> : <Navigate to="/login" />}
           />
         </Routes>
       </Layout>

@@ -5,8 +5,8 @@ function AsideMenu() {
 
     const links = [
         { path: "/", label: "Home" },
-        { path: "/user-data", label: "Clienti Site" },
-        { path: "/about", label: "Clienti Contract" },
+        { path: "/customers", label: "Clienti Site" },
+        { path: "/contractUsers", label: "Clienti Contract" },
         { path: "/services", label: "Clienti Deadline" },
     ];
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import AsideMenu from '../components/AsideMenu'
+
 const HomePage = () => {
     return (
 

@@ -7,7 +7,7 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
-
+import { db } from '../firebase/config'
 import { toast } from "react-toastify";
 
 
@@ -97,13 +97,8 @@ export const FormatTimestamp = (timestampInMillis) => {
 
 export const FetchCustomersData = () => {
   const [customerData, setCustomerData] = useState([]);
-  const [isLoading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchCustomers = async () => {
-      const db = getFirestore();
-      setLoading(true);
       try {
         const qDesc = collection(db, "oc_data");
         const orderedQuery = query(qDesc, orderBy("timestamp", "desc"));
@@ -135,14 +130,37 @@ export const FetchCustomersData = () => {
         setCustomerData(data);
       } catch (error) {
         console.error('Error fetching data from Firestore:', error.message);
-        setError(error);
+
       } finally {
-        setLoading(false);
+
       }
     };
 
     fetchCustomers();
   }, []);
 
-  return { customerData, isLoading, error };
+  return { customerData };
 };
+
+
+export const FetchContractData = () => {
+  const [contracts, setContracts] = useState([]);
+
+  useEffect(() => {
+    const fetchContracts = async () => {
+      const contractCollectionRef = collection(db, "contracts");
+      const contractSnapshot = await getDocs(contractCollectionRef);
+      const contractList = contractSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setContracts(contractList);
+    };
+
+    fetchContracts();
+  }, []);
+
+  return { contracts }
+};
+
+
