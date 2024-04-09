@@ -9,7 +9,7 @@ import HomePage from './components/HomePage';
 import HeaderUser from "./components/HeaderUser"
 import LoginPage from './components/LoginPage/LoginPage';
 import UserSite from './components/UserData/CustomersPage';
-import UserContract from './components/UserData/ContractPage';
+import ContractPage from './components/UserData/ContractPage';
 import AsideMenu from './components/AsideMenu';
 
 import { checkAuthStatus } from './services/Hooks';
@@ -35,7 +35,7 @@ const App = () => {
         <ToastContainer />
         <main className="flex-grow">
           <HeaderUser />
-          <section className="p-6 xl:max-w-6xl xl:mx-auto">
+          <section className="p-6 xl:max-w-6xl w-fit mx-auto">
             {children}
           </section>
         </main>
@@ -58,7 +58,7 @@ const App = () => {
           />
           <Route
             path="/contractUsers"
-            element={user ? <UserContract /> : <Navigate to="/login" />}
+            element={user ? <ContractPage /> : <Navigate to="/login" />}
           />
 
         </Routes>

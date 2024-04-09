@@ -7,7 +7,7 @@ import { FetchContractData } from '../../services/Hooks';
 Modal.setAppElement('#root'); // Set the root element for accessibility
 
 const ContractPage = () => {
-    const { contracts, fetchContracts } = FetchContractData();
+    const { contracts } = FetchContractData();
     const [selectedContract, setSelectedContract] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
@@ -38,11 +38,12 @@ const ContractPage = () => {
     };
 
     return (
-        <div>
-
+        <div className='mx-auto'>
+            <h2 className='text-start'>Contract Clienti</h2>
+            <div className='text-end mb-4'>filters, search</div>
             <div className='flex flex-wrap gap-x-4 mx-auto'>
                 {contracts.map((contract) => (
-                    <div key={contract.id} className="border border-gray-200 shadow-sm w-80 p-2 mb-4 rounded-md relative">
+                    <div key={contract.id} className="border border-gray-200 shadow-sm w-[16em] p-2 mb-4 rounded-md relative">
                         <p className='relative text-[10px] text-gray-500 mb-2'>ID / Contract / {contract.id}</p>
                         <div className='flex flex-row items-center justify-between mb-2'>
                             <div>
