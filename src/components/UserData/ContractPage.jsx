@@ -41,7 +41,7 @@ const ContractPage = () => {
         <div className='mx-auto'>
             <h2 className='text-start'>Contract Clienti</h2>
             <div className='text-end mb-4'>filters, search</div>
-            <div className='flex flex-wrap gap-x-4 mx-auto'>
+            <div className='grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6'>
                 {contracts.map((contract) => (
                     <div key={contract.id} className="border border-gray-200 shadow-sm w-[16em] p-2 mb-4 rounded-md relative">
                         <p className='relative text-[10px] text-gray-500 mb-2'>ID / Contract / {contract.id}</p>
