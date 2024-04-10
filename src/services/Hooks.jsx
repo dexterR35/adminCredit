@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getFirestore, collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import {
   getAuth,
   signOut,
@@ -97,51 +97,24 @@ export const FormatTimestamp = (timestampInMillis) => {
 
 export const FetchCustomersData = () => {
   const [customerData, setCustomerData] = useState([]);
+
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const qDesc = collection(db, "oc_data");
-        const orderedQuery = query(qDesc, orderBy("timestamp", "desc"));
-        const querySnapshot = await getDocs(orderedQuery);
-        const data = querySnapshot.docs.map(doc => {
-          const { customer_status, customer_info, timestamp } = doc.data();
-          // Assuming mapNestedData is defined here or imported
-          const mapNestedData = (data) => {
-            if (Array.isArray(data)) {
-              return data.map(item => mapNestedData(item));
-            } else if (typeof data === 'object' && data !== null) {
-              return Object.keys(data).reduce((acc, key) => {
-                acc[key] = mapNestedData(data[key]);
-                return acc;
-              }, {});
-            } else {
-              return data;
-            }
-          };
-          const mappedCustomerInfo = mapNestedData(customer_info);
+    const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
 
-          return {
-            id: doc.id,
-            customer_status,
-            customer_info: mappedCustomerInfo,
-            timestamp: timestamp.toDate(),
-          };
-        });
-        setCustomerData(data);
-      } catch (error) {
-        console.error('Error fetching data from Firestore:', error.message);
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const data = querySnapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id,
+        timestamp: doc.data().timestamp?.toDate().toString(),
+      }));
+      setCustomerData(data);
+    });
 
-      } finally {
-        console.log("finish");
-      }
-    };
-
-    fetchCustomers();
+    return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
   return { customerData };
 };
-
 
 export const FetchContractData = () => {
   const [contracts, setContracts] = useState([]);
@@ -168,3 +141,17 @@ export const FetchContractData = () => {
   return { contracts };
 };
 
+// Example Firestore operations (adjust as necessary for your project)
+export async function createCustomer(customer) {
+  await addDoc(collection(db, "customers"), customer);
+}
+
+export async function updateCustomer(id, customer) {
+  const customerRef = doc(db, "customers", id);
+  await updateDoc(customerRef, customer);
+}
+
+export async function deleteCustomer(id) {
+  const customerRef = doc(db, "customers", id);
+  await deleteDoc(customerRef);
+}
