@@ -94,7 +94,6 @@ export const FormatTimestamp = (timestampInMillis) => {
   return formattedTimestamp;
 };
 
-
 export const FetchCustomersData = () => {
   const [customerData, setCustomerData] = useState([]);
 
@@ -107,7 +106,30 @@ export const FetchCustomersData = () => {
         id: doc.id,
         timestamp: doc.data().timestamp?.toDate().toString(),
       }));
-      setCustomerData(data);
+
+      // Restructuring the data before setting the state
+      const formattedData = data.map(customer => ({
+        id: customer.id,
+        name: customer.customer_info.formData.name,
+        phone: customer.customer_info.formData.phone,
+        ifn: Array.isArray(customer.customer_info.banking_info.ifn) && customer.customer_info.banking_info.ifn.length > 0
+          ? customer.customer_info.banking_info.ifn.map(item => <div key={item}>{item}</div>)
+          : <div>OK</div>,
+        others: Array.isArray(customer.customer_info.banking_info.others) && customer.customer_info.banking_info.others.length > 0
+          ? customer.customer_info.banking_info.others.map(item => <div key={item}>{item}</div>)
+          : <div>OK</div>,
+        bankHistory: customer.customer_info.banking_info.bankHistory === false
+          ? <div className="bg-green-300 w-full h-full">Nu are Istoric</div>
+          : <div className="bg-red-300 w-full h-full">Are Istoric</div>,
+        selectedDate: customer.customer_info.formData.selectedDate
+          ? customer.customer_info.formData.selectedDate
+          : "Nu are",
+        aboutUs: customer.customer_info.formData.aboutUs,
+        timestamp: FormatTimestamp(customer.timestamp),
+        email: customer.customer_info.formData.email
+      }));
+
+      setCustomerData(formattedData);
     });
 
     return () => unsubscribe(); // Cleanup subscription on unmount
@@ -115,6 +137,7 @@ export const FetchCustomersData = () => {
 
   return { customerData };
 };
+
 
 export const FetchContractData = () => {
   const [contracts, setContracts] = useState([]);

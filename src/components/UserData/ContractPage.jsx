@@ -41,18 +41,20 @@ const ContractPage = () => {
         <div className='mx-auto'>
             <h2 className='text-start'>Contract Clienti</h2>
             <div className='text-end mb-4'>filters, search</div>
-            <div className='grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6'>
+            <div className='grid grid-cols-1 gap-6 lg:grid-cols-4 mb-6'>
                 {contracts.map((contract) => (
                     <div key={contract.id} className="border border-gray-200 shadow-sm w-[16em] p-2 mb-4 rounded-md relative">
                         <p className='relative text-[10px] text-gray-500 mb-2'>ID / Contract / {contract.id}</p>
                         <div className='flex flex-row items-center justify-between mb-2'>
                             <div>
                                 <p className='font-bold text-lg capitalize'>{contract.firstName} {contract.lastName}</p>
-                                <p className='text-gray-500 text-[12px]'>Data:{contract.phone}</p>
+                                <p className='text-gray-500 text-[12px]'>Tel:{contract.phone}</p>
+
+                                <p className='text-gray-500 text-[12px]'>Data:22.04.2024</p>
                             </div>
                             <div className='cursor-pointer flex flex-col justify-center self-end'>
                                 <button className="p-2 mx-auto font-normal text-sm underline text-blue-700" onClick={() => handleViewContract(contract)}>detalii</button>
-                                <p className='bg-green-400 p-1 rounded-full w-[12px] h-[12px] absolute right-2 top-2'></p>
+                                <p className='bg-green-500 p-1 rounded-full w-[12px] h-[12px] absolute right-2 top-2'></p>
                             </div>
                         </div>
                     </div>
