@@ -35,7 +35,7 @@ const App = () => {
         <ToastContainer />
         <main className="flex-grow">
           <HeaderUser />
-          <section className="p-6 xl:max-w-6xl w-fit mx-auto">
+          <section className="p-6 xl:max-w-6xl w-full mx-auto">
             {children}
           </section>
         </main>

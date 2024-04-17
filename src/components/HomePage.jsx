@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { FetchCustomersData } from '../services/Hooks'; // Assuming these functions exist
-import CardSmall from './_cardData/_cardSmall'
+import { FetchCustomersData } from '../services/Hooks';
+import CardSmall from './utils/_CardSmall';
+
 const HomePage = ({ user }) => {
-    const { customerData } = FetchCustomersData();
-    const [employeeData, setEmployeeData] = useState([]);
+    const { customerData } = FetchCustomersData();  // Fetches and subscribes to customer data
     const [stats, setStats] = useState({
         newCustomers: 0,
         customersInDeadline: 0,
@@ -15,55 +15,86 @@ const HomePage = ({ user }) => {
 
     const userName = user ? user.email.split("@")[0].toUpperCase() : "GUEST";
 
+    // Update stats based on customerData changes
     useEffect(() => {
-        const fetchEmployees = async () => {
-            const dataFetch = await FetchCustomersData(); // Assume this returns data
-            if (JSON.stringify(dataFetch) !== JSON.stringify(employeeData)) {
-                setEmployeeData(dataFetch);
-                setStats(prev => ({ ...prev, totalEmployees: dataFetch.length }));
-            }
-        };
-
-        fetchEmployees();
-    }, []);
-
-    useEffect(() => {
-        if (customerData.length > 0) {
-            setStats(prev => ({
-                ...prev,
-                totalCustomers: customerData.length,
-                newCustomers: customerData.filter(c => c.status === 'new').length,
-                // customersInDeadline: customerData.filter(c => c.deadlineApproaching).length,
-                // resolvedCustomers: customerData.filter(c => c.status === 'resolved').length,
-                // unresolvedCustomers: customerData.filter(c => c.status !== 'resolved').length,
-            }));
-        }
+        setStats(prev => ({
+            ...prev,
+            totalCustomers: customerData.length,
+            newCustomers: customerData.filter(c => c.status === 'new').length,
+            // You can add more stats calculations here
+        }));
         console.log(customerData, "Customer data log");
     }, [customerData]);
-    return (
-        <div className='w-full'>
-            <h1 className='font-bold'>Bine ai venit, {userName}</h1>
-            <p>Ai Clienti noi (nr): {stats.newCustomers}</p>
-            <div className='flex flex-row max-w-[20em]'>
 
-                <CardSmall
-                    _one="Clienti Site"
-                    _two={stats.totalCustomers}
-                    _three=""
-                />
-                <CardSmall
-                    _one="John Doe"
-                    _two="123-456-7890"
-                    _three=""
-                />
-            </div>
-            <p>Ai Clienti in Deadline (nr): {stats.customersInDeadline}</p>
-            <p>Total clienti (numar): {stats.totalCustomers}</p>
-            <p>Total clienti (rezolvati): {stats.resolvedCustomers}</p>
-            <p>Total clienti (nerezolvati): {stats.unresolvedCustomers}</p>
-            <p>Total angajati (nr): {stats.totalEmployees}</p>
-            <button>creeaza user (pt angajat)</button>
-        </div>
+    return (
+        <>
+            <h1 className='font-bold w-full text-start text-2xl uppercase'>Welcome {userName}</h1>
+            <span className='text-sm text-gray-600 mr-2'>Astazi este: 20.12.2025</span>
+            <span className='text-sm text-gray-600 mr-2'>ora: 12:20 AM</span>
+            <div className='w-full'>
+                <hr />
+                <h3 className='text-start mb-2'>Clienti</h3>
+                <div className='flex flex-row space-x-3 '>
+                    <CardSmall
+                        _one="Clienti Noi"
+                        _two="1"
+                        _three="Astazi"
+                        icon="alarmClock"
+                        className="bg-green-200"
+                    />
+                    <CardSmall
+                        _one="Clienti Site"
+                        _two={stats.totalCustomers}
+                        _three="24.04.2005"
+                        icon="businessMan"
+
+                    />
+                    <CardSmall
+                        _one="Contracte "
+                        _two={stats.totalCustomers / 2.5}
+                        _three="total"
+                        icon="cards"
+                    />
+                </div>
+                <br />
+                <hr />
+                <h3 className='text-start mb-2'>Info Deadline</h3>
+                <div className='flex flex-row space-x-3'>
+                    <CardSmall
+                        _one="Active"
+                        _two={stats.totalCustomers}
+                        _three="Details"
+                        icon="FcAbout"
+                        className="bg-blue-200"
+                    />
+                    <CardSmall
+                        _one="In Asteptare"
+                        _two={stats.totalCustomers - 20}
+                        _three="Nume Client"
+                        icon="hightPriority"
+                        className="bg-yellow-200"
+                    />
+
+                    <CardSmall
+                        _one="Finalizate"
+                        _two={stats.totalCustomers / 2.5}
+                        _three="Nr.Doc"
+                        icon="FcOk"
+                        className="bg-green-200"
+                    />
+                    <CardSmall
+                        _one="Nerezolvate"
+                        _two={stats.totalCustomers - 60}
+                        _three="Details"
+                        icon="FcBearish"
+                        className="bg-red-200"
+                    />
+                </div>
+                <br />
+                <hr />
+
+            </div >
+        </>
     );
 }
 

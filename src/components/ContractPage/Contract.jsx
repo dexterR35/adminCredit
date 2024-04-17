@@ -7,7 +7,6 @@ const Contract = () => {
         options: { /* opțiuni suplimentare, cum ar fi filtre sau sortare */ }
     });
 
-
     return (
         <div>
 

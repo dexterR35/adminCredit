@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FcHome, FcBusinessContact, FcCollaboration, FcDebt } from "react-icons/fc";
+import IconR from "../components/utils/_Icon"
+
+// import { FcHome, FcBusinessContact, FcCollaboration, FcDebt } from "react-icons/fc";
 function AsideMenu() {
 
     const links = [
-        { path: "/", label: "Home", icon: <FcHome size={22} /> },
-        { path: "/customers", label: "Clienti Site", icon: <FcBusinessContact size={22} /> },
-        { path: "/contractUsers", label: "Clienti Contract", icon: <FcCollaboration size={22} /> },
-        { path: "/services", label: "Clienti Deadline", icon: <FcDebt size={22} /> },
-        { path: "/test", label: "Clienti test", icon: <FcDebt size={22} /> },
+        { path: "/", label: "Home", icon: <IconR icon="FcHome" size={22} /> },
+        { path: "/customers", label: "Clienti Site", icon: <IconR icon="businessMan" size={22} /> },
+        { path: "/contractUsers", label: "Clienti Contract", icon: <IconR icon="FcReading" size={22} /> },
+        { path: "/services", label: "Clienti Deadline", icon: <IconR icon="FcOvertime" size={22} /> },
+        { path: "/createuser", label: "Create User", icon: <IconR icon="businessContact" size={22} /> },
     ];
 
     return (
