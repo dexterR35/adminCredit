@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FetchCustomersData } from '../services/Hooks'; // Assuming these functions exist
-
+import CardSmall from './_cardData/_cardSmall'
 const HomePage = ({ user }) => {
     const { customerData } = FetchCustomersData();
     const [employeeData, setEmployeeData] = useState([]);
@@ -41,9 +41,22 @@ const HomePage = ({ user }) => {
         console.log(customerData, "Customer data log");
     }, [customerData]);
     return (
-        <div>
+        <div className='w-full'>
             <h1 className='font-bold'>Bine ai venit, {userName}</h1>
             <p>Ai Clienti noi (nr): {stats.newCustomers}</p>
+            <div className='flex flex-row max-w-[20em]'>
+
+                <CardSmall
+                    _one="Clienti Site"
+                    _two={stats.totalCustomers}
+                    _three=""
+                />
+                <CardSmall
+                    _one="John Doe"
+                    _two="123-456-7890"
+                    _three=""
+                />
+            </div>
             <p>Ai Clienti in Deadline (nr): {stats.customersInDeadline}</p>
             <p>Total clienti (numar): {stats.totalCustomers}</p>
             <p>Total clienti (rezolvati): {stats.resolvedCustomers}</p>
