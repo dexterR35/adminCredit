@@ -9,8 +9,8 @@
   thead tr th {
     padding: 1em 0;
     font-size: 0.9em;
-    border: 1px solid #585858;
-    width: 10%;
+    border: 1px solid #bdbdbd;
+    width: 100%;
   }
   thead tr {
     background: rgb(3, 21, 32);
@@ -19,7 +19,7 @@
   }
   tbody tr {
     cursor: pointer;
-    height: 5em;
+    /* height: 5em; */
   }
   tbody tr:hover {
     background: rgb(134 239 172);
@@ -28,18 +28,12 @@
   }
 
   tbody tr td {
-    /* Your custom styles for all <td> elements in the <tbody> */
-    /* Example: */
     padding: 1em 0.5em;
-    border: 1px solid #585858;
+    border: 1px solid #bdbdbd;
     font-size: 0.9em;
-    font-weight: 500;
+
   }
-  tbody tr td div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+
   h2 {
     text-align: center;
     color: #1d1d1d;

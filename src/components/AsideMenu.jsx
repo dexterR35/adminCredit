@@ -8,6 +8,7 @@ function AsideMenu() {
         { path: "/customers", label: "Clienti Site", icon: <FcBusinessContact size={22} /> },
         { path: "/contractUsers", label: "Clienti Contract", icon: <FcCollaboration size={22} /> },
         { path: "/services", label: "Clienti Deadline", icon: <FcDebt size={22} /> },
+        { path: "/test", label: "Clienti test", icon: <FcDebt size={22} /> },
     ];
 
     return (

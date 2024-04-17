@@ -66,6 +66,7 @@ export const Login = async (email, password) => {
   }
 };
 
+
 export const Logout = async () => {
   try {
     // Sign out the user
