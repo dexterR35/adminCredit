@@ -6,16 +6,16 @@ import IconR from "../components/utils/_Icon"
 function AsideMenu() {
 
     const links = [
-        { path: "/", label: "Home", icon: <IconR icon="FcHome" size={22} /> },
-        { path: "/customers", label: "Clienti Site", icon: <IconR icon="businessMan" size={22} /> },
-        { path: "/contractUsers", label: "Clienti Contract", icon: <IconR icon="FcReading" size={22} /> },
-        { path: "/services", label: "Clienti Deadline", icon: <IconR icon="FcOvertime" size={22} /> },
-        { path: "/createuser", label: "Create User", icon: <IconR icon="businessContact" size={22} /> },
+        { path: "/admin/home", label: "Home", icon: <IconR icon="FcHome" size={22} /> },
+        { path: "/admin/customers", label: "Clienti Site", icon: <IconR icon="businessMan" size={22} /> },
+        { path: "/admin/contractUsers", label: "Clienti Contract", icon: <IconR icon="FcReading" size={22} /> },
+        { path: "/admin/services", label: "Clienti Deadline", icon: <IconR icon="FcOvertime" size={22} /> },
+        { path: "/admin/createuser", label: "Create User", icon: <IconR icon="businessContact" size={22} /> },
     ];
 
     return (
-        <aside className='h-screen bg-white shadow-lg w-52 flex flex-col items-center justify-start mt-10'>
-            <h3>Logo img</h3>
+        <aside className='h-fit bg-white w-[17em] block p-2 px-4'>
+            <h3 className='text-center'>Logo img</h3>
             <nav className='h-[60%] mt-10'>
                 <ul className='flex flex-col space-y-4 text-md font-bold capitalize'>
                     {links.map((link, index) => (

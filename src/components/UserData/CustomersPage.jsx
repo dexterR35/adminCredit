@@ -6,6 +6,7 @@ import { CompactTable } from '@table-library/react-table-library/compact';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { getTheme } from '@table-library/react-table-library/baseline';
 import { usePagination } from '@table-library/react-table-library/pagination';
+import SearchInput from '../utils/_Search';
 
 const UserDataPage = () => {
   const { customerData } = FetchCustomersData();
@@ -42,7 +43,12 @@ const UserDataPage = () => {
   const ROW_PROPS = {
     onClick: handleExpand,
   };
-
+  const searchProducts = async (searchTerm) => {
+    // Filtrarea locală sau interogarea unui API
+    return products.filter(product =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
   const ROW_OPTIONS = {
     renderAfterRow: (item) => (
       ids.includes(item.id) && (
@@ -68,7 +74,10 @@ const UserDataPage = () => {
 
   return (
     <>
-      <h2 className="text-xl font-semibold">Clienti ObtineCredit</h2>
+      <h2 className='text-start'>Clients Site</h2>
+      <div>
+        <SearchInput onSearch={searchProducts} />
+      </div>
       <div className="container p-2 w-full overflow-auto">
         <CompactTable
           columns={COLUMNS}

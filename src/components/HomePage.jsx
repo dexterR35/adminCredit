@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FetchCustomersData } from '../services/Hooks';
 import CardSmall from './utils/_CardSmall';
-
+import CustomModal from './ModalPage';
 const HomePage = ({ user }) => {
     const { customerData } = FetchCustomersData();  // Fetches and subscribes to customer data
     const [stats, setStats] = useState({
@@ -12,7 +12,8 @@ const HomePage = ({ user }) => {
         unresolvedCustomers: 0,
         totalEmployees: 0,
     });
-
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState({});
     const userName = user ? user.email.split("@")[0].toUpperCase() : "GUEST";
 
     // Update stats based on customerData changes
@@ -25,12 +26,19 @@ const HomePage = ({ user }) => {
         }));
         console.log(customerData, "Customer data log");
     }, [customerData]);
+    const handleDetailsClick = (data) => {
+        setModalData(data);
+        setModalOpen(true);
+    };
 
     return (
         <>
-            <h1 className='font-bold w-full text-start text-2xl uppercase'>Welcome {userName}</h1>
-            <span className='text-sm text-gray-600 mr-2'>Astazi este: 20.12.2025</span>
-            <span className='text-sm text-gray-600 mr-2'>ora: 12:20 AM</span>
+            <div >
+                <h1 className='font-bold w-full text-start text-2xl uppercase'>Welcome {userName}</h1>
+                <span className='text-sm text-gray-600 mr-2'>Astazi este: 20.12.2025</span>
+                <span className='text-sm text-gray-600 mr-2'>ora: 12:20 AM</span>
+                <span className='text-sm text-gray-600 mr-2'>+25grade</span>
+            </div>
             <div className='w-full'>
                 <hr />
                 <h3 className='text-start mb-2'>Clienti</h3>
@@ -66,6 +74,7 @@ const HomePage = ({ user }) => {
                         _three="Details"
                         icon="FcAbout"
                         className="bg-blue-200"
+                        onDetailsClick={() => handleDetailsClick({ id: stats.totalCustomers, firstName: "John", lastName: "Doe" })}
                     />
                     <CardSmall
                         _one="In Asteptare"
@@ -94,6 +103,12 @@ const HomePage = ({ user }) => {
                 <hr />
 
             </div >
+            <CustomModal
+                isOpen={isModalOpen}
+                onRequestClose={() => setModalOpen(false)}
+                contentLabel="Customer Details"
+                data={modalData}
+            />
         </>
     );
 }

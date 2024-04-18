@@ -1,6 +1,6 @@
 import IconR from "./_Icon"
 
-const CardSmall = ({ _one, _two, _three, icon, className }) => {
+const CardSmall = ({ _one, _two, _three, icon, className, onDetailsClick }) => {
     const backgroundClass = className || 'bg-gray-100';
     const detailsPath = "/details/path";
     return (
@@ -12,7 +12,7 @@ const CardSmall = ({ _one, _two, _three, icon, className }) => {
                 </div>
                 <p className="text-gray-800 text-4xl font-bold">{_two}</p>
                 {_three === "Details"
-                    ? <a href={detailsPath} className="text-blue-500 text-sm text-end float-right">{_three}</a>
+                    ? <button onClick={onDetailsClick} className="text-blue-500 text-sm text-end float-right">{_three}</button>
                     : <p className="text-gray-600 text-sm text-end">{_three}</p>
                 }
             </div>

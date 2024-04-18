@@ -1,4 +1,20 @@
 @tailwind base;
+/* width */
+
+::-webkit-scrollbar {
+  width: 0.4em;
+  height: auto
+}
+::-webkit-scrollbar-button {
+  background: #eee;
+}
+::-webkit-scrollbar-track-piece {
+  background: #eee;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+
 @tailwind components;
 @tailwind utilities;
 

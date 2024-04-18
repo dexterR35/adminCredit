@@ -1,7 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./firebase/config.jsx";
+import { BrowserRouter as Router } from "react-router-dom";
+import "./firebase/config.jsx"; // assuming this sets up Firebase
 import App from "./App.jsx";
 import "./index.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+// Get the root element from the HTML document
+const rootElement = document.getElementById("root");
+// Create a root.
+const root = ReactDOM.createRoot(rootElement);
+
+// Render the App component wrapped in BrowserRouter.
+root.render(
+    <React.StrictMode>
+        <Router>
+            <App />
+        </Router>
+    </React.StrictMode>
+);

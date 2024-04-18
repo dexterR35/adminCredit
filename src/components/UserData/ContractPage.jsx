@@ -1,7 +1,9 @@
+// ContractPage.js
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import CustomModal from "../ModalPage"
+import CustomModal from "../ModalPage";
+import SearchInput from "../utils/_Search"
 import { FetchContractData } from '../../services/Hooks';
 
 Modal.setAppElement('#root'); // Set the root element for accessibility
@@ -17,7 +19,12 @@ const ContractPage = () => {
         const queryParams = new URLSearchParams(location.search);
         return queryParams.get(param);
     };
-
+    const searchProducts = async (searchTerm) => {
+        // Filtrarea locală sau interogarea unui API
+        return products.filter(product =>
+            product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }
     useEffect(() => {
         const contractId = getQueryParam('id');
         if (contractId) {
@@ -38,19 +45,18 @@ const ContractPage = () => {
     };
 
     return (
-        <div className='mx-auto'>
+        <div className='mx-auto block'>
             <h2 className='text-start'>Contract Clienti</h2>
-            <div className='text-end mb-4'>filters, search</div>
-            <div className='grid grid-cols-1 gap-6 lg:grid-cols-4 mb-6'>
+            <SearchInput onSearch={searchProducts} />
+            <div className='flex flex-row flex-wrap gap-6 mb-6 max-h-[600px] overflow-y-scroll'>
                 {contracts.map((contract) => (
-                    <div key={contract.id} className="border border-gray-200 shadow-sm w-[16em] p-2 mb-4 rounded-md relative">
-                        <p className='relative text-[10px] text-gray-500 mb-2'>ID / Contract / {contract.id}</p>
+                    <div key={contract.id} className="border border-gray-200 shadow-sm w-[17em] mx-auto p-2 mb-4 rounded-md relative">
+                        <p className='relative text-[10px] text-gray-700 mb-2'>ID / Contract / {contract.id}</p>
                         <div className='flex flex-row items-center justify-between mb-2'>
                             <div>
-                                <p className='font-bold text-lg capitalize'>{contract.firstName} {contract.lastName}</p>
-                                <p className='text-gray-500 text-[12px]'>Tel:{contract.phone}</p>
-
-                                <p className='text-gray-500 text-[12px]'>Data:22.04.2024</p>
+                                <p className='font-bold text-md capitalize'>{contract.firstName} {contract.lastName}</p>
+                                <p className='text-gray-700 text-[12px]'>Tel:{contract.phone}</p>
+                                <p className='text-gray-700 text-[12px]'>Data:22.04.2024</p>
                             </div>
                             <div className='cursor-pointer flex flex-col justify-center self-end'>
                                 <button className="p-2 mx-auto font-normal text-sm underline text-blue-700" onClick={() => handleViewContract(contract)}>detalii</button>
@@ -59,15 +65,13 @@ const ContractPage = () => {
                         </div>
                     </div>
                 ))}
-
             </div>
             <CustomModal
                 isOpen={selectedContract !== null}
                 onRequestClose={closeModal}
-                contentLabel="Contract Details"
+                id="contractDetails"
                 data={selectedContract}
-            >
-            </CustomModal>
+            />
         </div>
     );
 };

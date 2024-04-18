@@ -15,7 +15,7 @@ const LoginPage = ({ setUser }) => {
       const authUser = await Login(testEmail, testPassword);
       sessionStorage.setItem("authUser", JSON.stringify(authUser));
       setUser(authUser);
-      navigate("/");
+      navigate("/admin/home");
     } catch (error) {
       console.error("Login error:", error.message);
     }
