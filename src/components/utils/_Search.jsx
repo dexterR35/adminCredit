@@ -16,15 +16,18 @@ function SearchInput({ onSearch, placeholder = "Caută..." }) {
     }, [searchTerm, filter1, filter2, filter3, onSearch]);
 
     return (
-        <div className="relative flex flex-row-reverse my-4 justify-between mx-2">
-            <input
-                type="text"
-                className="w-80 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                placeholder={placeholder}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <div className="flex space-x-2 p-2 w-[50%]">
+        <div className="relative flex flex-row-reverse my-4 justify-between mx-0">
+            <div className='flex flex-1 items-center justify-end'>
+                <input
+                    type="text"
+                    className="w-[80%] max-w-[80%] self-end p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+                    placeholder={placeholder}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+
+            <div className="flex-1 space-x-2">
                 <label className="inline-flex items-center">
                     <input
                         type="checkbox"

@@ -2,7 +2,6 @@ import IconR from "./_Icon"
 
 const CardSmall = ({ _one, _two, _three, icon, className, onDetailsClick }) => {
     const backgroundClass = className || 'bg-gray-100';
-    const detailsPath = "/details/path";
     return (
         <div className={`${backgroundClass} rounded-lg p-4 w-52 shadow-md`}>
             <div>
@@ -16,7 +15,6 @@ const CardSmall = ({ _one, _two, _three, icon, className, onDetailsClick }) => {
                     : <p className="text-gray-600 text-sm text-end">{_three}</p>
                 }
             </div>
-
         </div>
     );
 };

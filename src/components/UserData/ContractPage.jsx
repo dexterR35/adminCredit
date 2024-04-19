@@ -45,12 +45,13 @@ const ContractPage = () => {
     };
 
     return (
-        <div className='mx-auto block'>
-            <h2 className='text-start'>Contract Clienti</h2>
+        <div className=' mx-auto'>
+            <h2 className='text-start mb-4'>Contract Clienti</h2>
+
             <SearchInput onSearch={searchProducts} />
-            <div className='flex flex-row flex-wrap gap-6 mb-6 max-h-[600px] overflow-y-scroll'>
+            <div className='grid grid-cols-3 2xl:grid-cols-4 xl:grid-cols-3 gap-4 w-full'>
                 {contracts.map((contract) => (
-                    <div key={contract.id} className="border border-gray-200 shadow-sm w-[17em] mx-auto p-2 mb-4 rounded-md relative">
+                    <div key={contract.id} className="border border-gray-100 shadow-md w-full bg-gray-50 mx-auto p-2 mb-4 rounded-md relative">
                         <p className='relative text-[10px] text-gray-700 mb-2'>ID / Contract / {contract.id}</p>
                         <div className='flex flex-row items-center justify-between mb-2'>
                             <div>

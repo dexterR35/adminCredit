@@ -9,6 +9,7 @@ import HeaderUser from "./components/HeaderUser";
 import UserSite from './components/UserData/CustomersPage';
 import ContractPage from './components/UserData/ContractPage';
 import AsideMenu from './components/AsideMenu';
+import AsideContent from './components/AsideContent';
 import LoginPage from './components/LoginPage/LoginPage';
 import { checkAuthStatus } from './services/Hooks';
 import { ToastContainer } from 'react-toastify';
@@ -27,26 +28,32 @@ const App = () => {
   }, []);
 
   const Layout = ({ children }) => (
-    <div className="flex h-[90%]">
-      <AsideMenu />
-      <main className="flex-grow">
+    <>
+      <div className='grid grid-col-3'>
         <HeaderUser />
-        {children}
-      </main>
-      <AsideMenu />
-    </div>
+        <div className="grid grid-cols-custom">
+          <AsideMenu />
+          <main className="mt-10 p-4">
+            {children}
+          </main>
+          <AsideContent />
+        </div>
+        {/* <HeaderUser /> */}
+      </div>
+    </>
   );
 
   const ProtectedRoute = ({ children }) => {
     if (loading) {
       return <div>Loading...</div>;
     }
-    return user ? <Layout>{children}</Layout> : <Navigate to="/admin" replace />;
+    return user ? <Layout>{children}</Layout> : <Navigate to="/admin/login" replace />;
   };
 
   return (
     <Routes>
-      <Route path="/admin" element={user ? <Navigate to="/admin/home" replace /> : <LoginPage setUser={setUser} />} />
+      <Route path="/" element={user ? <Navigate to="/admin/home" replace /> : <Navigate to="/admin/login" replace />} />
+      <Route path="/admin/login" element={<LoginPage setUser={setUser} />} />
       <Route path="/admin/*" element={<ProtectedRoute>
         <Routes>
           <Route path="home" element={<HomePage user={user} />} />
