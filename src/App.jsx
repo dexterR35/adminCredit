@@ -10,6 +10,7 @@ import UserSite from './components/UserData/CustomersPage';
 import ContractPage from './components/UserData/ContractPage';
 import AsideMenu from './components/AsideMenu';
 import AsideContent from './components/AsideContent';
+import FormUser from './components/DeadlinePage/DeadlinePage'
 import LoginPage from './components/LoginPage/LoginPage';
 import { checkAuthStatus } from './services/Hooks';
 import { ToastContainer } from 'react-toastify';
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="home" element={<HomePage user={user} />} />
           <Route path="customers" element={<UserSite />} />
           <Route path="contractUsers" element={<ContractPage />} />
+          <Route path="services" element={<FormUser />} />
           <Route path="*" element={<Navigate to="/admin/home" replace />} />
         </Routes>
       </ProtectedRoute>} />

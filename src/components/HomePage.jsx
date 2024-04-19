@@ -3,6 +3,7 @@ import { FetchCustomersData } from '../services/Hooks';
 import CardSmall from './utils/_CardSmall';
 import CustomModal from './ModalPage';
 const HomePage = ({ user }) => {
+
     const { customerData } = FetchCustomersData();  // Fetches and subscribes to customer data
     const [stats, setStats] = useState({
         newCustomers: 0,
@@ -58,7 +59,7 @@ const HomePage = ({ user }) => {
 
                     />
                     <CardSmall
-                        _one="Contracte "
+                        _one="Contracte"
                         _two={stats.totalCustomers / 2.5}
                         _three="total"
                         icon="cards"

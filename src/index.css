@@ -16,6 +16,11 @@
 }
 
 @tailwind components;
+
+
+
+
+
 @tailwind utilities;
 
 @layer components {
@@ -75,4 +80,22 @@
     text-transform: capitalize;
     font-weight: bold;
   }
+}
+
+
+/* FormStyles.css */
+.form-group label {
+  @apply text-gray-700 font-semibold;
+}
+
+.form-group input, .form-group textarea {
+  @apply mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm;
+}
+
+.form-button {
+  @apply w-full px-4 py-2 text-white bg-green-500 rounded hover:bg-green-700 focus:outline-none focus:bg-green-600;
+}
+
+.form-layout {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-white shadow-lg rounded-lg;
 }
