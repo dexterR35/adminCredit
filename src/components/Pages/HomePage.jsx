@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { FetchCustomersData } from '../services/Hooks';
-import CardSmall from './utils/_CardSmall';
+import { FetchCustomersData } from '../../services/Hooks';
+import CardSmall from '../utils/_CardSmall';
 import CustomModal from './ModalPage';
 const HomePage = ({ user }) => {
 

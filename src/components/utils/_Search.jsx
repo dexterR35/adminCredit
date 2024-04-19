@@ -1,11 +1,49 @@
 import React, { useState, useEffect } from 'react';
 
+// Modal component
+function Modal({ isOpen, onClose, data }) {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto">
+            <div className="relative w-auto max-w-3xl mx-auto my-6 z-50 ">
+                <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg">
+                    <div className="flex items-start justify-between p-5 border-b border-solid rounded-t border-blueGray-200">
+                        <h3 className="text-3xl font-semibold">Detalii</h3>
+                        <button
+                            className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold"
+                            onClick={onClose}
+                        >
+                            ×
+                        </button>
+                    </div>
+                    <div className="relative p-6 flex-auto">
+                        <p className="my-4 text-blueGray-500 text-lg leading-relaxed">
+                            Nume: {data.firstName} {data.lastName}
+                        </p>
+                        <p className="my-4 text-blueGray-500 text-lg leading-relaxed">
+                            Telefon: {data.phone}
+                        </p>
+                        {/* Aici poți adăuga și alte detalii */}
+                    </div>
+                </div>
+            </div>
+            <div
+                className="fixed inset-0 z-120 bg-black opacity-50 cursor-pointer"
+                onClick={onClose}
+            ></div>
+        </div>
+    );
+}
+
 function SearchInput({ onSearch, placeholder = "Caută..." }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState([]);
     const [filter1, setFilter1] = useState(false);
     const [filter2, setFilter2] = useState(false);
     const [filter3, setFilter3] = useState(false);
+    const [selectedData, setSelectedData] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         if (searchTerm) {
@@ -14,6 +52,16 @@ function SearchInput({ onSearch, placeholder = "Caută..." }) {
             setResults([]);
         }
     }, [searchTerm, filter1, filter2, filter3, onSearch]);
+
+    const handleSelect = (data) => {
+        setSelectedData(data);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedData(null);
+        setIsModalOpen(false);
+    };
 
     return (
         <div className="relative flex flex-row-reverse my-4 justify-between mx-0">
@@ -59,12 +107,18 @@ function SearchInput({ onSearch, placeholder = "Caută..." }) {
             {results.length > 0 && (
                 <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                     {results.map((result, index) => (
-                        <li key={index} className="p-2 hover:bg-gray-100 cursor-pointer">
-                            {result}
+                        <li
+                            key={index}
+                            className="p-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleSelect(result)}
+                        >
+                            {result.firstName} {result.lastName} - {result.phone}
                         </li>
                     ))}
                 </ul>
             )}
+
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} data={selectedData} />
         </div>
     );
 }

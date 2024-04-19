@@ -35,6 +35,7 @@ const UserDataPage = () => {
     { label: 'Telefon', renderCell: (item) => item.phone },
     { label: 'Istoric', renderCell: (item) => item.bankHistory },
     { label: 'Data inscrierii', renderCell: (item) => item.timestamp },
+    // { label: 'Status', renderCell: (item) => item.status },
 
   ];
   console.log("Columns:", COLUMNS);
@@ -55,16 +56,20 @@ const UserDataPage = () => {
         <tr className='flex' style={{ gridColumn: '1 / -1' }}>
           <td className='flex-1 bg-[#f0f0f0] px-3'>
             <div className='flex-col'>
-              <div><span>D.angajarii:</span> <span>{item.selectedDate}</span></div>
-              <div><span>Despre noi:</span> <span>{item.aboutUs}</span></div>
-              <div><span>Email:</span> <span>{item.email}</span></div>
+              <div className=' px-0  mb-2 text-end'> Id: {item.id}</div>
+
+              <div>Data angajarii: {item.selectedDate}</div>
+              <div>Email: {item.email}</div>
+              <div>Despre noi: {item.aboutUs}</div>
+              <div className='bg-blue-300 p-1 px-0 mt-2'>Status: {item.status}</div>
             </div>
           </td>
           <td className='flex-1 bg-[#f0f0f0] px-3'>
             <div className='flex-col'>
-              <div><span>Banci:</span> <span>{item.banks}</span></div>
-              <div><span>Ifn:</span> <span>{item.ifn}</span></div>
-              <div><span>Diverse:</span> <span>{item.others}</span></div>
+              <div className='flex flex-wrap space-x-1'>BANCA: {item.banks}</div>
+              <div className='flex flex-wrap space-x-1'>IFN: {item.ifn}</div>
+              <div className='flex flex-wrap space-x-1'>Diverse: {item.others}</div>
+
             </div>
           </td>
         </tr>

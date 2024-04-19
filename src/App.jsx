@@ -4,13 +4,13 @@ import {
   Routes,
   Navigate,
 } from 'react-router-dom';
-import HomePage from './components/HomePage';
-import HeaderUser from "./components/HeaderUser";
-import UserSite from './components/UserData/CustomersPage';
-import ContractPage from './components/UserData/ContractPage';
-import AsideMenu from './components/AsideMenu';
-import AsideContent from './components/AsideContent';
-import FormUser from './components/DeadlinePage/DeadlinePage'
+import HomePage from './components/Pages/HomePage';
+import HeaderUser from "./components/Pages/HeaderUser";
+import UserSite from './components/Pages/CustomersPage';
+import ContractPage from './components/Pages/ContractPage';
+import AsideMenu from './components/Pages/Aside/AsideMenu';
+import AsideContent from './components/Pages/Aside/AsideContent';
+import FormUser from './components/Pages/DeadlinePage'
 import LoginPage from './components/LoginPage/LoginPage';
 import { checkAuthStatus } from './services/Hooks';
 import { ToastContainer } from 'react-toastify';

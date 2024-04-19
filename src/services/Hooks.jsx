@@ -91,23 +91,20 @@ export const FormatTimestamp = (timestampInMillis) => {
 
       hour12: true,
     })
-    .replace("la", "/");
+
   return formattedTimestamp;
 };
 
 export const FetchCustomersData = () => {
   const [customerData, setCustomerData] = useState([]);
-
   useEffect(() => {
     const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
-
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const data = querySnapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id,
         timestamp: doc.data().timestamp?.toDate().toString(),
       }));
-
       // Restructuring the data before setting the state
       const formattedData = data.map(customer => ({
         id: customer.id,
@@ -127,13 +124,12 @@ export const FetchCustomersData = () => {
           : "Nu are",
         aboutUs: customer.customer_info.formData.aboutUs,
         timestamp: FormatTimestamp(customer.timestamp),
-        email: customer.customer_info.formData.email
+        email: customer.customer_info.formData.email,
+        status: customer.customer_status
       }));
-
       setCustomerData(formattedData);
     });
-
-    return () => unsubscribe(); // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   return { customerData };

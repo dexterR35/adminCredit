@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import IconR from "../components/utils/_Icon"
+import IconR from "../../utils/_Icon"
 
 // import { FcHome, FcBusinessContact, FcCollaboration, FcDebt } from "react-icons/fc";
 function AsideMenu() {

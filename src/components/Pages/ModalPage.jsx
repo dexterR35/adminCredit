@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
-import { Link } from "react-router-dom";
 import ImageViewer from "react-simple-image-viewer";
 
 const CustomModal = ({
@@ -44,7 +43,7 @@ const CustomModal = ({
                     <div className="flex flex-row space-x-4">
                         {data.photo && (
                             <p
-                                className="cursor-pointer underline"
+                                className="cursor-pointer underline bg-gray-200 p-2 radius-md"
                                 onClick={() => setIsViewerOpen(true)}
                             >
                                 View Photo
@@ -68,7 +67,7 @@ const CustomModal = ({
                                 href={data.pdfUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="cursor-pointer underline"
+                                className="cursor-pointer underline bg-gray-200 p-2 radius-md"
                             >
                                 View PDF
                             </a>
@@ -76,7 +75,7 @@ const CustomModal = ({
                     </div>
                 </div>
             )}
-            <button onClick={onRequestClose} className="bg-gray-200 w-fit">
+            <button onClick={onRequestClose} className="bg-red-500 w-fit text-white">
                 Close
             </button>
         </Modal>

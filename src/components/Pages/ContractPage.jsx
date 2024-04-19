@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import CustomModal from "../ModalPage";
+import CustomModal from "./ModalPage";
 import SearchInput from "../utils/_Search"
 import { FetchContractData } from '../../services/Hooks';
 
@@ -20,9 +20,12 @@ const ContractPage = () => {
         return queryParams.get(param);
     };
     const searchProducts = async (searchTerm) => {
-        // Filtrarea locală sau interogarea unui API
-        return products.filter(product =>
-            product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        // Filtering the contracts array based on the search term
+        return contracts.filter(contract =>
+            contract.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            contract.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            contract.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            contract.id.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }
     useEffect(() => {
