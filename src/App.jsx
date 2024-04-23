@@ -13,6 +13,7 @@ import AsideContent from './components/Pages/Aside/AsideContent';
 import FormUser from './components/Pages/DeadlinePage'
 import LoginPage from './components/LoginPage/LoginPage';
 import { checkAuthStatus } from './services/Hooks';
+import FetchCSVData from './components/Pages/FetchCsv';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -61,6 +62,7 @@ const App = () => {
           <Route path="customers" element={<UserSite />} />
           <Route path="contractUsers" element={<ContractPage />} />
           <Route path="services" element={<FormUser />} />
+          <Route path="document" element={<FetchCSVData />} />
           <Route path="*" element={<Navigate to="/admin/home" replace />} />
         </Routes>
       </ProtectedRoute>} />

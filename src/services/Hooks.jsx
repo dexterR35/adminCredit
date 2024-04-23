@@ -97,6 +97,7 @@ export const FormatTimestamp = (timestampInMillis) => {
 
 export const FetchCustomersData = () => {
   const [customerData, setCustomerData] = useState([]);
+
   useEffect(() => {
     const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -105,7 +106,6 @@ export const FetchCustomersData = () => {
         id: doc.id,
         timestamp: doc.data().timestamp?.toDate().toString(),
       }));
-      // Restructuring the data before setting the state
       const formattedData = data.map(customer => ({
         id: customer.id,
         name: customer.customer_info.formData.name,
@@ -132,7 +132,25 @@ export const FetchCustomersData = () => {
     return () => unsubscribe();
   }, []);
 
-  return { customerData };
+  const updateCustomer = async (id, updatedData) => {
+    try {
+      await updateDoc(doc(db, "oc_data", id), updatedData);
+      console.log("Document successfully updated!");
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+  };
+
+  const deleteCustomer = async (id) => {
+    try {
+      await deleteDoc(doc(db, "oc_data", id));
+      console.log("Document successfully deleted!");
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+    }
+  };
+
+  return { customerData, updateCustomer, deleteCustomer };
 };
 
 

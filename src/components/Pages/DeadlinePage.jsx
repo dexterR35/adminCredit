@@ -26,49 +26,68 @@ const FormUser = () => {
                 {({ isSubmitting }) => (
                     <Form className="form-layout ">
                         <div className='form-group'>
-                            <label htmlFor="name" >Name</label>
+                            <label htmlFor="name" >Data</label>
                             <Field id="name" name="name" placeholder="Jane Doe" />
                         </div>
                         {/* Repeat for each additional field */}
                         <div className='form-group'>
-                            <label htmlFor="email" >Email</label>
+                            <label htmlFor="email" >Consultant</label>
                             <Field id="email" name="email" type="email" placeholder="you@example.com" />
                         </div>
                         <div className='form-group'>
-                            <label htmlFor="phone" >test</label>
+                            <label htmlFor="phone" >Nume Prenume</label>
                             <Field id="phone" name="phone" placeholder="123-456-7890" />
                         </div>
                         <div className='form-group'>
-                            <label htmlFor="phone" >casuta1</label>
+                            <label htmlFor="phone" >Status</label>
                             <Field id="phone" name="phone" placeholder="123-456-7890" />
                         </div>
                         <div className='form-group'>
-                            <label htmlFor="phone" >casuta2</label>
+                            <label htmlFor="phone" >Deadline</label>
                             <Field id="phone" name="phone" placeholder="123-456-7890" />
-                        </div>
-                        <div className='form-group'>
-                            <label htmlFor="phone" >casuta3</label>
-                            <Field id="phone" name="phone" placeholder="123-456-7890" />
-                        </div>
-                        <div className='form-group'>
-                            <label htmlFor="phone" >casuta4</label>
-                            <Field id="phone" name="phone" placeholder="123-456-7890" />
-                        </div>
-                        <div className='form-group'>
-                            <label htmlFor="phone" >casuta5</label>
-                            <Field id="phone" name="phone" placeholder="123-456-7890" />
-                        </div>
-                        <div className='form-group'>
-                            <label htmlFor="phone" >casuta5</label>
-                            <Field id="phone" name="phone" placeholder="123-456-7890" />
-                        </div>
-                        <div className='form-group '>
-                            <label htmlFor="deadline">Deadline set</label>
-                            <Field id="deadline" name="deadline" type="date" />
                         </div>
 
+                        <div className='form-group'>
+                            <label htmlFor="phone" >Suma Salariu</label>
+                            <Field id="phone" name="phone" placeholder="123-456-7890" />
+                        </div>
+                        <div className='form-group'>
+                            <label htmlFor="phone" >Data Angajare</label>
+                            <Field id="phone" name="phone" placeholder="123-456-7890" />
+                        </div>
+                        <div className='form-group'>
+                            <label htmlFor="phone" >Continuitate</label>
+                            <Field id="phone" name="phone" placeholder="123-456-7890" />
+                        </div>
+                        <div className='form-group'>
+                            <label htmlFor="deadline">Link BC/SR</label>
+                            <Field id="deadline" name="deadline" type="text" />
+                        </div>
+                        <div className='form-group '>
+                            <label htmlFor="deadline">Ultima raportare negativa (cei care au BC)</label>
+                            <Field id="deadline" name="deadline" type="text" />
+                        </div>
+                        <div className='form-group '>
+                            <label htmlFor="deadline">Suma Aprobata</label>
+                            <Field id="deadline" name="deadline" type="text" />
+                        </div>
+                        <div className='form-group '>
+                            <label htmlFor="deadline">Comision</label>
+                            <Field id="deadline" name="deadline" type="text" />
+                        </div>
+                        <div className='form-group '>
+                            <label htmlFor="deadline">Nr Contract</label>
+                            <Field id="deadline" name="deadline" type="text" />
+                        </div>
+                        <div className='form-group '>
+                            <label htmlFor="deadline">Sursa</label>
+                            <Field id="deadline" name="deadline" type="text" />
+                        </div>
+
+
+
                         <div className="col-span-2 form-group">
-                            <label htmlFor="description" >Description</label>
+                            <label htmlFor="description">Informatii Aditionale</label>
                             <Field as="textarea" id="description" name="description" rows="3" />
                         </div>
 

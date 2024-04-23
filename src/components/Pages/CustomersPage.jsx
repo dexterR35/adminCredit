@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { FetchCustomersData } from '../../services/Hooks';
 import { CompactTable } from '@table-library/react-table-library/compact';
@@ -7,23 +5,38 @@ import { useTheme } from '@table-library/react-table-library/theme';
 import { getTheme } from '@table-library/react-table-library/baseline';
 import { usePagination } from '@table-library/react-table-library/pagination';
 import SearchInput from '../utils/_Search';
+// import EditIcon from '@material-ui/icons/Edit';
+// import DeleteIcon from '@material-ui/icons/Delete';
+import Modal from '../utils/_Modal';
 
 const UserDataPage = () => {
-  const { customerData } = FetchCustomersData();
+  const { customerData, updateCustomer, deleteCustomer } = FetchCustomersData();
   const dataCustomers = { nodes: customerData };
 
   const theme = useTheme(getTheme());
 
   const [ids, setIds] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const handleExpand = (item) => {
     setIds(ids.includes(item.id) ? ids.filter(id => id !== item.id) : ids.concat(item.id));
   };
 
+  const handleEdit = (customer) => {
+    setSelectedCustomer(customer);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id) => {
+    deleteCustomer(id);
+  };
+
   const pagination = usePagination(dataCustomers, {
     state: {
       page: 1,
-      size: 10, // Adjust based on your needs
+      size: 10,
     },
     onChange: (action, state) => {
       console.log(action, state);
@@ -35,41 +48,38 @@ const UserDataPage = () => {
     { label: 'Telefon', renderCell: (item) => item.phone },
     { label: 'Istoric', renderCell: (item) => item.bankHistory },
     { label: 'Data inscrierii', renderCell: (item) => item.timestamp },
-    // { label: 'Status', renderCell: (item) => item.status },
-
+    {
+      label: 'Actiuni', renderCell: (item) => (
+        <div className='flex space-x-4'>
+          <button onClick={() => handleEdit(item)} >Edit</button>
+          <button onClick={() => handleDelete(item.id)} >Delete</button>
+        </div>
+      )
+    }
   ];
-  console.log("Columns:", COLUMNS);
-  console.log("Customer Data:", customerData);
 
   const ROW_PROPS = {
     onClick: handleExpand,
   };
-  const searchProducts = async (searchTerm) => {
-    // Filtrarea locală sau interogarea unui API
-    return products.filter(product =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
+
   const ROW_OPTIONS = {
     renderAfterRow: (item) => (
       ids.includes(item.id) && (
-        <tr className='flex' style={{ gridColumn: '1 / -1' }}>
-          <td className='flex-1 bg-[#f0f0f0] px-3'>
+        <tr className='flex' style={{ gridColumn: '1 / span 4' }}>
+          <td className='flex-1 bg-gray-200 px-3'>
             <div className='flex-col'>
-              <div className=' px-0  mb-2 text-end'> Id: {item.id}</div>
-
+              <div className='px-0 mb-2 text-start'> Id: {item.id}</div>
               <div>Data angajarii: {item.selectedDate}</div>
               <div>Email: {item.email}</div>
               <div>Despre noi: {item.aboutUs}</div>
-              <div className='bg-blue-300 p-1 px-0 mt-2'>Status: {item.status}</div>
+              <div className='bg-blue-300 p-1 px-0 mt-2'> <span className='px-0'> Status: {item.status}</span></div>
             </div>
           </td>
-          <td className='flex-1 bg-[#f0f0f0] px-3'>
+          <td className='flex-1  bg-gray-200 px-3'>
             <div className='flex-col'>
               <div className='flex flex-wrap space-x-1'>BANCA: {item.banks}</div>
               <div className='flex flex-wrap space-x-1'>IFN: {item.ifn}</div>
               <div className='flex flex-wrap space-x-1'>Diverse: {item.others}</div>
-
             </div>
           </td>
         </tr>
@@ -77,23 +87,28 @@ const UserDataPage = () => {
     ),
   };
 
+  const searchCustomers = () => {
+    return customerData.filter(customer =>
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.phone.includes(searchTerm)
+    );
+  };
+
   return (
     <>
       <h2 className='text-start'>Clients Site</h2>
       <div>
-        <SearchInput onSearch={searchProducts} />
+        <SearchInput onSearch={setSearchTerm} />
       </div>
       <div className="container p-2 w-full overflow-auto">
         <CompactTable
           columns={COLUMNS}
-          data={dataCustomers}
+          data={{ nodes: searchCustomers() }}
           theme={theme}
           pagination={pagination}
           rowProps={ROW_PROPS}
           rowOptions={ROW_OPTIONS}
         />
-
-        {/* Pagination Controls */}
         <div className="flex justify-between items-center mt-4">
           <span>Total Pages: {pagination.state.getTotalPages(dataCustomers.nodes)}</span>
           <div>
@@ -110,6 +125,12 @@ const UserDataPage = () => {
           </div>
         </div>
       </div>
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>
+          {/* Your edit modal content */}
+          {/* You can use selectedCustomer to pre-fill the form */}
+        </Modal>
+      )}
     </>
   );
 };

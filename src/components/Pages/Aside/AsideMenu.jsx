@@ -11,6 +11,7 @@ function AsideMenu() {
         { path: "/admin/contractUsers", label: "Clienti Contract", icon: <IconR icon="FcReading" size={22} /> },
         { path: "/admin/services", label: "Clienti Deadline", icon: <IconR icon="FcOvertime" size={22} /> },
         { path: "/admin/createuser", label: "Create User", icon: <IconR icon="businessContact" size={22} /> },
+        { path: "/admin/document", label: "FetchCSVData", icon: <IconR icon="businessContact" size={22} /> },
     ];
 
     return (

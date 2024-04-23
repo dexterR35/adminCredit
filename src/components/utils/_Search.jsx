@@ -46,8 +46,22 @@ function SearchInput({ onSearch, placeholder = "Caută..." }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        if (searchTerm) {
-            onSearch(searchTerm, { filter1, filter2, filter3 }).then(setResults);
+        const fetchData = async () => {
+            try {
+                if (searchTerm) {
+                    const searchResults = await onSearch(searchTerm, { filter1, filter2, filter3 });
+                    setResults(searchResults);
+                } else {
+                    setResults([]); // Reset results when search term becomes empty
+                }
+            } catch (error) {
+                console.error("Error fetching search results:", error);
+                setResults([]);
+            }
+        };
+
+        if (typeof onSearch === 'function') {
+            fetchData();
         } else {
             setResults([]);
         }
@@ -104,7 +118,7 @@ function SearchInput({ onSearch, placeholder = "Caută..." }) {
                     <span className="ml-2 text-gray-700">Filter 3</span>
                 </label>
             </div>
-            {results.length > 0 && (
+            {results && results.length > 0 && (
                 <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                     {results.map((result, index) => (
                         <li
