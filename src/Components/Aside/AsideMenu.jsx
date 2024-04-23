@@ -15,7 +15,7 @@ function AsideMenu() {
     ];
 
     return (
-        <aside className='h-full bg-white w-full block p-2 px-4 border border-x-2 border-t-0'>
+        <aside className='h-full bg-white w-full w-[200px] block p-2 px-4 border border-x-2 border-t-0'>
             <h3 className='text-center'>Logo img</h3>
             <nav className='mt-10 p-2'>
                 <ul className='flex flex-col space-y-4 text-md font-bold capitalize'>
