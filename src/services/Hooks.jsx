@@ -135,7 +135,7 @@ export const FetchCustomersData = () => {
   const updateCustomer = async (id, updatedData) => {
     try {
       await updateDoc(doc(db, "oc_data", id), updatedData);
-      console.log("Document successfully updated!");
+      console.log("Document successfully updated!", id);
     } catch (error) {
       console.error("Error updating document: ", error);
     }
@@ -144,11 +144,12 @@ export const FetchCustomersData = () => {
   const deleteCustomer = async (id) => {
     try {
       await deleteDoc(doc(db, "oc_data", id));
-      console.log("Document successfully deleted!");
+      console.log("Document successfully deleted!", id);
     } catch (error) {
       console.error("Error deleting document: ", error);
     }
   };
+
 
   return { customerData, updateCustomer, deleteCustomer };
 };

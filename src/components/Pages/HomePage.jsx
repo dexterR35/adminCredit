@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { FetchCustomersData } from '../../services/Hooks';
 import CardSmall from '../utils/_CardSmall';
 import CustomModal from './ModalPage';
-const HomePage = ({ user }) => {
+import DataTable from '../Table/CustomTable';
 
-    const { customerData } = FetchCustomersData();  // Fetches and subscribes to customer data
+const HomePage = ({ user }) => {
+    const { customerData } = FetchCustomersData();
     const [stats, setStats] = useState({
         newCustomers: 0,
         customersInDeadline: 0,
@@ -65,6 +66,7 @@ const HomePage = ({ user }) => {
                         icon="cards"
                     />
                 </div>
+
                 <br />
                 <hr />
                 <h3 className='text-start mb-2'>Info Deadline</h3>

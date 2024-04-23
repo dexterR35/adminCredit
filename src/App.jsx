@@ -35,7 +35,7 @@ const App = () => {
         <HeaderUser />
         <div className="grid grid-cols-custom">
           <AsideMenu />
-          <main className="mt-10 p-4">
+          <main className="mt-4 p-4">
             {children}
           </main>
           <AsideContent />
