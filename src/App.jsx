@@ -6,10 +6,13 @@ import CustomersPage from './Pages/Customers/CustomersPage'; // Corrected import
 import ContractPage from './Pages/Contract/ContractPage'; // Corrected import path
 import FormUser from './Pages/Extra/CustomersOffice'; // Corrected import path
 import LoginPage from './Pages/Auth/LoginPage'; // Corrected import path
-import { checkAuthStatus } from './services/Hooks';
 import FetchCSVData from './Pages/FetchCsv/FetchCsv'; // Corrected import path
+
+import { checkAuthStatus } from './services/Hooks';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+
 
 const App = () => {
   const [user, setUser] = useState(null);

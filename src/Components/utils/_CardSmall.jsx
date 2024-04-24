@@ -1,4 +1,4 @@
-import IconR from "../../utils/_Icon"
+import IconR from "./_Icon"
 
 const CardSmall = ({ _one, _two, _three, icon, className, onDetailsClick }) => {
     const backgroundClass = className || 'bg-gray-100';

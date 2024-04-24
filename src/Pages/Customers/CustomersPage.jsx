@@ -1,8 +1,9 @@
 import React from 'react';
 import { FetchCustomersData } from '../../services/Hooks';
 import DataTable from '../../Components/Table/CustomTable';
-
+import { useTranslation } from 'react-i18next';
 const UserDataPage = () => {
+  const { t } = useTranslation();
   const { customerData, updateCustomer, deleteCustomer } = FetchCustomersData();
 
   // Define edit handler
@@ -19,7 +20,7 @@ const UserDataPage = () => {
 
   return (
     <div>
-      <h2 className='text-start'>Clienti Site</h2>
+      <h2 className='text-start'>{t('hello')}</h2>
       <DataTable
         dataProps={customerData}
         onEdit={handleEdit}
