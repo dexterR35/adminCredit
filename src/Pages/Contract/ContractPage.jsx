@@ -77,7 +77,6 @@ const ContractPage = () => {
                     <option value={30}>30</option>
                 </select>
                 <div className='space-x-2'>
-
                     <label htmlFor="search">Search</label>
                     <input
                         type="text"
