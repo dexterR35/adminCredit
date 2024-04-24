@@ -1,81 +1,141 @@
-// ContractPage.js
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import CustomModal from "../../Components/ModalPage/ModalPage";
-import SearchInput from "../../Components/utils/_Search"
+import ConfirmDialog from '../../Components/Dialog/ConfirmDialog'; // Confirmation dialog
 import { FetchContractData } from '../../services/Hooks';
 
-Modal.setAppElement('#root'); // Set the root element for accessibility
+const headers = ["First Name", "Last Name", "Phone", "ID", "Actions"];
 
 const ContractPage = () => {
-    const { contracts } = FetchContractData();
-    const [selectedContract, setSelectedContract] = useState(null);
-    const navigate = useNavigate();
-    const location = useLocation();
+    const { contracts, onEdit, onDelete } = FetchContractData();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+    const [confirmMessage, setConfirmMessage] = useState('');
 
-    // Helper function to parse query string
-    const getQueryParam = (param) => {
-        const queryParams = new URLSearchParams(location.search);
-        return queryParams.get(param);
+
+    const navigate = useNavigate();
+
+
+
+
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value.toLowerCase());
+        setCurrentPage(1);
     };
-    const searchProducts = async (searchTerm) => {
-        // Filtering the contracts array based on the search term
-        return contracts.filter(contract =>
-            contract.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            contract.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            contract.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            contract.id.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }
-    useEffect(() => {
-        const contractId = getQueryParam('id');
-        if (contractId) {
-            const contract = contracts.find(c => c.id === contractId);
-            if (contract) {
-                setSelectedContract(contract);
-            }
-        }
-    }, [location.search, contracts]);
 
     const handleViewContract = (contract) => {
-        navigate(`?id=${contract.id}`); // Change the URL, which triggers the useEffect
+        setSelectedContract(contract);
+        navigate(`?id=${contract.id}`);
     };
 
-    const closeModal = () => {
-        setSelectedContract(null);
-        navigate('?'); // Navigate back without any query parameters
+    const handleDelete = (id) => {
+        setConfirmOpen(true);
+        setConfirmMessage(`Are you sure you want to delete contract with ID ${id}?`);
+        setConfirmAction(() => () => {
+            onDelete(id); // Correct function call
+            setConfirmOpen(false);
+        });
+    };
+
+    const handleEdit = (id, updatedData) => {
+        setConfirmOpen(true);
+        setConfirmMessage(`Do you want to update contract with ID ${id}?`);
+        setConfirmAction(() => () => {
+            onEdit(id, updatedData); // Correct function call
+            setConfirmOpen(false);
+        });
+    };
+
+    const filteredContracts = contracts.filter(
+        contract =>
+            contract.firstName.toLowerCase().includes(searchQuery) ||
+            contract.lastName.toLowerCase().includes(searchQuery) ||
+            contract.phone.toLowerCase().includes(searchQuery) ||
+            contract.id.toLowerCase().includes(searchQuery)
+    );
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredContracts.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredContracts.length / itemsPerPage);
+
+    const renderPageNumbers = () => {
+        const pageNumbers = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pageNumbers.push(
+                <button
+                    key={i}
+                    onClick={() => setCurrentPage(i)}
+                    className={`p-2 m-1 ${i === currentPage ? 'bg-green-300' : 'bg-white'}`}
+                >
+                    {i}
+                </button>
+            );
+        }
+        return pageNumbers;
     };
 
     return (
-        <div className=' mx-auto'>
-            <h2 className='text-start mb-4'>Contract Clienti</h2>
+        <div>
+            <h2 className="text-start mb-4">Contract Clienti</h2>
 
-            <SearchInput onSearch={searchProducts} />
-            <div className='grid grid-cols-3 2xl:grid-cols-4 xl:grid-cols-3 gap-4 w-full'>
-                {contracts.map((contract) => (
-                    <div key={contract.id} className="border border-gray-100 shadow-md w-full bg-gray-50 mx-auto p-2 mb-4 rounded-md relative">
-                        <p className='relative text-[10px] text-gray-700 mb-2'>ID / Contract / {contract.id}</p>
-                        <div className='flex flex-row items-center justify-between mb-2'>
-                            <div>
-                                <p className='font-bold text-md capitalize'>{contract.firstName} {contract.lastName}</p>
-                                <p className='text-gray-700 text-[12px]'>Tel:{contract.phone}</p>
-                                <p className='text-gray-700 text-[12px]'>Data:22.04.2024</p>
-                            </div>
-                            <div className='cursor-pointer flex flex-col justify-center self-end'>
-                                <button className="p-2 mx-auto font-normal text-sm underline text-blue-700" onClick={() => handleViewContract(contract)}>detalii</button>
-                                <p className='bg-green-500 p-1 rounded-full w-[12px] h-[12px] absolute right-2 top-2'></p>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+            <div className="flex justify-between items-end mb-2">
+                <select value={itemsPerPage} onChange={e => setItemsPerPage(parseInt(e.target.value, 10))}>
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={30}>30</option>
+                </select>
+                <input
+                    type="text"
+                    placeholder="Search by name, phone, or ID"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="p-2 border rounded"
+                />
             </div>
-            <CustomModal
-                isOpen={selectedContract !== null}
-                onRequestClose={closeModal}
-                id="contractDetails"
-                data={selectedContract}
+
+            <div className="overflow-auto">
+                <table className="w-full border-collapse">
+                    <thead>
+                        <tr>
+                            {headers.map((header, index) => (
+                                <th key={index} className="p-2">{header}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentItems.map((contract, index) => (
+                            <React.Fragment key={index}>
+                                <tr>
+                                    <td>{contract.firstName}</td>
+                                    <td>{contract.lastName}</td>
+                                    <td>{contract.phone}</td>
+                                    <td>{contract.id}</td>
+                                    <td>
+                                        <button className="bg-blue-300 p-1" onClick={() => handleEdit(contract.id)}>Edit</button>
+                                        <button className="bg-red-300 p-1" onClick={() => handleDelete(contract.id)}>Delete</button>
+                                    </td>
+                                </tr>
+                            </React.Fragment>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="flex justify-center mt-4">
+                {renderPageNumbers()}
+            </div>
+
+            <ConfirmDialog
+                open={confirmOpen}
+                message={confirmMessage}
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={confirmAction}
             />
+
+
         </div>
     );
 };

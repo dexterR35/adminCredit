@@ -154,43 +154,56 @@ export const FetchCustomersData = () => {
   return { customerData, updateCustomer, deleteCustomer };
 };
 
-
 export const FetchContractData = () => {
   const [contracts, setContracts] = useState([]);
 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const contractCollectionRef = collection(db, "contracts");
+        const contractCollectionRef = collection(db, 'contracts');
         const contractSnapshot = await getDocs(contractCollectionRef);
-        const contractList = contractSnapshot.docs.map(doc => ({
+        const contractList = contractSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setContracts(contractList);
-        console.log("Contracts fetched successfully:", contractList);
       } catch (error) {
-        console.error("Failed to fetch contracts:", error);
+        console.error('Error fetching contracts:', error);
       }
     };
+
     fetchContracts();
+  }, []); // Runs only once when the component mounts
 
-  }, []); // Empty dependency array ensures this effect runs only once
+  // Update function to edit contracts
+  const onEdit = async (id, updatedData) => {
+    try {
+      await updateDoc(doc(db, 'contracts', id), updatedData);
+      setContracts((prevContracts) =>
+        prevContracts.map((contract) =>
+          contract.id === id ? { ...contract, ...updatedData } : contract
+        )
+      );
+      console.log('Contract successfully updated!', id);
+    } catch (error) {
+      console.error('Error updating contract:', error);
+    }
+  };
 
-  return { contracts };
+  // Update function to delete contracts
+  const onDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, 'contracts', id));
+      setContracts((prevContracts) =>
+        prevContracts.filter((contract) => contract.id !== id)
+      );
+      console.log('Contract successfully deleted!', id);
+    } catch (error) {
+      console.error('Error deleting contract:', error);
+    }
+  };
+
+  return { contracts, onEdit, onDelete }; // Return correct function names
 };
 
-// Example Firestore operations (adjust as necessary for your project)
-export async function createCustomer(customer) {
-  await addDoc(collection(db, "customers"), customer);
-}
 
-export async function updateCustomer(id, customer) {
-  const customerRef = doc(db, "customers", id);
-  await updateDoc(customerRef, customer);
-}
-
-export async function deleteCustomer(id) {
-  const customerRef = doc(db, "customers", id);
-  await deleteDoc(customerRef);
-}
