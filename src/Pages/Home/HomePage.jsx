@@ -1,119 +1,128 @@
 import React, { useEffect, useState } from 'react';
 import { FetchCustomersData } from '../../services/Hooks';
 import CardSmall from '../../Components/utils/_CardSmall';
-import CustomModal from '../../Components/ModalPage/ModalPage';
-// import DataTable from '../../Components/Table/CustomTable';
 
 const HomePage = ({ user }) => {
     const { customerData } = FetchCustomersData();
-    const [stats, setStats] = useState({
-        newCustomers: 0,
-        customersInDeadline: 0,
-        totalCustomers: 0,
-        resolvedCustomers: 0,
-        unresolvedCustomers: 0,
-        totalEmployees: 0,
-    });
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [modalData, setModalData] = useState({});
-    const userName = user ? user.email.split("@")[0].toUpperCase() : "GUEST";
+    const userName = user ? user.email.split('@')[0].toUpperCase() : 'GUEST';
 
-    // Update stats based on customerData changes
-    useEffect(() => {
-        setStats(prev => ({
-            ...prev,
-            totalCustomers: customerData.length,
-            newCustomers: customerData.filter(c => c.status === 'new').length,
-            // You can add more stats calculations here
-        }));
-        console.log(customerData, "Customer data log");
+    // Calculate stats once when customerData changes
+    const stats = React.useMemo(() => {
+        const totalCustomers = customerData.length;
+        const newCustomers = customerData.filter(c => c.status === 'new').length;
+        const unresolvedCustomers = totalCustomers - 60;
+
+        return {
+            newCustomers,
+            totalCustomers,
+            contractCount: totalCustomers - 20,
+            unresolvedCustomers,
+            resolvedCustomers: totalCustomers - 50,
+        };
     }, [customerData]);
-    const handleDetailsClick = (data) => {
+
+    // Define card data
+    const cardData = [
+        {
+            _one: 'Clienti Noi',
+            _two: stats.newCustomers,
+            _three: 'Astazi',
+            icon: 'alarmClock',
+            className: 'bg-green-200',
+        },
+        {
+            _one: 'Clienti Site',
+            _two: stats.totalCustomers,
+            _three: '24.04.2005',
+            icon: 'businessMan',
+        },
+        {
+            _one: 'Contracte',
+            _two: stats.contractCount,
+            _three: 'total',
+            icon: 'cards',
+        },
+        {
+            _one: 'Consultanti',
+            _two: stats.contractCount,
+            _three: 'total',
+            icon: 'cards',
+        },
+
+    ];
+
+    const handleDetailsClick = data => {
         setModalData(data);
         setModalOpen(true);
     };
 
     return (
         <>
-            <div >
-                <h1 className='font-bold w-full text-start text-2xl uppercase'>Welcome {userName}</h1>
-                <span className='text-sm text-gray-600 mr-2'>Astazi este: 20.12.2025</span>
-                <span className='text-sm text-gray-600 mr-2'>ora: 12:20 AM</span>
-                <span className='text-sm text-gray-600 mr-2'>+25grade</span>
+            <div>
+                <h1 className="font-bold w-full text-start text-2xl uppercase">Welcome {userName}</h1>
+                <span className="text-sm text-gray-600 mr-2">Astazi este: 20.12.2025</span>
+                <span className="text-sm text-gray-600 mr-2">ora: 12:20 AM</span>
+                <span className="text-sm text-gray-600 mr-2">+25 grade</span>
             </div>
-            <div className='w-full'>
+            <div className="w-full">
                 <hr />
-                <h3 className='text-start mb-2'>Clienti</h3>
-                <div className='flex flex-row space-x-3 '>
-                    <CardSmall
-                        _one="Clienti Noi"
-                        _two="1"
-                        _three="Astazi"
-                        icon="alarmClock"
-                        className="bg-green-200"
-                    />
-                    <CardSmall
-                        _one="Clienti Site"
-                        _two={stats.totalCustomers}
-                        _three="24.04.2005"
-                        icon="businessMan"
-
-                    />
-                    <CardSmall
-                        _one="Contracte"
-                        _two={stats.totalCustomers / 2.5}
-                        _three="total"
-                        icon="cards"
-                    />
+                <h3 className="text-start mb-2">Clienti</h3>
+                <div className="flex flex-row space-x-3">
+                    {cardData.map((card, index) => (
+                        <CardSmall key={index} {...card} />
+                    ))}
                 </div>
 
-                <br />
                 <hr />
-                <h3 className='text-start mb-2'>Info Deadline</h3>
-                <div className='flex flex-row space-x-3'>
+                <h3 className="text-start mb-2">Info Deadline</h3>
+                <div className="flex flex-row space-x-3">
                     <CardSmall
                         _one="Active"
                         _two={stats.totalCustomers}
                         _three="Details"
                         icon="FcAbout"
                         className="bg-blue-200"
-                        onDetailsClick={() => handleDetailsClick({ id: stats.totalCustomers, firstName: "John", lastName: "Doe" })}
+                        onDetailsClick={() => handleDetailsClick({ id: stats.totalCustomers, firstName: 'John', lastName: 'Doe' })}
                     />
                     <CardSmall
                         _one="In Asteptare"
-                        _two={stats.totalCustomers - 20}
+                        _two={stats.unresolvedCustomers}
                         _three="Nume Client"
                         icon="hightPriority"
                         className="bg-yellow-200"
                     />
-
                     <CardSmall
                         _one="Finalizate"
-                        _two={stats.totalCustomers / 2.5}
+                        _two={stats.resolvedCustomers}
                         _three="Nr.Doc"
                         icon="FcOk"
                         className="bg-green-200"
                     />
                     <CardSmall
                         _one="Nerezolvate"
-                        _two={stats.totalCustomers - 60}
+                        _two={stats.unresolvedCustomers}
+                        _three="Details"
+                        icon="FcBearish"
+                        className="bg-red-200"
+                    />
+                    <CardSmall
+                        _one="Nerezolvate"
+                        _two={stats.unresolvedCustomers}
                         _three="Details"
                         icon="FcBearish"
                         className="bg-red-200"
                     />
                 </div>
-                <br />
-                <hr />
 
-            </div >
-            <CustomModal
-                isOpen={isModalOpen}
-                onRequestClose={() => setModalOpen(false)}
-                contentLabel="Customer Details"
-                data={modalData}
-            />
+                {/* <CustomModal
+                    isOpen={isModalOpen}
+                    onRequestClose={() => setModalOpen(false)}
+                    contentLabel="Customer Details"
+                    data={modalData}
+                /> */}
+            </div>
         </>
     );
-}
+};
 
 export default HomePage;
