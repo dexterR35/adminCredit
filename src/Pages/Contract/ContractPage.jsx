@@ -70,7 +70,7 @@ const ContractPage = () => {
         <div>
             <h2 className="text-start mb-4">Contract Clienti</h2>
 
-            <div className="flex justify-between items-end mb-2">
+            <div className="flex justify-between items-end mb-2 bg-red-200">
                 <select value={itemsPerPage} onChange={e => setItemsPerPage(parseInt(e.target.value, 10))}>
                     <option value={5}>5</option>
                     <option value={10}>10</option>
@@ -89,8 +89,8 @@ const ContractPage = () => {
                 </div>
             </div>
 
-            <div className="overflow-auto">
-                <table className="w-full border-collapse">
+            <div className="overflow-auto w-full flex flex-row flex-wrap gap-4">
+                <table className="w-[45%] border-collapse border-0">
                     <thead>
                         <tr>
                             {headers.map((header, index) => (
@@ -124,6 +124,9 @@ const ContractPage = () => {
                         ))}
                     </tbody>
                 </table>
+                <div className='w-[45%]'>
+                    <p>part2</p>
+                </div>
             </div>
 
             <div className="flex justify-center mt-4">

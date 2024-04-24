@@ -25,7 +25,7 @@
   thead tr th {
     padding: 1em 0;
     font-size: 0.9em;
-    border: 1px solid #bdbdbd;
+
     width: 20%;
   }
   thead tr {
@@ -35,8 +35,6 @@
   }
   tbody tr {
     cursor: pointer;
- 
-    /* height: 5em; */
   }
   tbody tr:hover {
     background: rgb(134 239 172);
@@ -46,8 +44,8 @@
 
   tbody tr td {
     padding: 1em 0.5em;
-    border: 1px solid #bdbdbd;
-    font-size: 0.9em;
+    background: rgb(247, 247, 247);
+    font-size: 0.85em;
 
   }
 
@@ -85,7 +83,7 @@ table th {
 }
 
 table td {
-  @apply p-2 border;
+  @apply p-2 border-0 bg-green-200;
 }
 
 table thead {
@@ -93,8 +91,9 @@ table thead {
 }
 
 table tr {
-  @apply hover:bg-gray-100;
+  @apply hover:bg-gray-100  py-2;
 }
+
 
 /* Pagination buttons */
 .table-pagination {
