@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ConfirmDialog from '../../Components/Dialog/ConfirmDialog';
-import { EditButton, DeleteButton, LoginButton } from '../../Components/Buttons/Buttons';  // Confirmation dialog
+import { EditButton, DeleteButton } from '../../Components/Buttons/Buttons';  // Confirmation dialog
 import { FetchContractData } from '../../services/Hooks';
 import { FormatTimestamp } from '../../services/Hooks'
 const headers = ["name", "phone", "info", "timestamp", "actions"];

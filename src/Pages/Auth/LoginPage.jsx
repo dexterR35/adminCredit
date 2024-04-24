@@ -39,9 +39,8 @@ const LoginPage = ({ setUser }) => {
           className="border w-[50%] p-2 rounded-md"
         />
 
-        <LogInButton onClick={handleLogin}>
-          Login
-        </LogInButton>
+        <LogInButton onClick={handleLogin} />
+
       </div>
     </div >
   );
