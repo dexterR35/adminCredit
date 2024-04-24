@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import ConfirmDialog from './ConfirmDialog'; // Import the new component
+import ConfirmDialog from '../Dialog/ConfirmDialog'; // Import the new component
 
 const headers = ["Nume", "Istoric", "Telefon", "DataEntry", "Status"];
 

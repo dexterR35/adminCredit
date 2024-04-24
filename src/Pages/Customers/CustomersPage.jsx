@@ -1,6 +1,6 @@
 import React from 'react';
 import { FetchCustomersData } from '../../services/Hooks';
-import DataTable from '../../components/Table/CustomTable';
+import DataTable from '../../Components/Table/CustomTable';
 
 const UserDataPage = () => {
   const { customerData, updateCustomer, deleteCustomer } = FetchCustomersData();

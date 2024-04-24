@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FetchCustomersData } from '../../services/Hooks';
 import CardSmall from '../../Components/utils/_CardSmall';
-import CustomModal from '../../Components/Pages/ModalPage';
-import DataTable from '../../Components/Table/CustomTable';
+import CustomModal from '../../Components/ModalPage/ModalPage';
+// import DataTable from '../../Components/Table/CustomTable';
 
 const HomePage = ({ user }) => {
     const { customerData } = FetchCustomersData();

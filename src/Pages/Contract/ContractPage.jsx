@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useNavigate, useLocation } from 'react-router-dom';
-import CustomModal from "../../components/Pages/ModalPage";
-import SearchInput from "../../components/utils/_Search"
+import CustomModal from "../../Components/ModalPage/ModalPage";
+import SearchInput from "../../Components/utils/_Search"
 import { FetchContractData } from '../../services/Hooks';
 
 Modal.setAppElement('#root'); // Set the root element for accessibility
