@@ -26,7 +26,7 @@
     padding: 1em 0;
     font-size: 0.9em;
     border: 1px solid #bdbdbd;
-    width: 100%;
+    width: 20%;
   }
   thead tr {
     background: rgb(3, 21, 32);
@@ -35,6 +35,7 @@
   }
   tbody tr {
     cursor: pointer;
+ 
     /* height: 5em; */
   }
   tbody tr:hover {
@@ -74,6 +75,39 @@
     text-transform: capitalize;
     font-weight: bold;
   }
+  /* Basic table structure */
+table {
+  @apply w-full border-collapse;
+}
+
+table th {
+  @apply p-2 text-left bg-gray-200;
+}
+
+table td {
+  @apply p-2 border;
+}
+
+table thead {
+  @apply bg-gray-200;
+}
+
+table tr {
+  @apply hover:bg-gray-100;
+}
+
+/* Pagination buttons */
+.table-pagination {
+  @apply flex justify-center mt-4;
+}
+
+.table-pagination button {
+  @apply p-2 m-1 border rounded hover:bg-gray-300;
+}
+
+.table-pagination .active {
+  @apply bg-green-300;
+}
 }
 
 

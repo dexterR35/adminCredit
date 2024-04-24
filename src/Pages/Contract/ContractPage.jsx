@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import ConfirmDialog from '../../Components/Dialog/ConfirmDialog'; // Confirmation dialog
+import ConfirmDialog from '../../Components/Dialog/ConfirmDialog';
+import { EditButton, DeleteButton, LoginButton } from '../../Components/Buttons/Buttons';  // Confirmation dialog
 import { FetchContractData } from '../../services/Hooks';
-
-const headers = ["First Name", "Last Name", "Phone", "ID", "Actions"];
+import { FormatTimestamp } from '../../services/Hooks'
+const headers = ["name", "phone", "info", "timestamp", "actions"];
 
 const ContractPage = () => {
     const { contracts, onEdit, onDelete } = FetchContractData();
@@ -14,20 +14,9 @@ const ContractPage = () => {
     const [confirmAction, setConfirmAction] = useState(null);
     const [confirmMessage, setConfirmMessage] = useState('');
 
-
-    const navigate = useNavigate();
-
-
-
-
     const handleSearch = (e) => {
         setSearchQuery(e.target.value.toLowerCase());
         setCurrentPage(1);
-    };
-
-    const handleViewContract = (contract) => {
-        setSelectedContract(contract);
-        navigate(`?id=${contract.id}`);
     };
 
     const handleDelete = (id) => {
@@ -52,8 +41,8 @@ const ContractPage = () => {
         contract =>
             contract.firstName.toLowerCase().includes(searchQuery) ||
             contract.lastName.toLowerCase().includes(searchQuery) ||
-            contract.phone.toLowerCase().includes(searchQuery) ||
-            contract.id.toLowerCase().includes(searchQuery)
+            contract.phone.toLowerCase().includes(searchQuery)
+
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -87,13 +76,18 @@ const ContractPage = () => {
                     <option value={10}>10</option>
                     <option value={30}>30</option>
                 </select>
-                <input
-                    type="text"
-                    placeholder="Search by name, phone, or ID"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    className="p-2 border rounded"
-                />
+                <div className='space-x-2'>
+
+                    <label htmlFor="search">Search</label>
+                    <input
+                        type="text"
+                        placeholder="Search by name or phone"
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        className="p-2 border rounded"
+                        id='search'
+                    />
+                </div>
             </div>
 
             <div className="overflow-auto">
@@ -109,13 +103,22 @@ const ContractPage = () => {
                         {currentItems.map((contract, index) => (
                             <React.Fragment key={index}>
                                 <tr>
-                                    <td>{contract.firstName}</td>
-                                    <td>{contract.lastName}</td>
+                                    {/* <td>{contract.id}</td> */}
+                                    <td className='space-x-1'><span>{contract.firstName}</span><span>{contract.lastName}</span></td>
                                     <td>{contract.phone}</td>
-                                    <td>{contract.id}</td>
+                                    <td className='space-x-2'>
+                                        <a href={contract.pdfUrl} target='_blank' rel="noopener noreferrer" className='underline'>View Pdf</a>
+                                        <a href={contract.photo} target='_blank' rel="noopener noreferrer" className='underline'>View Photo</a>
+                                    </td>
+
                                     <td>
-                                        <button className="bg-blue-300 p-1" onClick={() => handleEdit(contract.id)}>Edit</button>
-                                        <button className="bg-red-300 p-1" onClick={() => handleDelete(contract.id)}>Delete</button>
+
+                                        {FormatTimestamp(contract.timestamp)}
+                                    </td>
+                                    <td>
+                                        <EditButton onClick={() => handleEdit(contract.id)} />
+                                        <DeleteButton onClick={() => handleDelete(contract.id)} />
+
                                     </td>
                                 </tr>
                             </React.Fragment>

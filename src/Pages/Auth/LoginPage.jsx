@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Login } from "../../services/Hooks";
-
+import { LogInButton } from "../../Components/Buttons/Buttons"
 const LoginPage = ({ setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,14 +39,11 @@ const LoginPage = ({ setUser }) => {
           className="border w-[50%] p-2 rounded-md"
         />
 
-        <button
-          onClick={handleLogin}
-          className="btn w-1/3 bg-red-500 rounded mx-auto my-4 p-2 text-white uppercase"
-        >
+        <LogInButton onClick={handleLogin}>
           Login
-        </button>
+        </LogInButton>
       </div>
-    </div>
+    </div >
   );
 };
 

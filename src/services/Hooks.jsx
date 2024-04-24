@@ -88,10 +88,8 @@ export const FormatTimestamp = (timestampInMillis) => {
       day: "numeric",
       month: "long",
       year: "numeric",
-
       hour12: true,
     })
-
   return formattedTimestamp;
 };
 
@@ -104,7 +102,7 @@ export const FetchCustomersData = () => {
       const data = querySnapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id,
-        timestamp: doc.data().timestamp?.toDate().toString(),
+        timestamp: FormatTimestamp(doc.data().timestamp.seconds * 1000),
       }));
       const formattedData = data.map(customer => ({
         id: customer.id,
@@ -123,7 +121,7 @@ export const FetchCustomersData = () => {
           ? customer.customer_info.formData.selectedDate
           : "Nu are",
         aboutUs: customer.customer_info.formData.aboutUs,
-        timestamp: FormatTimestamp(customer.timestamp),
+        timestamp: customer.timestamp,
         email: customer.customer_info.formData.email,
         status: customer.customer_status
       }));
@@ -154,18 +152,23 @@ export const FetchCustomersData = () => {
   return { customerData, updateCustomer, deleteCustomer };
 };
 
+
 export const FetchContractData = () => {
   const [contracts, setContracts] = useState([]);
 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const contractCollectionRef = collection(db, 'contracts');
-        const contractSnapshot = await getDocs(contractCollectionRef);
-        const contractList = contractSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
+        const contractSnapshot = await getDocs(q);
+        const contractList = contractSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            timestamp: FormatTimestamp(data.timeStamp.seconds * 1000),
+          };
+        });
         setContracts(contractList);
       } catch (error) {
         console.error('Error fetching contracts:', error);
@@ -173,9 +176,8 @@ export const FetchContractData = () => {
     };
 
     fetchContracts();
-  }, []); // Runs only once when the component mounts
+  }, []);
 
-  // Update function to edit contracts
   const onEdit = async (id, updatedData) => {
     try {
       await updateDoc(doc(db, 'contracts', id), updatedData);
@@ -190,7 +192,6 @@ export const FetchContractData = () => {
     }
   };
 
-  // Update function to delete contracts
   const onDelete = async (id) => {
     try {
       await deleteDoc(doc(db, 'contracts', id));
@@ -203,7 +204,5 @@ export const FetchContractData = () => {
     }
   };
 
-  return { contracts, onEdit, onDelete }; // Return correct function names
+  return { contracts, onEdit, onDelete };
 };
-
-
