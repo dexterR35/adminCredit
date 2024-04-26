@@ -1,50 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import { FetchCustomersData } from '../../services/Hooks';
 import CardSmall from '../../Components/utils/_CardSmall';
-
+import FilterData from '../../Components/utils/FilterData'
 const HomePage = ({ user }) => {
     const { customerData } = FetchCustomersData();
-    const userName = user ? user.email.split('@')[0].toUpperCase() : 'GUEST';
+    const [customersAddedToday, setCustomersAddedToday] = useState([]);
+    const [lastCustomerPhone, setLastCustomerPhone] = useState(null);
+    const [stats, setStats] = useState({ newCustomersNew: 0, totalCustomers: 0 });
+    const userName = user ? user.email.split('@')[0].toUpperCase() : 'test';
+    useEffect(() => {
+        const today = new Date().toLocaleDateString(); // Get today's date in string format (MM/DD/YYYY)
+        const filteredCustomers = customerData.filter(customer => {
+            const customerDate = new Date(customer.timestamp).toLocaleDateString(); // Get customer's date in string format
+            return customerDate === today; // Check if the customer's date is today
+        });
 
-    // Calculate stats once when customerData changes
-    const stats = React.useMemo(() => {
+        setCustomersAddedToday(filteredCustomers);
+        if (filteredCustomers.length > 0) {
+            setLastCustomerPhone(filteredCustomers[0].phone);
+        } else {
+            setLastCustomerPhone(null); // Reset lastCustomerPhone if no customers were added today
+        }
+
         const totalCustomers = customerData.length;
-        const newCustomers = customerData.filter(c => c.status === 'new').length;
-        const unresolvedCustomers = totalCustomers - 60;
+        const newCustomersNew = customerData.filter(c => c.status === 'new').length;
+        setStats({ newCustomersNew, totalCustomers });
 
-        return {
-            newCustomers,
-            totalCustomers,
-            contractCount: totalCustomers - 20,
-            unresolvedCustomers,
-            resolvedCustomers: totalCustomers - 50,
-        };
     }, [customerData]);
 
     // Define card data
     const cardData = [
         {
             _one: 'Clienti Noi',
-            _two: stats.newCustomers,
+            _two: stats.newCustomersNew,
             _three: 'Astazi',
             icon: 'alarmClock',
-            className: 'bg-green-200',
+            className: 'bg-blue-200',
         },
         {
-            _one: 'Clienti Site',
-            _two: stats.totalCustomers,
-            _three: '24.04.2005',
-            icon: 'businessMan',
+            _one: 'Clienti Noi',
+            _two: customersAddedToday.length,
+            _three: lastCustomerPhone,
+            icon: 'alarmClock',
+            className: 'bg-blue-200',
         },
+
         {
             _one: 'Contracte',
-            _two: stats.contractCount,
+            _two: "3",
             _three: 'total',
             icon: 'cards',
         },
         {
             _one: 'Consultanti',
-            _two: stats.contractCount,
+            _two: "4",
             _three: 'total',
             icon: 'cards',
         },
@@ -72,7 +81,7 @@ const HomePage = ({ user }) => {
                         <CardSmall key={index} {...card} />
                     ))}
                 </div>
-
+                <FilterData />
                 <hr />
                 <h3 className="text-start mb-2">Info Deadline</h3>
                 <div className="flex flex-row space-x-3">

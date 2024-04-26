@@ -9,7 +9,7 @@ const ItemsPerPageSelector = ({ itemsPerPage, onItemsPerPageChange }) => {
 
     return (
         <div className="flex items-center space-x-2">
-            <label htmlFor="itemsPerPage">Items per page:</label>
+            <label htmlFor="itemsPerPage">Items per pages:</label>
             <select
                 id="itemsPerPage"
                 value={itemsPerPage}

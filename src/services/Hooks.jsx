@@ -95,7 +95,7 @@ export const FormatTimestamp = (timestampInMillis) => {
 
 export const FetchCustomersData = () => {
   const [customerData, setCustomerData] = useState([]);
-
+  console.log(customerData, "hooks")
   useEffect(() => {
     const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {

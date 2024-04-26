@@ -68,77 +68,68 @@ const ContractPage = () => {
 
     return (
         <div>
-            <h2 className="text-start mb-4">Contract Clienti</h2>
-
-            <div className="flex justify-between items-end mb-2 bg-red-200">
-                <select value={itemsPerPage} onChange={e => setItemsPerPage(parseInt(e.target.value, 10))}>
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={30}>30</option>
-                </select>
-                <div className='space-x-2'>
-                    <label htmlFor="search">Search</label>
-                    <input
-                        type="text"
-                        placeholder="Search by name or phone"
-                        value={searchQuery}
-                        onChange={handleSearch}
-                        className="p-2 border rounded"
-                        id='search'
-                    />
+            <div className='w-[90%] mx-auto'>
+                <h2 className="text-start mb-4">Contract Clienti</h2>
+                <div className="flex justify-between items-end mb-2">
+                    <select value={itemsPerPage} onChange={e => setItemsPerPage(parseInt(e.target.value, 10))}>
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={30}>30</option>
+                    </select>
+                    <div className='space-x-2'>
+                        <input
+                            type="text"
+                            placeholder="Search by name or phone"
+                            value={searchQuery}
+                            onChange={handleSearch}
+                            className="p-2 border rounded"
+                            id='search'
+                        />
+                    </div>
                 </div>
-            </div>
 
-            <div className="overflow-auto w-full flex flex-row flex-wrap gap-4">
-                <table className="w-[45%] border-collapse border-0">
-                    <thead>
-                        <tr>
-                            {headers.map((header, index) => (
-                                <th key={index} className="p-2">{header}</th>
+                <div className="overflow-auto w-full ">
+                    <table className="border-collapse border-0">
+                        <thead>
+                            <tr>
+                                {headers.map((header, index) => (
+                                    <th key={index} className="p-2">{header}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentItems.map((contract, index) => (
+                                <React.Fragment key={index}>
+                                    <tr>
+                                        {/* <td>{contract.id}</td> */}
+                                        <td className='space-x-1'><span>{contract.firstName}</span><span>{contract.lastName}</span></td>
+                                        <td>{contract.phone}</td>
+                                        <td className='space-x-2'>
+                                            <a href={contract.pdfUrl} target='_blank' rel="noopener noreferrer" className='underline'>View Pdf</a>
+                                            <a href={contract.photo} target='_blank' rel="noopener noreferrer" className='underline'>View Photo</a>
+                                        </td>
+
+                                        <td>
+
+                                            {FormatTimestamp(contract.timestamp)}
+                                        </td>
+                                        <td>
+                                            <EditButton onClick={() => handleEdit(contract.id)} />
+                                            <DeleteButton onClick={() => handleDelete(contract.id)} />
+
+                                        </td>
+                                    </tr>
+                                </React.Fragment>
                             ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentItems.map((contract, index) => (
-                            <React.Fragment key={index}>
-                                <tr>
-                                    {/* <td>{contract.id}</td> */}
-                                    <td className='space-x-1'><span>{contract.firstName}</span><span>{contract.lastName}</span></td>
-                                    <td>{contract.phone}</td>
-                                    <td className='space-x-2'>
-                                        <a href={contract.pdfUrl} target='_blank' rel="noopener noreferrer" className='underline'>View Pdf</a>
-                                        <a href={contract.photo} target='_blank' rel="noopener noreferrer" className='underline'>View Photo</a>
-                                    </td>
+                        </tbody>
+                    </table>
 
-                                    <td>
+                </div>
 
-                                        {FormatTimestamp(contract.timestamp)}
-                                    </td>
-                                    <td>
-                                        <EditButton onClick={() => handleEdit(contract.id)} />
-                                        <DeleteButton onClick={() => handleDelete(contract.id)} />
-
-                                    </td>
-                                </tr>
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-                <div className='w-[45%]'>
-                    <p>part2</p>
+                <div className="flex justify-center mt-4">
+                    {renderPageNumbers()}
                 </div>
             </div>
-
-            <div className="flex justify-center mt-4">
-                {renderPageNumbers()}
-            </div>
-
-            <ConfirmDialog
-                open={confirmOpen}
-                message={confirmMessage}
-                onClose={() => setConfirmOpen(false)}
-                onConfirm={confirmAction}
-            />
 
 
         </div>
