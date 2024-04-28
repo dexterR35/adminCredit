@@ -7,14 +7,14 @@ const MainLayout = ({ children }) => {
     return (
         <div className="flex flex-col">
             <NavBar />
-            <div className="grid grid-cols-12 w-full">
-                <div className='col-start-1 col-end-3'>
+            <div className="grid grid-cols-custom w-full">
+                <div className='col-start-1'>
                     <AsideMenu />
                 </div>
-                <main className="p-2 col-start-3 col-end-11">
+                <main className="p-6 col-start-2 col-end-12">
                     {children}
                 </main>
-                <div className='col-start-11 col-end-13'>
+                <div className='col-end-13'>
                     <AsideMenuRight />
                 </div>
             </div>

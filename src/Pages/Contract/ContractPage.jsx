@@ -51,7 +51,7 @@ const ContractPage = () => {
     };
     return (
         <div>
-            <div className='w-[90%] mx-auto'>
+            <div >
                 <h2 className="text-start mb-4">Contract Clienti</h2>
                 <div className="flex justify-between items-end mb-2">
                     <ItemsPerPageSelector

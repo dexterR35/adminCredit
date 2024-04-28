@@ -15,7 +15,6 @@ const root = ReactDOM.createRoot(rootElement);
 // Render the App component wrapped in BrowserRouter.
 root.render(
     <I18nextProvider i18n={i18n}>
-
         <Router>
             <App />
         </Router>
