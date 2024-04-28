@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import {
   getAuth,
@@ -95,7 +95,8 @@ export const FormatTimestamp = (timestampInMillis) => {
 
 export const FetchCustomersData = () => {
   const [customerData, setCustomerData] = useState([]);
-  console.log(customerData, "hooks")
+  const [lastAddedCustomer, setLastAddedCustomer] = useState(null);
+
   useEffect(() => {
     const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -126,6 +127,11 @@ export const FetchCustomersData = () => {
         status: customer.customer_status
       }));
       setCustomerData(formattedData);
+      // Set last added customer
+      if (formattedData.length > 0) {
+        setLastAddedCustomer(formattedData[0]);
+      }
+      console.log(customerData, "hooks")
     });
     return () => unsubscribe();
   }, []);
@@ -148,34 +154,41 @@ export const FetchCustomersData = () => {
     }
   };
 
+  const customersAddedOnCurrentDay = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return customerData.filter(customer => {
+      const customerDate = new Date(customer.timestamp);
+      customerDate.setHours(0, 0, 0, 0);
+      return customerDate.getTime() === today.getTime();
+    });
+  }, [customerData]);
 
-  return { customerData, updateCustomer, deleteCustomer };
+  const lengthOfCustomersAddedOnCurrentDay = customersAddedOnCurrentDay.length;
+  const nameOfLastAddedCustomer = customersAddedOnCurrentDay.length > 0 ? customersAddedOnCurrentDay[0].name : null;
+
+
+  return { customerData, updateCustomer, deleteCustomer, customersAddedOnCurrentDay, lastAddedCustomer, lengthOfCustomersAddedOnCurrentDay, nameOfLastAddedCustomer };
 };
 
 
 export const FetchContractData = () => {
   const [contracts, setContracts] = useState([]);
-
+  console.log(contracts, "fasfaaaaa")
   useEffect(() => {
-    const fetchContracts = async () => {
-      try {
-        const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
-        const contractSnapshot = await getDocs(q);
-        const contractList = contractSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            timestamp: FormatTimestamp(data.timeStamp.seconds * 1000),
-          };
-        });
-        setContracts(contractList);
-      } catch (error) {
-        console.error('Error fetching contracts:', error);
-      }
-    };
-
-    fetchContracts();
+    const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const contractList = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          timestamp: FormatTimestamp(data.timeStamp.seconds * 1000),
+        };
+      });
+      setContracts(contractList);
+    });
+    return () => unsubscribe();
   }, []);
 
   const onEdit = async (id, updatedData) => {
@@ -204,5 +217,8 @@ export const FetchContractData = () => {
     }
   };
 
-  return { contracts, onEdit, onDelete };
+  const lastContractName = contracts.length > 0 ? `${contracts[0].firstName} ${contracts[0].lastName}` : '';
+  const contractsLength = contracts.length;
+
+  return { contracts, onEdit, onDelete, lastContractName, contractsLength };
 };

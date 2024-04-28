@@ -3,7 +3,7 @@
 
 ::-webkit-scrollbar {
   width: 0.4em;
-  height: auto
+  height: auto;
 }
 ::-webkit-scrollbar-button {
   background: #eee;
@@ -22,32 +22,6 @@
   body {
     font-family: sans-serif;
   }
-  thead tr th {
-    padding: 1em 0;
-    font-size: 0.9em;
-
-    width: 20%;
-  }
-  thead tr {
-    background: rgb(3, 21, 32);
-    color: white;
-    text-transform: uppercase;
-  }
-  tbody tr {
-    cursor: pointer;
-  }
-  tbody tr:hover {
-    background: rgb(134 239 172);
-    color: black;
-    transition: all 0.3s ease;
-  }
-
-  tbody tr td {
-    padding: 1em 0.5em;
-    background: rgb(247, 247, 247);
-    font-size: 0.85em;
-
-  }
 
   h2 {
     text-align: center;
@@ -64,58 +38,19 @@
     margin: 20px 0;
   }
 
-  button {
-    padding: 0.4em 2em;
-    border-radius: 5px;
-    outline: none;
-    border: none;
-    font-size: 0.9em;
-    text-transform: capitalize;
-    font-weight: bold;
-  }
   /* Basic table structure */
-table {
-  @apply w-full border-collapse;
+  table {
+    @apply w-full border-collapse;
+  }
 }
-
-table th {
-  @apply p-2 text-left bg-gray-200;
-}
-
-table td {
-  @apply p-2 border-0 bg-green-200;
-}
-
-table thead {
-  @apply bg-gray-200;
-}
-
-table tr {
-  @apply hover:bg-gray-100  py-2;
-}
-
-
-/* Pagination buttons */
-.table-pagination {
-  @apply flex justify-center mt-4;
-}
-
-.table-pagination button {
-  @apply p-2 m-1 border rounded hover:bg-gray-300;
-}
-
-.table-pagination .active {
-  @apply bg-green-300;
-}
-}
-
 
 /* FormStyles.css */
 .form-group label {
   @apply text-gray-700 font-semibold;
 }
 
-.form-group input, .form-group textarea {
+.form-group input,
+.form-group textarea {
   @apply mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm;
 }
 

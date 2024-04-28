@@ -8,7 +8,7 @@ function AsideMenu() {
     const links = [
         { path: "/admin/home", label: t('menu.home'), icon: <IconR icon="FcHome" size={22} /> },
         { path: "/admin/customers", label: t('menu.customersSite'), icon: <IconR icon="businessMan" size={22} /> },
-        { path: "/admin/contractUsers", label: t('menu.customersContract'), icon: <IconR icon="FcReading" size={22} /> },
+        { path: "/admin/contract", label: t('menu.customersContract'), icon: <IconR icon="FcReading" size={22} /> },
         { path: "/admin/oldraport", label: t('menu.raportOld'), icon: <IconR icon="businessContact" size={22} /> },
         { path: "/admin/newraport", label: t('menu.raportNew'), icon: <IconR icon="FcBearish" size={22} /> },
         { path: "/admin/createUser", label: t('menu.customersCreate'), icon: <IconR icon="FcOvertime" size={22} /> },

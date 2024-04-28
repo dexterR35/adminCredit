@@ -42,9 +42,9 @@ const App = () => {
           <Routes>
             <Route path="home" element={<HomePage user={user} />} />
             <Route path="customers" element={<CustomersPage />} />
-            <Route path="contractUsers" element={<ContractPage />} />
-            <Route path="createUser" element={<FormUser />} />
-            <Route path="document" element={<FetchCSVData />} />
+            <Route path="contract" element={<ContractPage />} />
+            <Route path="newraport" element={<FormUser />} />
+            <Route path="oldraport" element={<FetchCSVData />} />
             <Route path="*" element={<Navigate to="/admin/home" replace />} />
           </Routes>
         </ProtectedRoute>} />

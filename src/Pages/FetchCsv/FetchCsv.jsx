@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import ConfirmDialog from '../../Components/Dialog/ConfirmDialog'; // Import the confirmation dialog
+import TableCustom from '../../Components/Table/TableCustom';
+import UseDataTable from '../../Components/Table/UseDataTable';
+import Pagination from '../../Components/Table/_Pagination';
+import Search from '../../Components/Table/_Search';
+import ItemsPerPageSelector from '../../Components/Table/_itemPerPage';
 
 const DataTable = ({ onEdit, onDelete }) => {
     const [data, setData] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [expandedRow, setExpandedRow] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const [confirmMessage, setConfirmMessage] = useState('');
-    const [confirmAction, setConfirmAction] = useState(null);
-
-    const headers = ["DATA", "CONSULTANT", "NUME CLIENT", "STATUS", "Deadline"];
+    const [selectedConsultant, setSelectedConsultant] = useState('');
+    const headers = ["DATA", "CONSULTANT", "NUME CLIENT"];
 
     useEffect(() => {
         fetch('/src/test6.json')
@@ -26,148 +22,111 @@ const DataTable = ({ onEdit, onDelete }) => {
                 }
                 return response.json();
             })
-            .then(data => setData(data))
+            .then(data => {
+                console.log("Fetched data:", data); // Log fetched data
+                setData(data);
+            })
             .catch(error => console.error('Error fetching data:', error));
     }, []);
 
-    const handleRowClick = (index) => {
-        setExpandedRow(index === expandedRow ? null : index);
+    const {
+        searchQuery,
+        currentPage,
+        itemsPerPage,
+        handleRowClick,
+        handleSearch,
+        handleItemsPerPageChange,
+        handlePageChange,
+        filteredData,
+        currentItems,
+        totalPages,
+        indexOfFirstItem,
+        indexOfLastItem,
+        expandedRow
+    } = UseDataTable(data);
+
+    const handleConsultantChange = (event) => {
+        setSelectedConsultant(event.target.value);
     };
 
-    const handleSearch = (e) => {
-        setSearchQuery(e.target.value.toLowerCase());
-        setCurrentPage(1); // Reset page when searching
-    };
-
-    const handleItemsPerPageChange = (e) => {
-        setItemsPerPage(parseInt(e.target.value, 10));
-        setCurrentPage(1); // Reset page when changing items per page
-    };
-
-    // const handleEdit = (id) => {
-    //     setConfirmOpen(true);
-    //     setConfirmMessage(`Are you sure you want to edit the record with ID ${id}?`);
-    //     setConfirmAction(() => {
-    //         onEdit(id);
-    //         setConfirmOpen(false);
-    //     });
-    // };
-
-    // const handleDelete = (id) => {
-    //     setConfirmOpen(true);
-    //     setConfirmMessage(`Are you sure you want to delete the record with ID ${id}?`);
-    //     setConfirmAction(() => {
-    //         onDelete(id);
-    //         setConfirmOpen(false);
-    //     });
-    // };
-
-    const filteredData = data.filter(
-        (item) => item['NUME CLIENT'].toLowerCase().includes(searchQuery) ||
-            item['CONSULTANT'].toLowerCase().includes(searchQuery)
-    );
-
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-    const renderPageNumbers = () => {
-        const pageNumbers = [];
-        for (let i = 1; i <= totalPages; i++) {
-            pageNumbers.push(
-                <button
-                    key={i}
-                    className={`p-2 m-1 ${i === currentPage ? 'bg-green-300' : 'bg-white'}`}
-                    onClick={() => setCurrentPage(i)}
-                >
-                    {i}
-                </button>
-            );
-        }
-        return pageNumbers;
+    const generateTableBody = () => {
+        return currentItems.map((item, index) => (
+            <React.Fragment key={index}>
+                <tr onClick={() => handleRowClick(index)} className="cursor-pointer text-[14px]">
+                    <td className="p-2">{item["DATA"]}</td>
+                    <td className="p-2">{item['CONSULTANT']}</td>
+                    <td className="p-2">{item['NUME CLIENT']}</td>
+                </tr>
+                {expandedRow === index && (
+                    <tr>
+                        <td colSpan={headers.length} className="p-2 border">
+                            <div>
+                                <p>Data: {item.data}</p>
+                                <p>About Us: {item.aboutUs}</p>
+                                <h4>Additional Details for {item.name}</h4>
+                            </div>
+                            <button
+                                className="bg-blue-300 p-1 rounded"
+                                onClick={() => handleEditClick(item.id)}
+                            >
+                                Edit
+                            </button>
+                            <button
+                                className="bg-red-300 p-1 rounded"
+                                onClick={() => handleDeleteClick(item.id)}
+                            >
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                )}
+            </React.Fragment>
+        ));
     };
 
     return (
         <div>
-            <div className="flex justify-between items-end mb-2">
-                <select
-                    value={itemsPerPage}
-                    onChange={handleItemsPerPageChange}
-                    className="border p-1"
-                >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                </select>
-                <input
-                    type="text"
-                    placeholder="Search by consultant or client name"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    className="p-2 border rounded"
-                />
-            </div>
+            {data.length === 0 && <div>Loading...</div>}
+            {data.length > 0 && (
+                <div>
+                    <div className="flex justify-between items-end mb-2">
+                        <div className='flex flex-row gap-4 items-end'>
+                            <ItemsPerPageSelector
+                                itemsPerPage={itemsPerPage}
+                                onItemsPerPageChange={handleItemsPerPageChange}
+                            />
+                            <span className='text-sm'>Showing {filteredData.length > 0 ? indexOfFirstItem + 1 : 0} - {Math.min(indexOfLastItem, filteredData.length)} of {filteredData.length} results</span>
 
-            <div className='overflow-auto'>
-                <table className="w-full border-collapse">
-                    <thead>
-                        <tr>
-                            {headers.map((header) => (
-                                <th key={header} className="p-2">{header}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentItems.map((item, index) => (
-                            <React.Fragment key={index}>
-                                <tr
-                                    onClick={() => handleRowClick(index)}
-                                    className={`cursor-pointer ${expandedRow === index ? 'bg-gray-200' : ''}`}
-                                >
-                                    <td className="p-2">{item['DATA']}</td>
-                                    <td className="p-2">{item['CONSULTANT']}</td>
-                                    <td className="p-2">{item['NUME CLIENT']}</td>
-                                    <td className="p-2">{item['STATUS']}</td>
-                                    <td className="p-2">{item['Deadline']}</td>
-                                </tr>
-                                {expandedRow === index && (
-                                    <tr>
-                                        <td colSpan={headers.length} className="p-2 border">
-                                            <div>
-                                                <p>Informatii aditionale: {item['Informatii aditionale']}</p>
-                                                <p>Suma Salariu: {item['Suma Salariu']}</p>
-                                                <p>Data angajare: {item['Data angajare']}</p>
-                                                <p>Link BC sau Cod SR: {item['Link BC sau Cod SR']}</p>
-                                            </div>
-                                            {/* <button className="bg-blue-300 p-1 rounded" onClick={() => handleEdit(item['NUME CLIENT'])}>Edit</button>
-                                            <button className="bg-red-300 p-1 rounded" onClick={() => handleDelete(item['NUME CLIENT'])}>Delete</button> */}
-                                        </td>
-                                    </tr>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </div>
+                        <div>
+                            <div className=' flex gap-2 justify-center items-center'>
+                                <label htmlFor="consultantSelect">Select Consultant:</label>
+                                <select id="consultantSelect" value={selectedConsultant} onChange={handleConsultantChange}>
+                                    <option value="">All Consultants</option>
+                                    {/* Map over unique consultant names and create options */}
+                                    {Array.from(new Set(data.map(item => item['CONSULTANT']))).map((consultant, index) => (
+                                        <option key={index} value={consultant}>{consultant}</option>
+                                    ))}
+                                </select>
+                                <Search searchQuery={searchQuery} onSearch={handleSearch} />
+                            </div>
+                        </div>
 
-            <div className="flex justify-center mt-4 flex-wrap">
-                {renderPageNumbers()}
-            </div>
 
-            <ConfirmDialog
-                open={confirmOpen}
-                message={confirmMessage}
-                onClose={() => setConfirmOpen(false)}
-                onConfirm={confirmAction}
-            />
+                    </div>
+
+                    <div>
+                        <TableCustom headers={headers} body={generateTableBody()} />
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
-};
-
-DataTable.propTypes = {
-    onEdit: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
 };
 
 export default DataTable;
