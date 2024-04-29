@@ -7,7 +7,7 @@ const MainLayout = ({ children }) => {
     return (
         <div className="flex flex-col">
             <NavBar />
-            <div className="grid grid-cols-custom w-full">
+            <div className="grid grid-cols-custom-10 w-full">
                 <div className='col-start-1'>
                     <AsideMenu />
                 </div>

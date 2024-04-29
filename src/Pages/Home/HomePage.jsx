@@ -1,8 +1,9 @@
 
 import { FetchContractData, FetchCustomersData } from '../../services/Hooks';
-import CardSmall from '../../Components/utils/_CardSmall';
+import CardSmall from '../../Components/CardSmall/_CardSmall';
+import CurrentDateTimeComp from '../../Components/utils/_CurrentTime';
+import ContractPage from '../Contract/ContractPage';
 
-import CurrentDateTimeComp from '../../Components/utils/_CurrentTime'
 const HomePage = ({ user }) => {
     const { customerData, customersAddedOnCurrentDay, nameOfLastAddedCustomer } = FetchCustomersData();
     const { lastContractName, contractsLength } = FetchContractData()
@@ -14,14 +15,14 @@ const HomePage = ({ user }) => {
             _two: customerData.length,
             _three: 'Details',
             icon: 'alarmClock',
-            className: 'bg-blue-200',
+            className: 'bg-low-color',
         },
         {
             _one: 'Today Clients',
             _two: customersAddedOnCurrentDay.length,
             _three: nameOfLastAddedCustomer ? nameOfLastAddedCustomer : "Nothing",
             icon: 'alarmClock',
-            className: 'bg-blue-200',
+            className: 'bg-low-color',
         },
 
         {
@@ -29,12 +30,14 @@ const HomePage = ({ user }) => {
             _two: contractsLength,
             _three: lastContractName,
             icon: 'cards',
+            className: 'bg-low-color',
         },
         {
             _one: 'Consultanti',
             _two: "4",
             _three: 'total',
             icon: 'cards',
+            className: 'bg-low-color',
         },
 
     ];
@@ -47,47 +50,21 @@ const HomePage = ({ user }) => {
             </div >
             <div className="w-full">
                 <hr />
-                <h3 className="text-start mb-2">Clienti</h3>
-                <div className="flex flex-row space-x-3">
+                <h3 className="text-start">Customers</h3>
+                <div className="grid grid-cols-custom-4 gap-5">
                     {cardData.map((card, index) => (
                         <CardSmall key={index} {...card} />
                     ))}
                 </div>
-
+                <br />
                 <hr />
-                <h3 className="text-start mb-2">Info Deadline</h3>
-                <div className="flex flex-row space-x-3">
-                    <CardSmall
-                        _one="Active"
-                        _two={customersAddedOnCurrentDay.length}
-                        _three="Details"
-                        icon="FcAbout"
-                        className="bg-blue-200"
-
-                    />
-                    <CardSmall
-                        _one="In Asteptare"
-                        _two={customersAddedOnCurrentDay.length}
-                        _three="Nume Client"
-                        icon="hightPriority"
-                        className="bg-yellow-200"
-                    />
-                    <CardSmall
-                        _one="Finalizate"
-                        _two={customersAddedOnCurrentDay.length}
-                        _three="Nr.Doc"
-                        icon="FcOk"
-                        className="bg-green-200"
-                    />
-                    <CardSmall
-                        _one="Nerezolvate"
-                        _two={customersAddedOnCurrentDay.length}
-                        _three="Details"
-                        icon="FcBearish"
-                        className="bg-red-200"
-                    />
-
+                <div className="div">
+                    <h3>Tabel Raport</h3>
+                    <div className="w-full">
+                        <ContractPage />
+                    </div>
                 </div>
+
             </div>
         </>
     );

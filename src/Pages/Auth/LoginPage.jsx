@@ -21,25 +21,37 @@ const LoginPage = ({ setUser }) => {
     }
   };
   return (
-    <div className="container mx-auto w-full h-screen flex items-center justify-center flex-col">
-      <div className="bg-white w-[50%] h-[300px] flex flex-col justify-center items-center font-sans">
-        <p className="text-md uppercase font-bold">ObtineCredit.ro</p>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border w-[50%] my-4 p-2 rounded-md"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border w-[50%] p-2 rounded-md"
-        />
+    <div className=" w-full h-screen flex items-center justify-center flex-col">
+      <div className="flex flex-col justify-center items-center p-4">
+        <p className="text-lg uppercase font-bold mb-4">Obtine Credit.ro</p>
+        <div className="flex-col flex md:w-80 w-[100%]">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-input"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="form-input"
+          />
+          <div className="flex justify-between mt-2 text-[12px]">
+            <label className="flex items-center space-x-1 cursor-pointer">
+              <input
+                type="checkbox"
+                className="form-checkbox"
+              />
+              <span className="text-gray-700">Remember me</span>
+            </label>
+            <p className="underline text-gray-700 cursor-pointer">Forgot Password?</p>
+          </div>
+        </div>
 
-        <LogInButton onClick={handleLogin} />
+        <LogInButton onClick={handleLogin} size='lg' additionalClasses="w-full mt-6" />
 
       </div>
     </div >
