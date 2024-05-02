@@ -5,6 +5,7 @@ import Search from '../../Components/Table/_Search';
 import ItemsPerPageSelector from '../../Components/Table/_itemPerPage';
 import UseDataTable from '../../Components/Table/UseDataTable';
 import TableCustom from '../../Components/Table/TableCustom';
+import { CustomButton } from "../../Components/Buttons/Buttons";
 
 const CustomersPage = () => {
   const headers = ["name", "history", "phone", "timestamp", "status"];
@@ -26,12 +27,12 @@ const CustomersPage = () => {
   } = UseDataTable(customerData);
 
 
-  const handleEditClick = (id) => {
-
+  const handleEdit = (id) => {
+    // Add your edit logic here
   };
 
-  const handleDeleteClick = (id) => {
-
+  const handleDelete = (id) => {
+    // Add your delete logic here
   };
   const generateTableBody = () => {
     return currentItems.map((item, index) => (
@@ -51,18 +52,8 @@ const CustomersPage = () => {
                 <p>About Us: {item.aboutUs}</p>
                 <h4>Additional Details for {item.name}</h4>
               </div>
-              <button
-                className="bg-blue-300 p-1 rounded"
-                onClick={() => handleEditClick(item.id)}
-              >
-                Edit
-              </button>
-              <button
-                className="bg-red-300 p-1 rounded"
-                onClick={() => handleDeleteClick(item.id)}
-              >
-                Delete
-              </button>
+              <CustomButton onClick={() => handleEdit(contract.id)} />
+              <CustomButton onClick={() => handleDelete(contract.id)} />
             </td>
           </tr>
         )}

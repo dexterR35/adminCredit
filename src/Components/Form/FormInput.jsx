@@ -1,17 +1,21 @@
 import React from 'react';
 import { Formik, Form, Field } from 'formik';
+import { CustomButton } from '../Buttons/Buttons';
 
 const FormUser = ({ initialValues, onSubmit, fields }) => {
+    const handleSubmit = async (values, { setSubmitting }) => {
+        // Call the onSubmit function passed as prop to handle form submission
+        await onSubmit(values);
+        setSubmitting(false);
+    };
+
     return (
         <div className="mx-auto p-5">
-            <h1 className="text-3xl font-bold mb-5">User Information Form</h1>
+            <h1 className="text-3xl font-bold mb-5">Create Client</h1>
             <div className='max-w-5xl'>
                 <Formik
                     initialValues={initialValues}
-                    onSubmit={(values, { setSubmitting }) => {
-                        onSubmit(values);
-                        setSubmitting(false);
-                    }}
+                    onSubmit={handleSubmit} // Pass handleSubmit to Formik
                 >
                     {({ isSubmitting }) => (
                         <Form className="grid grid-cols-3 gap-4">
@@ -29,22 +33,46 @@ const FormUser = ({ initialValues, onSubmit, fields }) => {
                                             className="p-2 border rounded-md focus:outline-none focus:border-blue-500"
                                         />
                                     )}
-                                    {field.as !== 'textarea' && (
+                                    {field.as === 'input' && (
                                         <Field
                                             id={field.name}
                                             name={field.name}
                                             type={field.type || 'text'}
                                             placeholder={field.placeholder || ''}
-                                            as={field.as || 'input'}
+                                            className="p-2 border rounded-md focus:outline-none focus:border-blue-500"
+                                        />
+                                    )}
+                                    {field.as === 'select' && (
+                                        <Field
+                                            as="select"
+                                            id={field.name}
+                                            name={field.name}
+                                            className="p-2 border rounded-md focus:outline-none focus:border-blue-500"
+                                        >
+                                            {field.options.map((option, optionIndex) => (
+                                                <option key={optionIndex} value={option.value}>{option.label}</option>
+                                            ))}
+                                        </Field>
+                                    )}
+                                    {field.as === 'date' && (
+                                        <Field
+                                            id={field.name}
+                                            name={field.name}
+                                            type="date"
+                                            placeholder={field.placeholder || ''}
                                             className="p-2 border rounded-md focus:outline-none focus:border-blue-500"
                                         />
                                     )}
                                 </div>
                             ))}
                             <div className="col-span-full">
-                                <button type="submit" disabled={isSubmitting} className="py-3 px-6 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
-                                    {isSubmitting ? 'Submitting...' : 'Submit'}
-                                </button>
+                                <CustomButton
+                                    isSaving={isSubmitting}
+                                    size="md"
+                                    additionalClasses="p-2 w-52"
+                                    text="Submit"
+                                    type="submit"
+                                />
                             </div>
                         </Form>
                     )}

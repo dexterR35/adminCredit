@@ -5,7 +5,7 @@ module.exports = {
     
       extend: {
         gridTemplateColumns: {
-          'custom-10': '200px repeat(10, minmax(50px, 1fr)) 200px',
+          'custom-12':'180px repeat(10, minmax(50px, 1fr)) 180px',
           'custom-4':'repeat(4,200px)'
         },
         colors: {

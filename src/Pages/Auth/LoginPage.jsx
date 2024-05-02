@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Login } from "../../services/Hooks";
-import { LogInButton } from "../../Components/Buttons/Buttons"
+import { CustomButton } from "../../Components/Buttons/Buttons"
 const LoginPage = ({ setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,7 +51,7 @@ const LoginPage = ({ setUser }) => {
           </div>
         </div>
 
-        <LogInButton onClick={handleLogin} size='lg' additionalClasses="w-full mt-6" />
+        <CustomButton onClick={handleLogin} size='lg' additionalClasses="w-full mt-6" />
 
       </div>
     </div >

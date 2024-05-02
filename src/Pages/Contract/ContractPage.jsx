@@ -2,7 +2,7 @@ import { FormatTimestamp, FetchContractData } from "../../services/Hooks";
 import Search from "../../Components/Table/_Search";
 import ItemsPerPageSelector from "../../Components/Table/_itemPerPage";
 import Pagination from "../../Components/Table/_Pagination";
-import { EditButton, DeleteButton } from "../../Components/Buttons/Buttons"; // Assuming these components exist
+import { CustomButton } from "../../Components/Buttons/Buttons"; // Assuming these components exist
 import UseDataTable from "../../Components/Table/UseDataTable";
 import TableCustom from "../../Components/Table/TableCustom";
 const ContractPage = () => {
@@ -61,8 +61,8 @@ const ContractPage = () => {
                 </td>
                 <td>{FormatTimestamp(contract.timestamp)}</td>
                 <td>
-                    <EditButton onClick={() => handleEdit(contract.id)} />
-                    <DeleteButton onClick={() => handleDelete(contract.id)} />
+                    <CustomButton onClick={() => handleEdit(contract.id)} />
+                    <CustomButton onClick={() => handleDelete(contract.id)} />
                 </td>
             </tr>
         ));
