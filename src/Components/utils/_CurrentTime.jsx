@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const CurrentDateTimeComp = () => {
-    const currentDateTime = new Date();
+    const [currentTime, setCurrentTime] = useState(new Date());
 
-    const currentDate = currentDateTime.toLocaleDateString('ro-RO');
-    const currentHours = currentDateTime.getHours();
-    const currentMinutes = currentDateTime.getMinutes();
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000); // Update every second
+
+        return () => clearInterval(intervalId); // Clean up the interval on component unmount
+    }, []); // Empty dependency array to run effect only once on component mount
+
+    const currentDate = currentTime.toLocaleDateString('ro-RO');
+    const currentHours = currentTime.getHours();
+    const currentMinutes = currentTime.getMinutes();
 
     // Format hours to 24-hour format with leading zeros if necessary
     const formattedHours = currentHours < 10 ? '0' + currentHours : currentHours;

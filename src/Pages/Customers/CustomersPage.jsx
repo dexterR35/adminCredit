@@ -37,15 +37,15 @@ const CustomersPage = () => {
     return currentItems.map((item, index) => (
       <React.Fragment key={index}>
         <tr onClick={() => handleRowClick(index)} className="cursor-pointer">
-          <td className="p-2">{item.name}</td>
-          <td className="p-2">{item.bankHistory}</td>
-          <td className="p-2">{item.phone}</td>
-          <td className="p-2">{item.timestamp}</td>
-          <td className="p-2">{item.status}</td>
+          <td >{item.name}</td>
+          <td >{item.bankHistory}</td>
+          <td >{item.phone}</td>
+          <td >{item.timestamp}</td>
+          <td >{item.status}</td>
         </tr>
         {expandedRow === index && (
           <tr>
-            <td colSpan={headers.length} className="p-2 border">
+            <td colSpan={headers.length} className="border">
               <div>
                 <p>Email: {item.email}</p>
                 <p>About Us: {item.aboutUs}</p>

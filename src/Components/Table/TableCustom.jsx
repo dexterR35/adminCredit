@@ -3,16 +3,16 @@ import React from 'react';
 
 const TableCustom = ({ headers, body }) => {
     return (
-        <div className='overflow-auto'>
-            <table className="w-full border-collapse">
-                <thead>
+        <div className='relative overflow-y-auto sm:rounded-lg'>
+            <table className="custom-table h-full">
+                <thead className='text-sm text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
                     <tr>
                         {headers.map((header, index) => (
-                            <th key={index} className="p-2">{header}</th>
+                            <th key={index}>{header}</th>
                         ))}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     {body}
                 </tbody>
             </table>

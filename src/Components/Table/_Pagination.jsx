@@ -22,7 +22,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             pageNumbers.push(
                 <button
                     key={1}
-                    className={`p-2 m-1 ${1 === currentPage ? 'bg-green-300' : 'bg-white'}`}
+                    className={`p-2 m-1 ${1 === currentPage ? 'bg-primary' : 'bg-white'}`}
                     onClick={() => onPageChange(1)}
                 >
                     {1}
@@ -35,7 +35,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             pageNumbers.push(
                 <button
                     key={i}
-                    className={`p-2 m-1 ${i === currentPage ? 'bg-green-300' : 'bg-white'}`}
+                    className={`p-2 m-1 ${i === currentPage ? 'bg-primary' : 'bg-white'}`}
                     onClick={() => onPageChange(i)}
                 >
                     {i}
@@ -48,7 +48,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             pageNumbers.push(
                 <button
                     key={totalPages}
-                    className={`p-2 m-1 ${totalPages === currentPage ? 'bg-green-300' : 'bg-white'}`}
+                    className={`p-2 m-1 ${totalPages === currentPage ? 'bg-primary' : 'bg-white'}`}
                     onClick={() => onPageChange(totalPages)}
                 >
                     {totalPages}

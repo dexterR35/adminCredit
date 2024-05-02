@@ -1,19 +1,6 @@
 @tailwind base;
 /* width */
 
-::-webkit-scrollbar {
-  width: 0.4em;
-  height: auto;
-}
-::-webkit-scrollbar-button {
-  background: #eee;
-}
-::-webkit-scrollbar-track-piece {
-  background: #eee;
-}
-::-webkit-scrollbar-thumb {
-  background: #ccc;
-}
 
 @tailwind components;
 @tailwind utilities;
@@ -38,18 +25,54 @@
     margin: 20px 0;
   }
 
-  /* Basic table structure */
-  table {
-    @apply w-full border-collapse;
+  ::-webkit-scrollbar {
+    width: 0.4em;
+    height: auto;
   }
-  .form-input {
-    @apply my-2 p-2 px-3 rounded border-gray-300 text-gray-800 sm:text-sm outline-0;
+  ::-webkit-scrollbar-button {
+    background: #eee;
   }
-
-  .form-checkbox {
-    @apply h-4 w-4 rounded border-gray-300 focus:ring-indigo-600 outline-0 focus:ring-transparent;
+  ::-webkit-scrollbar-track-piece {
+    background: #eee;
   }
-
+  ::-webkit-scrollbar-thumb {
+    background: #ccc;
+  }
 }
 
+
+.custom-table {
+  @apply w-full text-sm text-left rtl:text-right text-gray-900;
+}
+
+
+/* .custom-table th {
+  @apply px-4 py-2;
+} */
+
+
+.custom-table {
+  @apply w-full text-sm text-left rtl:text-right text-gray-900;
+}
+
+
+.custom-table table {
+  @apply w-full border-collapse;
+}
+
+
+.custom-table thead th {
+  @apply px-4 py-2 bg-primary text-gray-900;
+}
+.custom-table thead tr th {
+  
+  @apply w-[20%];
+}
+
+.custom-table tbody td {
+  @apply px-4 p-3 border border-gray-200 cursor-pointer bg-white;
+}
+.custom-table tbody tr {
+  @apply hover:bg-green-100  hover:font-semibold transition-colors;
+}
 

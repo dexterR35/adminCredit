@@ -8,18 +8,18 @@ const ItemsPerPageSelector = ({ itemsPerPage, onItemsPerPageChange }) => {
     };
 
     return (
-        <div className="flex items-center space-x-2">
-            <label htmlFor="itemsPerPage">Items per pages:</label>
+        <div className="flex flex-row items-center space-x-2 ">
+            <label htmlFor="itemsPerPage" className='text-sm'>Users</label>
             <select
                 id="itemsPerPage"
                 value={itemsPerPage}
                 onChange={handleChange}
-                className="border p-1 rounded"
+                className="border py-1 pr-8 text-sm rounded cursor-pointer"
             >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
+                <option value={5} className='text-sm'>5</option>
+                <option value={10} className='text-sm'>10</option>
+                <option value={20} className='text-sm'>20</option>
+                <option value={50} className='text-sm'>50</option>
             </select>
         </div>
     );

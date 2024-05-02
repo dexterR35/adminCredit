@@ -1,0 +1,35 @@
+{
+    "en": {
+      "welcome": "Welcome",
+      "greeting": "Hello",
+      "menu": {
+        "home": "Home",
+        "login": "Login",
+        "logout": "Logout"
+      },
+      "navMenu":{
+        "customersSite":"users",
+        "customersContract":"contract",
+        "raportOld":"old raport",
+        "raportNew":"new raport",
+        "customersCreate":"Create User"
+      }
+    },
+    "ro": {
+      "welcome": "Bine ai venit",
+      "greeting": "Salut",
+      "menu": {
+        "home": "Acasă",
+        "login": "Autentificare",
+        "logout": "Deconectare"
+      },
+      "navMenu":{
+        "customersSite":"site clienti",
+        "customersContract":"contract users",
+        "raportOld":"old raport",
+        "raportNew":"new raport",
+        "customersCreate":"Create User"
+      }
+    }
+  }
+  

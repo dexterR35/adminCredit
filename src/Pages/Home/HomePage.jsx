@@ -33,9 +33,16 @@ const HomePage = ({ user }) => {
             className: 'bg-low-color',
         },
         {
-            _one: 'Consultanti',
-            _two: "4",
-            _three: 'total',
+            _one: 'Buget Clients',
+            _two: "20%",
+            _three: "12540 RON",
+            icon: 'cards',
+            className: 'bg-low-color',
+        },
+        {
+            _one: 'Buget Broker',
+            _two: "20%",
+            _three: "12540 RON",
             icon: 'cards',
             className: 'bg-low-color',
         },
@@ -51,9 +58,11 @@ const HomePage = ({ user }) => {
             <div className="w-full">
                 <hr />
                 <h3 className="text-start">Customers</h3>
-                <div className="grid grid-cols-custom-4 gap-5">
+                <div className="flex flex-wrap gap-5">
                     {cardData.map((card, index) => (
-                        <CardSmall key={index} {...card} />
+                        <div className='min-w-[180px]'>
+                            <CardSmall key={index} {...card} />
+                        </div>
                     ))}
                 </div>
                 <br />
