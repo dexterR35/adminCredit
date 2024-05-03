@@ -113,15 +113,23 @@ export const FetchCustomersData = () => {
         ifn: Array.isArray(customer.customer_info.banking_info.ifn) && customer.customer_info.banking_info.ifn.length > 0
           ? customer.customer_info.banking_info.ifn.map(item => <div key={item}>{item}</div>)
           : <div>OK</div>,
+        banks: Array.isArray(customer.customer_info.banking_info.banks) && customer.customer_info.banking_info.banks.length > 0
+          ? customer.customer_info.banking_info.banks.map(item => <div key={item}>{item}</div>)
+          : <div>OK</div>,
         others: Array.isArray(customer.customer_info.banking_info.others) && customer.customer_info.banking_info.others.length > 0
           ? customer.customer_info.banking_info.others.map(item => <div key={item}>{item}</div>)
           : <div>OK</div>,
         bankHistory: customer.customer_info.banking_info.bankHistory === false
-          ? <div className="bg-green-300 w-full h-full">Nu are Istoric</div>
-          : <div className="bg-red-300 w-full h-full">Are Istoric</div>,
+          ? <div className="bg-green-300 px-4">No bank history</div>
+          : <div className="bg-red-600 text-white px-4 font-semibold">Bank history</div>,
+        bankStatus: customer.customer_info.banking_info.bankHistory === true
+          ? <div className="bg-green-300 px-4">No bank status</div>
+          : customer.customer_info.banking_status === false
+            ? <div className="bg-green-300 px-4">No bank status</div>
+            : <div className="bg-red-600 text-white px-4 font-semibold">Negativ Raport</div>,
         selectedDate: customer.customer_info.formData.selectedDate
           ? customer.customer_info.formData.selectedDate
-          : "Nu are",
+          : "false",
         aboutUs: customer.customer_info.formData.aboutUs,
         timestamp: customer.timestamp,
         email: customer.customer_info.formData.email,

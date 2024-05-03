@@ -11,7 +11,7 @@ const CardSmall = ({ _one, _two, _three, icon, className, onDetailsClick }) => {
             </div>
             <p className="text-gray-800 text-[1.7rem] font-bold">{_two}</p>
             {_three === "Details"
-                ? <p className="text-end"><CustomButton text="details" additionalClasses="text-[12px] font-normal p-0 m-0 bg-transparent underline text-gray-800 capitalize">{_three}</CustomButton></p>
+                ? <p className="text-end"><CustomButton text="details" additionalClasses="text-[12px] font-normal !p-0 m-0 bg-transparent underline text-gray-800 capitalize">{_three}</CustomButton></p>
                 : <p className="text-gray-800 text-[12px] capitalize text-end p-1">{_three}</p>
             }
         </div>

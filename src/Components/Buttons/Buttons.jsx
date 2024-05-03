@@ -14,6 +14,18 @@ const ActionButton = ({ onClick, text, buttonType, type = 'button', additionalCl
         case 'logout':
             backgroundColor = 'bg-red-700'
             break
+        case 'default':
+            backgroundColor = 'bg-red-700'
+            break
+        case 'edit':
+            backgroundColor = 'bg-yellow-700'
+            break
+        case 'save':
+            backgroundColor = 'bg-indigo-400'
+            break
+        case 'delete':
+            backgroundColor = 'bg-red-900'
+            break
         default:
             backgroundColor = 'bg-blue-400'; // Default background
             break;
@@ -21,7 +33,7 @@ const ActionButton = ({ onClick, text, buttonType, type = 'button', additionalCl
 
     return (
         <button
-            className={`rounded bg-inherit ${backgroundColor} ${additionalClasses} rounded-md border-0 outline-0 font-normal`}
+            className={`rounded bg-inherit ${backgroundColor} ${additionalClasses} capitalize rounded-md border-0 outline-0 font-normal p-2 text-md`}
             onClick={onClick}
             type={type}
             {...props}
@@ -32,7 +44,7 @@ const ActionButton = ({ onClick, text, buttonType, type = 'button', additionalCl
 };
 
 
-const CustomButton = ({ onClick, text = "default", buttonType = "default", type = "button", additionalClasses = 'p-2 text-md' }) => (
+const CustomButton = ({ onClick, text = "default", buttonType = "default", type = "button", additionalClasses = '' }) => (
     <ActionButton
         onClick={onClick}
         text={text}

@@ -8,7 +8,7 @@ import TableCustom from '../../Components/Table/TableCustom';
 import { CustomButton } from "../../Components/Buttons/Buttons";
 
 const CustomersPage = () => {
-  const headers = ["name", "history", "phone", "timestamp", "status"];
+  const headers = ["name", "bank status", "bank history", "phone", "timestamp"];
   const { customerData } = FetchCustomersData();
   const {
     searchQuery,
@@ -39,23 +39,43 @@ const CustomersPage = () => {
       <React.Fragment key={index}>
         <tr onClick={() => handleRowClick(index)} className="cursor-pointer">
           <td >{item.name}</td>
+          <td >{item.bankStatus}</td>
           <td >{item.bankHistory}</td>
           <td >{item.phone}</td>
           <td >{item.timestamp}</td>
-          <td >{item.status}</td>
+
         </tr>
         {expandedRow === index && (
-          <tr>
-            <td colSpan={headers.length} className="border">
-              <div>
-                <p>Email: {item.email}</p>
-                <p>About Us: {item.aboutUs}</p>
-                <h4>Additional Details for {item.name}</h4>
-              </div>
-              <CustomButton onClick={() => handleEdit(contract.id)} />
-              <CustomButton onClick={() => handleDelete(contract.id)} />
-            </td>
-          </tr>
+          <>
+            <tr>
+              <td colSpan={headers.length} className="border">
+                <div className='flex flex-row justify-between items-center'>
+                  <div className='flex-row flex gap-10'>
+                    <div>
+                      <p>Status: {item.status}</p>
+                      <p>Email: {item.email}</p>
+                      <p className='capitalize'>About Us: {item.aboutUs}</p>
+                    </div>
+                    <div>
+                      <p className='flex gap-2'>IFN:{item.ifn}</p>
+                      <p className='flex gap-2'>BANKS:{item.banks}</p>
+                      <p className='flex gap-2 capitalize'>Others:{item.others}</p>
+                      <p className='flex gap-2'>JobDate: {item.selectedDate}</p>
+                    </div>
+                  </div>
+
+                  <p className='space-x-2'>
+                    <CustomButton onClick={() => handleEdit(contract.id)} buttonType='edit' text="edit" additionalClasses='w-16' />
+                    <CustomButton onClick={() => handleDelete(contract.id)} buttonType='delete' text='delete' additionalClasses='w-16' />
+                  </p>
+                </div>
+              </td>
+
+            </tr>
+
+
+
+          </>
         )}
       </React.Fragment>
     ))

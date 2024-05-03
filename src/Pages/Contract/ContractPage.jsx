@@ -61,8 +61,8 @@ const ContractPage = () => {
                 </td>
                 <td>{FormatTimestamp(contract.timestamp)}</td>
                 <td>
-                    <CustomButton onClick={() => handleEdit(contract.id)} />
-                    <CustomButton onClick={() => handleDelete(contract.id)} />
+                    <CustomButton onClick={() => handleEdit(contract.id)} buttonType="edit" />
+                    <CustomButton onClick={() => handleDelete(contract.id)} buttonType="delete" />
                 </td>
             </tr>
         ));
