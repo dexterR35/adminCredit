@@ -9,7 +9,7 @@ const HeaderUser = () => {
   return (
     <>
       <div className="h-14 bg-white shadow-md w-full flex justify-start gap-2 flex-row-reverse items-center px-10">
-        <CustomButton onClick={handleLogout} size="sm" />
+        <CustomButton onClick={handleLogout} text="Log Out" buttonType="logout" />
         <LanguageSwitcher />
       </div>
     </>

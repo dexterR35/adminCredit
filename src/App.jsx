@@ -7,7 +7,7 @@ import ContractPage from './Pages/Contract/ContractPage'; // Corrected import pa
 import FormUser from './Pages/Raports/CustomersOffice'; // Corrected import path
 import LoginPage from './Pages/Auth/LoginPage'; // Corrected import path
 import FetchCSVData from './Pages/FetchCsv/FetchCsv'; // Corrected import path
-
+import CreateConsultant from './Components/Consultant/CreateConsultant';
 import { checkAuthStatus } from './services/Hooks';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -45,6 +45,7 @@ const App = () => {
             <Route path="contract" element={<ContractPage />} />
             <Route path="newraport" element={<FormUser />} />
             <Route path="oldraport" element={<FetchCSVData />} />
+            <Route path="CreateConsultant" element={<CreateConsultant />} />
             <Route path="*" element={<Navigate to="/admin/home" replace />} />
           </Routes>
         </ProtectedRoute>} />

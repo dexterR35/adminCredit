@@ -2,12 +2,7 @@ import React from 'react';
 import { Formik, Form, Field } from 'formik';
 import { CustomButton } from '../Buttons/Buttons';
 
-const FormUser = ({ initialValues, onSubmit, fields }) => {
-    const handleSubmit = async (values, { setSubmitting }) => {
-        // Call the onSubmit function passed as prop to handle form submission
-        await onSubmit(values);
-        setSubmitting(false);
-    };
+const FormInput = ({ initialValues, onSubmit, fields }) => {
 
     return (
         <div className="mx-auto p-5">
@@ -15,7 +10,7 @@ const FormUser = ({ initialValues, onSubmit, fields }) => {
             <div className='max-w-5xl'>
                 <Formik
                     initialValues={initialValues}
-                    onSubmit={handleSubmit} // Pass handleSubmit to Formik
+                    onSubmit={onSubmit} // Pass handleSubmit to Formik
                 >
                     {({ isSubmitting }) => (
                         <Form className="grid grid-cols-3 gap-4">
@@ -68,10 +63,11 @@ const FormUser = ({ initialValues, onSubmit, fields }) => {
                             <div className="col-span-full">
                                 <CustomButton
                                     isSaving={isSubmitting}
-                                    size="md"
+
                                     additionalClasses="p-2 w-52"
                                     text="Submit"
                                     type="submit"
+                                    buttonType='submit'
                                 />
                             </div>
                         </Form>
@@ -82,4 +78,4 @@ const FormUser = ({ initialValues, onSubmit, fields }) => {
     );
 };
 
-export default FormUser;
+export default FormInput;

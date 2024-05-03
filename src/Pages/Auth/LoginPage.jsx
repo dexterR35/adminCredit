@@ -51,7 +51,7 @@ const LoginPage = ({ setUser }) => {
           </div>
         </div>
 
-        <CustomButton onClick={handleLogin} size='lg' additionalClasses="w-full mt-6" />
+        <CustomButton onClick={handleLogin} size='lg' additionalClasses="w-full mt-6" buttonType="login" />
 
       </div>
     </div >

@@ -12,7 +12,7 @@
         "customersContract":"contract",
         "raportOld":"old raport",
         "raportNew":"new raport",
-        "customersCreate":"Create User"
+        "customersCreate":"Create Consultant"
       }
     },
     "ro": {
@@ -28,7 +28,7 @@
         "customersContract":"contract users",
         "raportOld":"old raport",
         "raportNew":"new raport",
-        "customersCreate":"Create User"
+        "customersCreate":"Create Consultant"
       }
     }
   }

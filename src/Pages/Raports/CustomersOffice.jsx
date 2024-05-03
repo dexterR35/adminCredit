@@ -1,6 +1,5 @@
-import { Formik, Form, Field } from 'formik';
-// import { useCreate } from './hooks/useCreate';
 import FormInput from '../../Components/Form/FormInput'
+
 const FormUser = () => {
     const initialValues = {
         name: '',

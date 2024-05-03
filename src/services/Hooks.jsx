@@ -1,10 +1,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, setDoc, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import {
   getAuth,
   signOut,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
 import { db } from '../firebase/config'
@@ -221,4 +222,34 @@ export const FetchContractData = () => {
   const contractsLength = contracts.length;
 
   return { contracts, onEdit, onDelete, lastContractName, contractsLength };
+};
+
+
+
+
+// Function to add a new consultant
+
+export const AddConsultant = async (email, password, username) => {
+  try {
+    // Add consultant details to Firestore collection 'Consultants'
+    await addDoc(collection(db, "consultants"), {
+      email: email,
+      password: password,
+      username: username,
+      // You can add more fields as needed from the form inputs
+    });
+    // Create user credentials using Firebase Authentication
+
+    await createUserWithEmailAndPassword(auth, email, password);
+
+    // Show success message
+    toast.success("Consultant added successfully!");
+
+    // Return success status or any other data as needed
+    return { success: true };
+  } catch (error) {
+    // Show error message
+    toast.error(`Error adding consultant: ${error.message}`);
+    throw error;
+  }
 };

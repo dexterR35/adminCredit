@@ -3,7 +3,7 @@ import CardSmall from '../../CardSmall/_CardSmall'
 
 const AsideContent = () => {
     return (
-        <div className='h-full w-full block p-2 px-4 border border-x-2 border-t-0'>
+        <div className='h-full w-full block p-2 px-4 border border-t-0'>
             <h3 className="text-start my-6">Information</h3>
             <div className="grid grid-cols-1 gap-5">
                 <CardSmall
