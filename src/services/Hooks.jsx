@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, setDoc, addDoc, doc, updateDoc, deleteDoc, where, } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, setDoc, addDoc, doc, updateDoc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
 import {
   getAuth,
   signOut,
@@ -10,6 +10,7 @@ import {
 } from "firebase/auth";
 import { db } from '../firebase/config'
 import { toast } from "react-toastify";
+
 
 
 const auth = getAuth();
@@ -237,13 +238,15 @@ export const FetchContractData = () => {
 
 // Function to add a new consultant
 
-export const AddConsultant = async (email, password, username) => {
+export const AddConsultant = async (email, password, username, role) => {
   try {
     // Add consultant details to Firestore collection 'Consultants'
     const docRef = await addDoc(collection(db, "consultants"), {
       email: email,
       password: password,
       username: username,
+      role: role,
+      timestamp: serverTimestamp(),
       // You can add more fields as needed from the form inputs
     });
 
@@ -254,7 +257,7 @@ export const AddConsultant = async (email, password, username) => {
     toast.success("Consultant added successfully!");
 
     // Return success status or any other data as needed
-    return { id: docRef.id, email, username };
+    return { id: docRef.id, email, username, role };
   } catch (error) {
     // Show error message
     toast.error(`Error adding consultant: ${error.message}`);

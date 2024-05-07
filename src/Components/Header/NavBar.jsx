@@ -16,11 +16,10 @@ const HeaderUser = () => {
     <>
       <div className="h-14 bg-white shadow-md w-full flex justify-start gap-2 flex-row-reverse items-center px-10">
         <CustomButton onClick={handleLogout} text="Log Out" buttonType="logout" />
-        <LanguageSwitcher />
-        {/* Ensure that the CustomButton is configured to open the modal */}
         <CustomButton onClick={openModal} text="Open Modal" />
+        <LanguageSwitcher />
       </div>
-      {/* Render the modal outside of the header div */}
+
       <Modal isOpen={isOpen} onClose={closeModal}>
         <CreateConsultant />
       </Modal>

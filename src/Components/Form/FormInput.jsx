@@ -61,10 +61,9 @@ const FormInput = ({ initialValues, onSubmit, fields, customClass }) => {
                             ))}
                             <div className="col-span-full">
                                 <CustomButton
-                                    isSaving={isSubmitting}
-
+                                    disabled={isSubmitting}
                                     additionalClasses="p-2 w-52"
-                                    text="Submit"
+                                    text={isSubmitting ? "Saving..." : "Submit"} // Show "Saving..." text when isSubmitting is true
                                     type="submit"
                                     buttonType='submit'
                                 />
