@@ -22,7 +22,6 @@ const HeaderUser = () => {
       </div>
       {/* Render the modal outside of the header div */}
       <Modal isOpen={isOpen} onClose={closeModal}>
-        <h2>Modal Content</h2>
         <CreateConsultant />
       </Modal>
     </>

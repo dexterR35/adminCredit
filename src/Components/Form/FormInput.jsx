@@ -2,18 +2,17 @@ import React from 'react';
 import { Formik, Form, Field } from 'formik';
 import { CustomButton } from '../Buttons/Buttons';
 
-const FormInput = ({ initialValues, onSubmit, fields }) => {
+const FormInput = ({ initialValues, onSubmit, fields, customClass }) => {
 
     return (
         <div className="mx-auto p-5">
-            <h1 className="text-3xl font-bold mb-5">Create Client</h1>
             <div className='max-w-5xl'>
                 <Formik
                     initialValues={initialValues}
                     onSubmit={onSubmit} // Pass handleSubmit to Formik
                 >
                     {({ isSubmitting }) => (
-                        <Form className="grid grid-cols-3 gap-4">
+                        <Form className={`${customClass}`}>
                             {fields.map((field, index) => (
                                 <div key={index} className="flex flex-col">
                                     <label htmlFor={field.name} className="mb-1 text-lg font-medium">{field.label}</label>

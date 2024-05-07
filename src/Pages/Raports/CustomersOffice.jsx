@@ -77,7 +77,7 @@ const FormUser = () => {
 
     return (
         <div>
-            <FormInput initialValues={initialValues} onSubmit={onSubmit} fields={fields} />
+            <FormInput initialValues={initialValues} onSubmit={onSubmit} fields={fields} customClass="grid grid-cols-3 gap-4" />
         </div>
     );
 };

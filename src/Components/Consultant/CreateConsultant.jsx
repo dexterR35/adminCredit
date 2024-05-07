@@ -25,7 +25,8 @@ const CreateConsultant = () => {
 
     return (
         <div>
-            <FormInput initialValues={initialValues} onSubmit={onSubmit} fields={fields} />
+            <h2 className='text-start mb-0'>Create Consultant</h2>
+            <FormInput initialValues={initialValues} onSubmit={onSubmit} fields={fields} customClass="flex flex-col gap-4" />
         </div>
     );
 };
