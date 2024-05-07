@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, setDoc, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, setDoc, addDoc, doc, updateDoc, deleteDoc, where, } from 'firebase/firestore';
 import {
   getAuth,
   signOut,
@@ -240,24 +240,73 @@ export const FetchContractData = () => {
 export const AddConsultant = async (email, password, username) => {
   try {
     // Add consultant details to Firestore collection 'Consultants'
-    await addDoc(collection(db, "consultants"), {
+    const docRef = await addDoc(collection(db, "consultants"), {
       email: email,
       password: password,
       username: username,
       // You can add more fields as needed from the form inputs
     });
-    // Create user credentials using Firebase Authentication
 
+    // Create user credentials using Firebase Authentication
     await createUserWithEmailAndPassword(auth, email, password);
 
     // Show success message
     toast.success("Consultant added successfully!");
 
     // Return success status or any other data as needed
-    return { success: true };
+    return { id: docRef.id, email, username };
   } catch (error) {
     // Show error message
     toast.error(`Error adding consultant: ${error.message}`);
+    throw error;
+  }
+};
+
+export const getAllConsultants = async () => {
+  try {
+    // Fetch all documents from the "consultants" collection
+    const consultantsCollection = collection(db, 'consultants');
+    const querySnapshot = await getDocs(consultantsCollection);
+
+    // Initialize an array to store all documents data
+    const consultantsData = [];
+
+    // Iterate through each document in the query snapshot
+    querySnapshot.forEach((doc) => {
+      // Extract the desired fields from each document and push them to the array
+      const consultantData = {
+        id: doc.id,
+        username: doc.data().username,
+        email: doc.data().email
+        // Add other desired fields here
+      };
+      consultantsData.push(consultantData);
+    });
+
+    // Return the array of document data
+    return consultantsData;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+export const getConsultantByUsername = async (username) => {
+  try {
+    // Query the 'consultants' collection for the consultant with the specified username
+    const consultantsCollection = collection(db, 'consultants');
+    const consultantQuery = query(consultantsCollection, where('username', '==', username));
+    const querySnapshot = await getDocs(consultantQuery);
+
+    // If there is a document with the specified username, return its data
+    if (!querySnapshot.empty) {
+      const consultantData = querySnapshot.docs[0].data();
+      return consultantData;
+    } else {
+      throw new Error("Consultant not found");
+    }
+  } catch (error) {
     throw error;
   }
 };

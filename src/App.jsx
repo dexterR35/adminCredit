@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
-import HomePage from './Pages/Home/HomePage'; // Corrected import path
+import HomePage from './Pages/Home/HomePage';
 import MainLayout from './Components/Layout/Layout';
-import CustomersPage from './Pages/Customers/CustomersPage'; // Corrected import path
-import ContractPage from './Pages/Contract/ContractPage'; // Corrected import path
-import FormUser from './Pages/Raports/CustomersOffice'; // Corrected import path
-import LoginPage from './Pages/Auth/LoginPage'; // Corrected import path
-import FetchCSVData from './Pages/FetchCsv/FetchCsv'; // Corrected import path
+import CustomersPage from './Pages/Customers/CustomersPage';
+import ContractPage from './Pages/Contract/ContractPage';
+import FormUser from './Pages/Raports/CustomersOffice';
+import LoginPage from './Pages/Auth/LoginPage';
+import FetchCSVData from './Pages/FetchCsv/FetchCsv';
+import ConsultantPage from './Pages/Consultant/ConsultantPage';
 import CreateConsultant from './Components/Consultant/CreateConsultant';
 import { checkAuthStatus } from './services/Hooks';
 import { ToastContainer } from 'react-toastify';
@@ -46,6 +47,7 @@ const App = () => {
             <Route path="newraport" element={<FormUser />} />
             <Route path="oldraport" element={<FetchCSVData />} />
             <Route path="CreateConsultant" element={<CreateConsultant />} />
+            <Route path="consultant" element={<ConsultantPage />} />
             <Route path="*" element={<Navigate to="/admin/home" replace />} />
           </Routes>
         </ProtectedRoute>} />

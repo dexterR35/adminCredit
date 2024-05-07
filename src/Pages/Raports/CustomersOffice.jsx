@@ -1,61 +1,69 @@
-import FormInput from '../../Components/Form/FormInput'
+import React, { useEffect, useState } from 'react';
+import { getAllConsultants } from '../../services/Hooks';
+import FormInput from '../../Components/Form/FormInput';
 
 const FormUser = () => {
-    const initialValues = {
+    const [consultants, setConsultants] = useState([]);
+    const [formValues, setFormValues] = useState({
         name: '',
         email: '',
         consultant: '',
         phone: '',
         status: '',
-        deadline: '',
-        salaryAmount: '',
-        hireDate: '',
-        continuity: '',
-        linkBC: '',
-        lastNegativeReport: '',
-        approvedAmount: '',
-        commission: '',
-        contractNumber: '',
-        source: '',
-        additionalInfo: '',
+        deadline: ''
+    });
+
+    useEffect(() => {
+        // Fetch all consultant data when the component mounts
+        fetchConsultantsData();
+    }, []);
+
+    const fetchConsultantsData = () => {
+        getAllConsultants()
+            .then(data => {
+                setConsultants(data);
+            })
+            .catch(error => {
+                console.error('Error fetching consultant data:', error);
+            });
     };
 
-    const onSubmit = (values) => {
-        // Handle form submission here
-        console.log(values);
+    const handleConsultantChange = (event) => {
+        const consultantId = event.target.value;
+        setFormValues(prevFormValues => ({
+            ...prevFormValues,
+            consultant: consultantId,
+        }));
     };
 
     const fields = [
         {
             name: 'consultant',
-            label: 'consultant',
+            label: 'Consultant',
             as: 'select',
             options: [
                 { value: '', label: 'Select Consultant' },
-                { value: 'jophn', label: 'joe' },
-                { value: 'inactive', label: 'Inactive' },
+                ...consultants.map(consultant => ({ value: consultant.id, label: consultant.username })),
             ],
+            onChange: handleConsultantChange
         },
         {
             name: 'name',
             label: 'Name',
             as: 'input',
-        },
-        {
-            name: 'name',
-            label: 'Last Name',
-            as: 'input',
+            value: formValues.name,
         },
         {
             name: 'email',
             label: 'Email',
             as: 'input',
+            value: formValues.email,
         },
-
         {
             name: 'phone',
             label: 'Phone',
             as: 'input',
+            value: formValues.phone,
         },
         {
             name: 'status',
@@ -66,18 +74,23 @@ const FormUser = () => {
                 { value: 'active', label: 'Active' },
                 { value: 'inactive', label: 'Inactive' },
             ],
+            value: formValues.status,
         },
         {
             name: 'deadline',
             label: 'Deadline',
             as: 'date',
+            value: formValues.deadline,
         },
     ];
 
+    const onSubmit = (values) => {
+        console.log(values);
+    };
 
     return (
         <div>
-            <FormInput initialValues={initialValues} onSubmit={onSubmit} fields={fields} customClass="grid grid-cols-3 gap-4" />
+            <FormInput initialValues={formValues} onSubmit={onSubmit} fields={fields} customClass="grid grid-cols-3 gap-4" />
         </div>
     );
 };
