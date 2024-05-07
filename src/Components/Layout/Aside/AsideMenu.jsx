@@ -11,7 +11,7 @@ function AsideMenu() {
         { path: "/admin/contract", label: t('navMenu.customersContract'), icon: <IconR icon="FcReading" size={18} /> },
         { path: "/admin/oldraport", label: t('navMenu.raportOld'), icon: <IconR icon="businessContact" size={18} /> },
         { path: "/admin/newraport", label: t('navMenu.raportNew'), icon: <IconR icon="FcBearish" size={18} /> },
-        { path: "/admin/CreateConsultant", label: t('navMenu.customersCreate'), icon: <IconR icon="FcOvertime" size={18} /> },
+        // { path: "/admin/CreateConsultant", label: t('navMenu.customersCreate'), icon: <IconR icon="FcOvertime" size={18} /> },
 
     ];
     return (
