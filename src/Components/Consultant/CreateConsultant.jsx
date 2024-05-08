@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { AddConsultant } from '../../services/Hooks';
 import FormInput from '../Form/FormInput';
-import bcrypt from 'bcryptjs'; // Import bcrypt for password hashing
+import bcrypt from 'bcryptjs';
 
 const CreateConsultant = () => {
     const initialValues = {
         email: '',
         password: '',
-        confirmPassword: '', // New field for confirming password
+        confirmPassword: '',
         username: '',
     };
 
@@ -19,10 +19,8 @@ const CreateConsultant = () => {
             if (values.password !== values.confirmPassword) {
                 throw new Error("Passwords do not match");
             }
-            // Hash the password
             const hashedPassword = await hashPassword(values.password);
-            // Add the consultant with the hashed password
-            await AddConsultant(values.email, hashedPassword, values.username, role); // Pass role to AddConsultant
+            await AddConsultant(values.email, hashedPassword, values.username, role);
             console.log('Consultant added successfully!');
         } catch (error) {
             console.error("Error adding consultant:", error);

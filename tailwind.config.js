@@ -13,16 +13,17 @@ module.exports = {
           'secondary':'#F96666',
           'low-color':'#E3F4F4',
           'medium-color':'#E3F4F4',
-          'error-color':'#FA7070',
-          'info-color':'#5BBCFF',
-          'succes-color':'#8DECB4',
+          'dark-color':"#F0544F",
+          'error-color':'#DB162F',
+          'info-color':'#246EB9',
+          'succes-color':'#52AA5E',
 
           'green':{
-            100: '#E1F0DA', // Light soft green
-            200: '#DEF5E5', // Soft green
-            300: '#BFD8AF', // Medium green
-            400: '#99BC85', // Vibrant green
-            500: '#88AB8E'  // Strong green
+            100: '#E1F0DA', 
+            200: '#DEF5E5', 
+            300: '#BFD8AF', 
+            400: '#99BC85', 
+            500: '#88AB8E'  
           },
           'gray':{
             50:'#F9F5EB',
@@ -37,6 +38,6 @@ module.exports = {
     
   },
   plugins: [
-    require('@tailwindcss/forms'), // This plugin provides a better base styling for form inputs
+    require('@tailwindcss/forms'), 
   ],
 };
