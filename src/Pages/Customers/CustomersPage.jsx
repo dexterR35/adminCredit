@@ -64,7 +64,7 @@ const CustomersPage = () => {
                     </div>
                   </div>
 
-                  <p className='space-x-2'>
+                  <p className='space-x-2 flex flex-row gap-1'>
                     <CustomButton onClick={() => handleEdit(contract.id)} buttonType='edit' text="edit" additionalClasses='w-16' />
                     <CustomButton onClick={() => handleDelete(contract.id)} buttonType='delete' text='delete' additionalClasses='w-16' />
                   </p>

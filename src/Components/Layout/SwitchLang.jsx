@@ -11,7 +11,7 @@ const SwitchLang = () => {
     };
 
     return (
-        <select onChange={changeLanguage} defaultValue={i18n.language} className='p-2'>
+        <select onChange={changeLanguage} defaultValue={i18n.language} className='border-0 outline-none'>
             <option value="en">EN</option>
             <option value="ro">RO</option>
         </select>

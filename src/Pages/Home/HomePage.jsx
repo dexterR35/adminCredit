@@ -70,7 +70,7 @@ const HomePage = ({ user }) => {
                 <div className="div">
                     <h3>Tabel Raport</h3>
                     <div className="w-full">
-                        <ContractPage />
+                        {/* <ContractPage /> */}
                     </div>
                 </div>
 

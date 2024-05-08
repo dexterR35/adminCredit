@@ -45,34 +45,21 @@
   @apply w-full text-sm text-left rtl:text-right text-gray-900;
 }
 
-
-/* .custom-table th {
-  @apply px-4 py-2;
-} */
-
-
-.custom-table {
-  @apply w-full text-sm text-left rtl:text-right text-gray-900;
-}
-
-
 .custom-table table {
   @apply w-full border-collapse;
 }
 
-
 .custom-table thead th {
-  @apply px-4 py-2 bg-primary text-gray-900;
+  @apply p-4 bg-indigo-900 text-white;
 }
 .custom-table thead tr th {
-  
   @apply w-[20%];
 }
 
 .custom-table tbody td {
   @apply px-4 p-3 border border-gray-200 cursor-pointer bg-white;
 }
-.custom-table tbody tr {
-  @apply hover:bg-green-100  hover:font-semibold transition-colors;
+.custom-table tbody tr{
+  @apply hover:bg-green-700;
 }
 

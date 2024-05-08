@@ -60,9 +60,9 @@ const ContractPage = () => {
                     </a>
                 </td>
                 <td>{FormatTimestamp(contract.timestamp)}</td>
-                <td>
-                    <CustomButton onClick={() => handleEdit(contract.id)} buttonType="edit" />
-                    <CustomButton onClick={() => handleDelete(contract.id)} buttonType="delete" />
+                <td className="space-x-2 flex flex-row">
+                    <CustomButton onClick={() => handleEdit(contract.id)} buttonType="edit" text="Edit" />
+                    <CustomButton onClick={() => handleDelete(contract.id)} buttonType="delete" text="Delete" />
                 </td>
             </tr>
         ));
