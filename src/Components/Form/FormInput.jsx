@@ -2,20 +2,20 @@ import React from 'react';
 import { Formik, Form, Field } from 'formik';
 import { CustomButton } from '../Buttons/Buttons';
 
-const FormInput = ({ initialValues, onSubmit, fields, customClass }) => {
+const FormInput = ({ initialValues, onSubmit, fields, customClass, submitButtonText }) => {
 
     return (
-        <div className="mx-auto p-5">
-            <div className='max-w-5xl'>
+        <div className="mx-auto">
+            <div className='max-w-7xl'>
                 <Formik
                     initialValues={initialValues}
-                    onSubmit={onSubmit} // Pass handleSubmit to Formik
+                    onSubmit={onSubmit}
                 >
                     {({ isSubmitting }) => (
                         <Form className={`${customClass}`}>
                             {fields.map((field, index) => (
                                 <div key={index} className="flex flex-col">
-                                    <label htmlFor={field.name} className="mb-1 text-lg font-medium">{field.label}</label>
+                                    <label htmlFor={field.name} className="mb-1 text-md font-medium">{field.label}</label>
                                     {field.as === 'textarea' && (
                                         <Field
                                             id={field.name}
@@ -34,6 +34,7 @@ const FormInput = ({ initialValues, onSubmit, fields, customClass }) => {
                                             type={field.type || 'text'}
                                             placeholder={field.placeholder || ''}
                                             className="p-2 border rounded-md focus:outline-none focus:border-blue-500"
+                                            disabled={field.disabled || false}
                                         />
                                     )}
                                     {field.as === 'select' && (
@@ -63,7 +64,7 @@ const FormInput = ({ initialValues, onSubmit, fields, customClass }) => {
                                 <CustomButton
                                     disabled={isSubmitting}
                                     additionalClasses="p-2 w-52"
-                                    text={isSubmitting ? "Saving..." : "Submit"} // Show "Saving..." text when isSubmitting is true
+                                    text={isSubmitting ? "Saving..." : submitButtonText}
                                     type="submit"
                                     buttonType='submit'
                                 />

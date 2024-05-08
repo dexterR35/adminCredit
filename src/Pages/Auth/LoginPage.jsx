@@ -1,60 +1,67 @@
-// src/components/LoginPage/LoginPage.jsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Login } from "../../services/Hooks";
-import { CustomButton } from "../../Components/Buttons/Buttons"
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Login } from '../../services/Hooks';
+import FormInput from '../../Components/Form/FormInput';
 const LoginPage = ({ setUser }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [loginValues, setLoginValues] = useState({
+    email: "",
+    password: ""
+  });
 
-  const handleLogin = async () => {
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setLoginValues(prevValues => ({
+      ...prevValues,
+      [name]: value
+    }));
+  };
+
+  const handleLogin = async (values, { setSubmitting }) => {
     try {
-      const testEmail = email.trim();
-      const testPassword = password.trim();
-      const authUser = await Login(testEmail, testPassword);
+      const { email, password } = values;
+      const authUser = await Login(email.trim(), password.trim());
       sessionStorage.setItem("authUser", JSON.stringify(authUser));
       setUser(authUser);
       navigate("/admin/home");
     } catch (error) {
       console.error("Login error:", error.message);
+    } finally {
+      setSubmitting(false);  // Ensure to set submitting to false after processing is complete
     }
-  };
+  }
+
+  const fields = [
+    {
+      name: "email",
+      label: "",
+      as: "input",
+      value: loginValues.email,
+      onChange: handleChange,
+      placeholder: "Email",
+    },
+    {
+      name: "password",
+      label: "",
+      placeholder: "Password",
+      as: "input",
+      value: loginValues.password,
+      onChange: handleChange,
+    }
+  ];
+
   return (
-    <div className=" w-full h-screen flex items-center justify-center flex-col">
-      <div className="flex flex-col justify-center items-center p-4">
-        <p className="text-lg uppercase font-bold mb-4">Obtine Credit.ro</p>
-        <div className="flex-col flex md:w-80 w-[100%]">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="form-input"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-input"
-          />
-          <div className="flex justify-between mt-2 text-[12px]">
-            <label className="flex items-center space-x-1 cursor-pointer">
-              <input
-                type="checkbox"
-                className="form-checkbox"
-              />
-              <span className="text-gray-700">Remember me</span>
-            </label>
-            <p className="underline text-gray-700 cursor-pointer">Forgot Password?</p>
-          </div>
-        </div>
+    <div className="w-full h-screen flex items-center justify-center flex-col">
+      <h3 className='my-4 p-0 uppercase font-semibold'>Obtine Credit</h3>
+      <FormInput
+        initialValues={loginValues}
+        onSubmit={handleLogin}
+        fields={fields}
+        customClass="grid grid-cols-1 gap-4 items-center w-full"
+        submitButtonText="Login"
+      />
 
-        <CustomButton onClick={handleLogin} additionalClasses="text-white w-full mt-6" buttonType="login" type="button" text="login" />
-
-      </div>
-    </div >
+    </div>
   );
 };
 

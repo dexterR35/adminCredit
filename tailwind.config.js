@@ -9,7 +9,7 @@ module.exports = {
           'custom-4':'repeat(4,200px)'
         },
         colors: {
-          'primary':'#A1C398',
+          'primary':'#03C988',
           'secondary':'#F96666',
           'low-color':'#E3F4F4',
           'medium-color':'#E3F4F4',

@@ -1,5 +1,5 @@
 import React from 'react';
-import NavBar from '../Header/NavBar';
+import NavBar from './Header/NavBar';
 import AsideMenu from './Aside/AsideMenu';
 import AsideMenuRight from './Aside/AsideMenuRight';
 

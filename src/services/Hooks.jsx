@@ -295,7 +295,7 @@ export const getAllConsultants = async () => {
 
 
 
-export const getConsultantByUsername = async (username) => {
+export const getConsultantByUserName = async (username) => {
   try {
     // Query the 'consultants' collection for the consultant with the specified username
     const consultantsCollection = collection(db, 'consultants');

@@ -6,16 +6,10 @@ const ActionButton = ({ onClick, text, buttonType, type = 'button', additionalCl
 
     switch (buttonType) {
         case 'submit':
-            backgroundColor = 'bg-red-500'; // Red background for 'submit'
+            backgroundColor = 'bg-primary text-white font-bold text-md';
             break;
-        case 'login':
-            backgroundColor = 'bg-blue-500'; // Blue background for 'login'
-            break;
-        case 'logout':
-            backgroundColor = 'bg-purple-700'
-            break
         case 'default':
-            backgroundColor = 'bg-red-700'
+            backgroundColor = 'bg-inherit'
             break
         case 'edit':
             backgroundColor = 'bg-yellow-700'
@@ -26,14 +20,17 @@ const ActionButton = ({ onClick, text, buttonType, type = 'button', additionalCl
         case 'delete':
             backgroundColor = 'bg-red-900'
             break
+        case 'modal':
+            backgroundColor = 'bg-primary'
+            break
         default:
-            backgroundColor = 'bg-blue-400'; // Default background
+            backgroundColor = 'bg-blue-400';
             break;
     }
 
     return (
         <button
-            className={`rounded ${backgroundColor} ${additionalClasses} capitalize rounded-md border-0 outline-0 font-normal p-2 text-md`}
+            className={`rounded ${backgroundColor} ${additionalClasses} capitalize rounded-md border-0 outline-0 p-2`}
             onClick={onClick}
             type={type}
             {...props}

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getConsultantByUsername } from '../../services/Hooks';
+import { getConsultantByUserName } from '../../services/Hooks';
 
 const ConsultantPage = () => {
     const location = useLocation();
@@ -14,7 +14,7 @@ const ConsultantPage = () => {
     useEffect(() => {
         const fetchConsultant = async () => {
             try {
-                const consultantData = await getConsultantByUsername(username);
+                const consultantData = await getConsultantByUserName(username);
                 setConsultant(consultantData);
                 setLoading(false);
             } catch (error) {
