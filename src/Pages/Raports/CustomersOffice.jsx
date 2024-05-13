@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllConsultants } from "../../services/Hooks";
 import FormInput from "../../Components/Form/FormInput";
+import { selectClasses } from "@mui/material";
 
 const FormUser = () => {
     const [consultants, setConsultants] = useState([]);
@@ -73,7 +74,7 @@ const FormUser = () => {
                 { value: '', label: 'Select Consultant' },
                 ...consultants.map(consultant => ({ value: consultant.id, label: consultant.username })),
             ],
-            selectClassName: "w-full",
+            selectClassName: " w-full",
         },
         {
             name: "todayDate",
@@ -86,10 +87,19 @@ const FormUser = () => {
         {
             name: "source",
             label: "Source",
-            as: "input",
+            as: "select",
             value: formValues.source,
             onChange: handleChange,
-         
+            options: [
+                { value: "", label: "Select Source" },
+                { value: "pliant", label: "Pliant" },
+                { value: "consultant", label: "Consultant" },
+                { value: "facebook", label: "Facebook" },
+                { value: "website", label: "Website" },
+                { value: "friends", label: "Friends" },
+                
+            ],
+            selectClassName: " w-full",
         },
         {
             name: "firstName",
@@ -448,7 +458,32 @@ const FormUser = () => {
             value: formValues.userStatus,
             disabled: true,
         },
-
+        {
+            name: "fullName",
+            label: "sName",
+            as: "input",
+            value: `${formValues.firstName} ${formValues.lastName}`,
+            onChange: handleChange,
+            customClass: "flex w-full",
+            fields: [
+                {
+                    name: "firstName",
+                    label: "First Name",
+                    as: "input",
+                    value: formValues.firstName,
+                    onChange: handleChange,
+                    customClass: "w-1/2 pr-2",
+                },
+                {
+                    name: "lastName",
+                    label: "Last Name",
+                    as: "input",
+                    value: formValues.lastName,
+                    onChange: handleChange,
+                    customClass: "w-1/2 pl-2",
+                },
+            ],
+        },
     ];
 
     const onSubmit = (values) => {
