@@ -36,6 +36,9 @@ const FormUser = () => {
         userContactPersonOne: "",
         userContactPersonTwo: "",
         employerFieldActivity: "",
+
+        phoneDetails: "",
+        materialStatusDetails:"",
     });
 
     useEffect(() => {
@@ -70,6 +73,7 @@ const FormUser = () => {
                 { value: '', label: 'Select Consultant' },
                 ...consultants.map(consultant => ({ value: consultant.id, label: consultant.username })),
             ],
+            selectClassName: "w-full",
         },
         {
             name: "todayDate",
@@ -77,6 +81,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.todayDate,
             disabled: true,
+        
         },
         {
             name: "source",
@@ -84,6 +89,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.source,
             onChange: handleChange,
+         
         },
         {
             name: "firstName",
@@ -91,6 +97,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.firstName,
             onChange: handleChange,
+         
         },
         {
             name: "lastName",
@@ -98,6 +105,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.lastName,
             onChange: handleChange,
+          
         },
         {
             name: "userCNP",
@@ -105,6 +113,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.userCNP,
             onChange: handleChange,
+          
         },
         {
             name: "phone",
@@ -112,6 +121,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.phone,
             onChange: handleChange,
+        
         },
         {
             name: "email",
@@ -119,6 +129,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.email,
             onChange: handleChange,
+        
         },
         {
             name: "materialStatus",
@@ -132,6 +143,15 @@ const FormUser = () => {
                 { value: "divorced", label: "Divorced" },
                 { value: "single", label: "Single" },
             ],
+            selectClassName: "w-full",
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "partnerFirstName",
@@ -139,6 +159,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.partnerFirstName,
             onChange: handleChange,
+         
         },
         {
             name: "partnerLastName",
@@ -146,6 +167,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.partnerLastName,
             onChange: handleChange,
+         
         },
         {
             name: "partnerMotherName",
@@ -153,6 +175,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.partnerMotherName,
             onChange: handleChange,
+         
         },
         {
             name: "partnerCNP",
@@ -160,6 +183,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.partnerCNP,
             onChange: handleChange,
+          
         },
         {
             name: "partnerNegativeStatus",
@@ -167,6 +191,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.partnerNegativeStatus,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "partnerJobContract",
@@ -174,20 +206,30 @@ const FormUser = () => {
             as: "input",
             value: formValues.partnerJobContract,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
-        {
-            name: "userStatus",
-            label: "User Status",
-            as: "input",
-            value: formValues.userStatus,
-            disabled: true,
-        },
+    
         {
             name: "userAddress",
             label: "Address",
             as: "input",
             value: formValues.userAddress,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userStudies",
@@ -195,6 +237,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userStudies,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userCreditValue",
@@ -202,6 +252,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userCreditValue,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userRefinance",
@@ -209,6 +267,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userRefinance,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userProfession",
@@ -216,6 +282,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userProfession,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userNameOfEmployer",
@@ -223,6 +297,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userNameOfEmployer,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userJobContract",
@@ -230,6 +312,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userJobContract,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userDateLastJob",
@@ -237,6 +327,14 @@ const FormUser = () => {
             as: "date",
             value: formValues.userDateLastJob,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userNetSalary",
@@ -244,6 +342,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userNetSalary,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userNetSalaryBank",
@@ -251,6 +357,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userNetSalaryBank,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userJobScenario",
@@ -258,6 +372,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userJobScenario,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userVouchers",
@@ -265,6 +387,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userVouchers,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "employerFieldActivity",
@@ -272,6 +402,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.employerFieldActivity,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userContactPersonOne",
@@ -279,6 +417,14 @@ const FormUser = () => {
             as: "input",
             value: formValues.userContactPersonOne,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
         },
         {
             name: "userContactPersonTwo",
@@ -286,6 +432,21 @@ const FormUser = () => {
             as: "input",
             value: formValues.userContactPersonTwo,
             onChange: handleChange,
+            details: {
+                name: "Material",
+                label: "",
+                as: "text",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
+        },
+        {
+            name: "userStatus",
+            label: "User Status",
+            as: "input",
+            value: formValues.userStatus,
+            disabled: true,
         },
 
     ];
@@ -300,7 +461,7 @@ const FormUser = () => {
                 initialValues={formValues}
                 onSubmit={onSubmit}
                 fields={fields}
-                customClass="grid grid-cols-4 gap-2"
+                customClass="flex flex-col gap-2 w-full max-w-lg"
             />
         </div>
     );
