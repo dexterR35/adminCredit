@@ -63,3 +63,38 @@
   @apply hover:bg-green-700;
 }
 
+
+
+.field_0, .field_3, .field_6,.field_9{
+  grid-column: 1 /span 1;
+}
+
+
+.field_1,.field_4,.field_7,.field_10 {
+  grid-column: 2 /span 1 ;
+}
+
+.field_2,.field_5,.field_11 {
+  grid-column: 3 /span 2 ;
+}
+
+.field_12 {
+  grid-column: 1 /span 2 ;
+  /* background: red; */
+}
+.field_8 {
+  background:purple;
+  grid-column: 1;
+}
+.field_13 {
+  grid-column: 3/span 2 ;
+  background: blue;
+}
+
+.field_14 {
+  grid-column: 1;
+}
+
+.field_15 {
+  grid-column: 1;
+}

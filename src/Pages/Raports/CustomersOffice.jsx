@@ -65,18 +65,6 @@ const FormUser = () => {
 
     const fields = [
         {
-            name: "consultant",
-            label: "Consultant",
-            as: "select",
-            value: formValues.consultant,
-            onChange: handleChange,
-            options: [
-                { value: '', label: 'Select Consultant' },
-                ...consultants.map(consultant => ({ value: consultant.id, label: consultant.username })),
-            ],
-            selectClassName: " w-full",
-        },
-        {
             name: "todayDate",
             label: "Today's Date",
             as: "input",
@@ -84,6 +72,7 @@ const FormUser = () => {
             disabled: true,
         
         },
+              
         {
             name: "source",
             label: "Source",
@@ -101,6 +90,21 @@ const FormUser = () => {
             ],
             selectClassName: " w-full",
         },
+        {
+            name: "consultant",
+            label: "Consultant",
+            as: "select",
+            value: formValues.consultant,
+            onChange: handleChange,
+            options: [
+                { value: '', label: 'Select Consultant' },
+                ...consultants.map(consultant => ({ value: consultant.id, label: consultant.username })),
+            ],
+            selectClassName: "w-full",
+        },
+     
+    
+    
         {
             name: "firstName",
             label: "First Name",
@@ -141,28 +145,7 @@ const FormUser = () => {
             onChange: handleChange,
         
         },
-        {
-            name: "materialStatus",
-            label: "Material Status",
-            as: "select",
-            value: formValues.materialStatus,
-            onChange: handleChange,
-            options: [
-                { value: "", label: "Select Material" },
-                { value: "married", label: "Married" },
-                { value: "divorced", label: "Divorced" },
-                { value: "single", label: "Single" },
-            ],
-            selectClassName: "w-full",
-            details: {
-                name: "Material",
-                label: "",
-                as: "text",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"Info Material Status"
-            }
-        },
+      
         {
             name: "partnerFirstName",
             label: "Partner First Name",
@@ -196,6 +179,28 @@ const FormUser = () => {
           
         },
         {
+            name: "materialStatus",
+            label: "Material Status",
+            as: "select",
+            value: formValues.materialStatus,
+            onChange: handleChange,
+            options: [
+                { value: "", label: "Select Material" },
+                { value: "married", label: "Married" },
+                { value: "divorced", label: "Divorced" },
+                { value: "single", label: "Single" },
+            ],
+            selectClassName: "w-full",
+            details: {
+                name: "Material",
+                label: "Additional Information",
+                as: "textarea",
+                value: formValues.materialStatusDetails,
+                onChange: handleChange,
+                placeholder:"Info Material Status"
+            }
+        },
+        {
             name: "partnerNegativeStatus",
             label: "Partner Negative Status",
             as: "input",
@@ -204,7 +209,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -219,7 +224,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -235,7 +240,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -250,7 +255,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -265,7 +270,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -280,7 +285,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -295,7 +300,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -310,7 +315,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -325,11 +330,13 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
-            }
+                placeholder:"Info Material Status",
+                details:"fasfa"
+            },
+             inputClass:"bg-red-400"
         },
         {
             name: "userDateLastJob",
@@ -340,11 +347,12 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
-            }
+            },
+           
         },
         {
             name: "userNetSalary",
@@ -355,7 +363,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -370,7 +378,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -385,7 +393,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -400,7 +408,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -415,7 +423,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -430,7 +438,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -445,7 +453,7 @@ const FormUser = () => {
             details: {
                 name: "Material",
                 label: "",
-                as: "text",
+                as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
                 placeholder:"Info Material Status"
@@ -458,32 +466,7 @@ const FormUser = () => {
             value: formValues.userStatus,
             disabled: true,
         },
-        {
-            name: "fullName",
-            label: "sName",
-            as: "input",
-            value: `${formValues.firstName} ${formValues.lastName}`,
-            onChange: handleChange,
-            customClass: "flex w-full",
-            fields: [
-                {
-                    name: "firstName",
-                    label: "First Name",
-                    as: "input",
-                    value: formValues.firstName,
-                    onChange: handleChange,
-                    customClass: "w-1/2 pr-2",
-                },
-                {
-                    name: "lastName",
-                    label: "Last Name",
-                    as: "input",
-                    value: formValues.lastName,
-                    onChange: handleChange,
-                    customClass: "w-1/2 pl-2",
-                },
-            ],
-        },
+     
     ];
 
     const onSubmit = (values) => {
@@ -496,7 +479,7 @@ const FormUser = () => {
                 initialValues={formValues}
                 onSubmit={onSubmit}
                 fields={fields}
-                customClass="flex flex-col gap-2 w-full max-w-lg"
+                customClass="grid grid-cols-4 gap-2 w-full max-w-5xl mx-auto"
             />
         </div>
     );

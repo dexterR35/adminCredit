@@ -16,12 +16,8 @@ const FormInput = ({
           {({ isSubmitting }) => (
             <Form className={`${customClass}`}>
               {fields.map((field, index) => (
-                <div
-                  key={index}
-                  className={`flex gap-4 ${
-                    field.details ? "flex-row" : "flex-col"
-                  }`}
-                >
+                <div key={index} className={`flex field_${index} ${
+                  field.details ? "flex-row" : ""}`}>
                   <div className="w-full">
                     <label
                       htmlFor={field.name}
@@ -29,24 +25,15 @@ const FormInput = ({
                     >
                       {field.label}
                     </label>
-                    {field.as === "textarea" && (
-                      <Field
-                        id={field.name}
-                        name={field.name}
-                        type={field.type || "text"}
-                        placeholder={field.placeholder || ""}
-                        as={field.as || "input"}
-                        rows={field.rows || 2}
-                        className="p-2 border w-full rounded-md focus:outline-none focus:border-blue-500"
-                      />
-                    )}
                     {field.as === "input" && (
                       <Field
                         id={field.name}
                         name={field.name}
                         type={field.type || "text"}
                         placeholder={field.placeholder || ""}
-                        className="p-2 w-full border rounded-md focus:outline-none focus:border-blue-500"
+                        className={`p-2 border rounded-md w-full focus:outline-none focus:border-blue-500 ${
+                          field.inputClass || ""
+                        }`}
                         disabled={field.disabled || false}
                       />
                     )}
@@ -90,6 +77,8 @@ const FormInput = ({
                         name={field.details.name}
                         type={field.details.type || "text"}
                         placeholder={field.details.placeholder || ""}
+                        as={field.details.as || "input"}
+                        rows={field.details.rows || 2}
                         className="p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
                       />
                     </div>
