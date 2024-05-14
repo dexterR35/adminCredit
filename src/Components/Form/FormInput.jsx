@@ -14,14 +14,14 @@ const FormInput = ({
       <div className="max-w-7xl">
         <Formik initialValues={initialValues} onSubmit={onSubmit}>
           {({ isSubmitting }) => (
-            <Form className={`${customClass}`}>
+            <Form className={`${customClass} text-md`}>
               {fields.map((field, index) => (
                 <div key={index} className={`flex field_${index} ${
-                  field.details ? "flex-row" : ""}`}>
+                  field.details ? "flex-row border p-3 rounded-md border-green-300" : "border-green-400 border p-3 rounded-md"}`}>
                   <div className="w-full">
                     <label
                       htmlFor={field.name}
-                      className="mb-1 text-md font-medium flex items-center"
+                      className="mb-2  font-medium flex items-center"
                     >
                       {field.label}
                     </label>
@@ -31,7 +31,7 @@ const FormInput = ({
                         name={field.name}
                         type={field.type || "text"}
                         placeholder={field.placeholder || ""}
-                        className={`p-2 border rounded-md w-full focus:outline-none focus:border-blue-500 ${
+                        className={`text-sm p-2 border rounded-md w-full focus:outline-none focus:border-blue-500 ${
                           field.inputClass || ""
                         }`}
                         disabled={field.disabled || false}
@@ -42,7 +42,7 @@ const FormInput = ({
                         as="select"
                         id={field.name}
                         name={field.name}
-                        className={`p-2 border rounded-md ${
+                        className={`text-sm p-2 border rounded-md ${
                           field.selectClassName || ""
                         } focus:outline-none focus:border-blue-500`}
                       >
@@ -59,15 +59,15 @@ const FormInput = ({
                         name={field.name}
                         type="date"
                         placeholder={field.placeholder || ""}
-                        className="p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
+                        className="text-sm p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
                       />
                     )}
                   </div>
                   {field.details && (
-                    <div className="flex flex-col items-center justify-end w-full">
+                    <div className="flex flex-col items-start justify-end w-full">
                       <label
                         htmlFor={field.details.name}
-                        className="mb-1 text-md font-medium"
+                        className="text-md capitalize mb-2"
                       >
                         {field.details.label}
                       </label>
@@ -78,8 +78,8 @@ const FormInput = ({
                         type={field.details.type || "text"}
                         placeholder={field.details.placeholder || ""}
                         as={field.details.as || "input"}
-                        rows={field.details.rows || 2}
-                        className="p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
+                        rows={field.details.rows || 1}
+                        className="p-2 text-sm border rounded-md w-full focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   )}

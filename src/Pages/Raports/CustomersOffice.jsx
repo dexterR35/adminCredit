@@ -145,7 +145,14 @@ const FormUser = () => {
             onChange: handleChange,
         
         },
-      
+        {
+            name: "userAddress",
+            label: "Address",
+            as: "input",
+            value: formValues.userAddress,
+            onChange: handleChange,
+        
+        },
         {
             name: "partnerFirstName",
             label: "Partner First Name",
@@ -193,11 +200,11 @@ const FormUser = () => {
             selectClassName: "w-full",
             details: {
                 name: "Material",
-                label: "Additional Information",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
         {
@@ -208,11 +215,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
         {
@@ -223,29 +230,15 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
     
-        {
-            name: "userAddress",
-            label: "Address",
-            as: "input",
-            value: formValues.userAddress,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"Info Material Status"
-            }
-        },
+      
         {
             name: "userStudies",
             label: "Education",
@@ -254,11 +247,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
         {
@@ -269,11 +262,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
         {
@@ -284,11 +277,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
         {
@@ -299,11 +292,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
         {
@@ -314,11 +307,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
         {
@@ -329,14 +322,14 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status",
+                placeholder:"additional information",
                 details:"fasfa"
             },
-             inputClass:"bg-red-400"
+            //  inputClass:"bg-red-900"
         },
         {
             name: "userDateLastJob",
@@ -346,11 +339,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             },
            
         },
@@ -362,11 +355,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+                placeholder:"additional information"
             }
         },
         {
@@ -377,11 +370,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+         
             }
         },
         {
@@ -392,11 +385,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+              
             }
         },
         {
@@ -407,11 +400,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+            
             }
         },
         {
@@ -422,11 +415,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+               
             }
         },
         {
@@ -437,11 +430,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+              
             }
         },
         {
@@ -452,11 +445,11 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "",
+                label: "Material Status Information",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
-                placeholder:"Info Material Status"
+               
             }
         },
         {
@@ -465,6 +458,7 @@ const FormUser = () => {
             as: "input",
             value: formValues.userStatus,
             disabled: true,
+            inputClass:"bg-gray-300 disabled"
         },
      
     ];
