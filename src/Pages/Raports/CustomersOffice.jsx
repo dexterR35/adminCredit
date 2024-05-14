@@ -473,7 +473,7 @@ const FormUser = () => {
                 initialValues={formValues}
                 onSubmit={onSubmit}
                 fields={fields}
-                customClass="grid grid-cols-4 gap-2 w-full max-w-5xl mx-auto"
+                customClass="grid grid-cols-4 gap-2 w-full max-w-5xl mr-auto"
             />
         </div>
     );
