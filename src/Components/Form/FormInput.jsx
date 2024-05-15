@@ -6,22 +6,23 @@ const FormInput = ({
   initialValues,
   onSubmit,
   fields,
-  customClass,
+  formCustomClass,
   submitButtonText,
+  buttonCustomClass
 }) => {
   return (
     <div className="mx-auto">
       <div className="max-w-7xl">
         <Formik initialValues={initialValues} onSubmit={onSubmit}>
           {({ isSubmitting }) => (
-            <Form className={`${customClass} text-md`}>
+            <Form className={`${formCustomClass} text-md`}>
               {fields.map((field, index) => (
-                <div key={index} className={`flex field_${index} ${
-                  field.details ? "flex-row border p-3 rounded-md border-green-300" : "border-green-400 border p-3 rounded-md"}`}>
+                <div key={index} className={`flex w-full rounded-md field_${index} ${
+                  field.details ? "gap-2" : "_s"}`}>
                   <div className="w-full">
                     <label
                       htmlFor={field.name}
-                      className="mb-2  font-medium flex items-center"
+                      className="mb-2 font-medium flex items-center"
                     >
                       {field.label}
                     </label>
@@ -31,7 +32,7 @@ const FormInput = ({
                         name={field.name}
                         type={field.type || "text"}
                         placeholder={field.placeholder || ""}
-                        className={`text-sm p-2 border rounded-md w-full focus:outline-none focus:border-blue-500 ${
+                        className={`text-sm p-2 border rounded-md w-full focus:outline-none focus:border-green-500 ${
                           field.inputClass || ""
                         }`}
                         disabled={field.disabled || false}
@@ -44,7 +45,7 @@ const FormInput = ({
                         name={field.name}
                         className={`text-sm p-2 border rounded-md ${
                           field.selectClassName || ""
-                        } focus:outline-none focus:border-blue-500`}
+                        } focus:outline-none focus:border-green-500`}
                       >
                         {field.options.map((option, optionIndex) => (
                           <option key={optionIndex} value={option.value}>
@@ -59,7 +60,7 @@ const FormInput = ({
                         name={field.name}
                         type="date"
                         placeholder={field.placeholder || ""}
-                        className="text-sm p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
+                        className="text-sm p-2 border rounded-md w-full focus:outline-none focus:border-green-500"
                       />
                     )}
                   </div>
@@ -76,20 +77,20 @@ const FormInput = ({
                         id={field.details.name}
                         name={field.details.name}
                         type={field.details.type || "text"}
-                        placeholder={field.details.placeholder || ""}
+                        placeholder={field.details.placeholder || "default"}
                         as={field.details.as || "input"}
                         rows={field.details.rows || 1}
-                        className="p-2 text-sm border rounded-md w-full focus:outline-none focus:border-blue-500"
+                        className="p-2 text-sm border rounded-md w-full focus:outline-none focus:border-green-500 resize-none"
                       />
                     </div>
                   )}
                 </div>
               ))}
-              <div className="col-span-full">
+              <div className="col-span-full w-full">
                 <CustomButton
                   disabled={isSubmitting}
-                  additionalClasses="p-2 w-52"
-                  text={isSubmitting ? "Saving..." : submitButtonText}
+                  additionalClasses={`p-2 w-52 ${buttonCustomClass}`}
+                  text={isSubmitting ? "Wait..." : submitButtonText}
                   type="submit"
                   buttonType="submit"
                 />

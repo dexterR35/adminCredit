@@ -27,7 +27,7 @@ const LoginPage = ({ setUser }) => {
     } catch (error) {
       console.error("Login error:", error.message);
     } finally {
-      setSubmitting(false);  // Ensure to set submitting to false after processing is complete
+      setSubmitting(false);  
     }
   }
 
@@ -39,6 +39,7 @@ const LoginPage = ({ setUser }) => {
       value: loginValues.email,
       onChange: handleChange,
       placeholder: "Email",
+      inputClass:""
     },
     {
       name: "password",
@@ -47,20 +48,21 @@ const LoginPage = ({ setUser }) => {
       as: "input",
       value: loginValues.password,
       onChange: handleChange,
+      inputClass:"mb-4"
     }
   ];
 
   return (
     <div className="w-full h-screen flex items-center justify-center flex-col">
-      <h3 className='my-4 p-0 uppercase font-semibold'>Obtine Credit</h3>
+      <h3 className='my-2 p-0 uppercase font-semibold'>Obtine Credit</h3>
       <FormInput
         initialValues={loginValues}
         onSubmit={handleLogin}
         fields={fields}
-        customClass="grid grid-cols-1 gap-4 items-center w-full"
+        formCustomClass="flex flex-col items-center gap-2 order-1 w-[280px]"
+        buttonCustomClass="w-full bg-red-500 text-white font-semibold border-0 outline-0 uppercase"
         submitButtonText="Login"
       />
-
     </div>
   );
 };

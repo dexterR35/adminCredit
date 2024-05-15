@@ -93,7 +93,7 @@
 
 .field_13,.field_14,.field_15, .field_16, .field_17, .field_18, .field_19,.field_20,.field_21,.field_22,.field_23,.field_24,.field_25, .field_26,.field_27,.field_28, .field_29{
   grid-column: 1 /span 4 ;
-  gap: 20px;
+  /* gap: 20px; */
 
 }
 

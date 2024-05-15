@@ -6,8 +6,7 @@ const ActionButton = ({ onClick, text, buttonType, type = 'button', additionalCl
 
     switch (buttonType) {
         case 'submit':
-            backgroundColor = 'text-sm bg-transparent border-2 border-gray-200 bg-primary text-dark';
-            iconKey = 'IoLogout';
+            backgroundColor = 'text-md text-dark bg-transparent bg-primary p-2 text-center flex items-center justify-center';
             break;
         case 'default':
             backgroundColor = 'bg-inherit'
@@ -39,8 +38,8 @@ const ActionButton = ({ onClick, text, buttonType, type = 'button', additionalCl
             type={type}
             {...props}
         >
-            {iconKey && <IconR icon={iconKey} size={18} />}
-            {text}
+            {iconKey && <IconR icon={iconKey} size={20} />}
+            <span>{text}</span>
         </button>
     );
 };
@@ -53,8 +52,6 @@ const CustomButton = ({ onClick, text = "default", buttonType = "default", type 
         buttonType={buttonType}
         additionalClasses={additionalClasses}
         type={type}
-
-
     />
 );
 

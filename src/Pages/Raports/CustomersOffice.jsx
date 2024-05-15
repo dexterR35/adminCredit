@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllConsultants } from "../../services/Hooks";
 import FormInput from "../../Components/Form/FormInput";
 import { selectClasses } from "@mui/material";
-
+import { CustomButton } from "../../Components/Buttons/Buttons";
 const FormUser = () => {
     const [consultants, setConsultants] = useState([]);
     const [formValues, setFormValues] = useState({
@@ -473,8 +473,11 @@ const FormUser = () => {
                 initialValues={formValues}
                 onSubmit={onSubmit}
                 fields={fields}
-                customClass="grid grid-cols-4 gap-2 w-full max-w-5xl mr-auto"
+                formCustomClass="grid grid-cols-4 gap-2 w-full max-w-5xl mr-auto"
+                buttonCustomClass="bg-indigo-600 text-white font-semibold border-0 outline-0 uppercase"
+                submitButtonText="Show Preview"
             />
+               
         </div>
     );
 };

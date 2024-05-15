@@ -15,7 +15,8 @@ const HeaderUser = () => {
   return (
     <>
       <div className="h-14 bg-white shadow-md w-full flex justify-start gap-2 flex-row-reverse items-center px-10">
-        <CustomButton onClick={handleLogout} text="Log Out" buttonType="submit" />
+        <CustomButton onClick={handleLogout} text="Log Out" buttonType="submit" additionalClasses="border-2  p-0 text-dark border-gray-500 text-white font-semibold uppercase"
+               />
         <CustomButton onClick={openModal} text="Create Consultant" buttonType="modal" />
         <SwitchLang />
       </div>
