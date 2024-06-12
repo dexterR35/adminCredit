@@ -1,17 +1,17 @@
 import { useState, useMemo } from "react";
 
-const UseDataTable = (initialData = [] ) => {
+const UseDataTable = (initialData = []) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [expandedRow, setExpandedRow] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    const handleRowClick = (index) =>
-        setExpandedRow(index === expandedRow ? null : index);
+    const handleRowClick = (index) => setExpandedRow(index === expandedRow ? null : index);
 
     const handleSearch = (query) => setSearchQuery(query);
     const handleItemsPerPageChange = (perPage) => setItemsPerPage(perPage);
     const handlePageChange = (page) => setCurrentPage(page);
+
     const filteredData = useMemo(() => {
         const lowerCaseQuery = searchQuery.toLowerCase();
         return initialData.filter((item) => {
@@ -26,7 +26,6 @@ const UseDataTable = (initialData = [] ) => {
             );
         });
     }, [initialData, searchQuery]);
-
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
