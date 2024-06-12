@@ -15,14 +15,14 @@ const FormInput = ({
       <div className="max-w-7xl">
         <Formik initialValues={initialValues} onSubmit={onSubmit}>
           {({ isSubmitting }) => (
-            <Form className={`${formCustomClass} text-md`}>
+            <Form className={`${formCustomClass}`}>
               {fields.map((field, index) => (
-                <div key={index} className={`flex w-full rounded-md field_${index} ${
-                  field.details ? "gap-2" : "_s"}`}>
-                  <div className="w-full">
+                <div key={index} className={`flex w-full rounded-md field_${index} my-[3px] border border-gray-300 p-2 ${
+                  field.details ? "gap-4" : "_s"}`}>
+                  <div className="w-full flex flex-row gap-2 items-center justify-center">
                     <label
                       htmlFor={field.name}
-                      className="mb-2 font-medium flex items-center"
+                      className="text-sm flex items-center w-1/2"
                     >
                       {field.label}
                     </label>
@@ -65,10 +65,10 @@ const FormInput = ({
                     )}
                   </div>
                   {field.details && (
-                    <div className="flex flex-col items-start justify-end w-full">
+                    <div className="flex flex-row items-center justify-center w-full">
                       <label
                         htmlFor={field.details.name}
-                        className="text-md capitalize mb-2"
+                        className="text-sm capitalize w-32"
                       >
                         {field.details.label}
                       </label>

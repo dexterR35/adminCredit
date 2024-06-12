@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 
-const UseDataTable = (initialData) => {
+const UseDataTable = (initialData = [] ) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [expandedRow, setExpandedRow] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -12,20 +12,20 @@ const UseDataTable = (initialData) => {
     const handleSearch = (query) => setSearchQuery(query);
     const handleItemsPerPageChange = (perPage) => setItemsPerPage(perPage);
     const handlePageChange = (page) => setCurrentPage(page);
-
     const filteredData = useMemo(() => {
-        return initialData.filter(
-            (item) =>
-                item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item["CONSULTANT"]?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item["NUME CLIENT"]?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item["DATA"]?.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        return initialData.filter((item) => {
+            const fullName = `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase();
+            return (
+                item.name?.toLowerCase().includes(lowerCaseQuery) ||
+                item.phone?.toLowerCase().includes(lowerCaseQuery) ||
+                fullName.includes(lowerCaseQuery) ||
+                item["CONSULTANT"]?.toLowerCase().includes(lowerCaseQuery) ||
+                item["NUME CLIENT"]?.toLowerCase().includes(lowerCaseQuery) ||
+                item["DATA"]?.toLowerCase().includes(lowerCaseQuery)
+            );
+        });
     }, [initialData, searchQuery]);
-
-    console.log(filteredData, "filterdata")
 
 
     const indexOfLastItem = currentPage * itemsPerPage;

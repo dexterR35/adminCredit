@@ -3,7 +3,7 @@ import { FetchContractData, FetchCustomersData } from '../../services/Hooks';
 import CardSmall from '../../Components/CardSmall/_CardSmall';
 import CurrentDateTimeComp from '../../Components/utils/_CurrentTime';
 import ContractPage from '../Contract/ContractPage';
-
+import HomeRaportTable from './HomeRaportTable'
 const HomePage = ({ user }) => {
     const { customerData, customersAddedOnCurrentDay, nameOfLastAddedCustomer } = FetchCustomersData();
     const { lastContractName, contractsLength } = FetchContractData()
@@ -60,7 +60,7 @@ const HomePage = ({ user }) => {
                 <h3 className="text-start">Customers</h3>
                 <div className="flex flex-wrap gap-5">
                     {cardData.map((card, index) => (
-                        <div className='min-w-[180px]'>
+                        <div key={index} className='min-w-[180px]'>
                             <CardSmall key={index} {...card} />
                         </div>
                     ))}
@@ -70,7 +70,7 @@ const HomePage = ({ user }) => {
                 <div className="div">
                     <h3>Tabel Raport</h3>
                     <div className="w-full">
-                        {/* <ContractPage /> */}
+                        <HomeRaportTable />
                     </div>
                 </div>
 

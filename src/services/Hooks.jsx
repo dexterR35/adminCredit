@@ -313,3 +313,51 @@ export const getConsultantByUserName = async (username) => {
     throw error;
   }
 };
+
+
+
+
+// Function to add a new report to the 'raport' collection
+export const addRaport = async (formData) => {
+  try {
+    // Add the form data to the Firestore collection 'raport'
+    const docRef = await addDoc(collection(db, "raport"), {
+      ...formData,
+      timestamp: serverTimestamp(),
+    });
+
+    // Show success message
+    toast.success("Raport added successfully!");
+
+    // Return the document reference or any other data as needed
+    return docRef.id;
+  } catch (error) {
+    // Show error message
+    toast.error(`Error adding raport: ${error.message}`);
+    throw error;
+  }
+};
+
+
+export const fetchRaportNew = async () => {
+  try {
+    // Fetch all documents from the 'raport' collection
+    const querySnapshot = await getDocs(collection(db, "raport"));
+
+    // Map through the documents and return their data along with the document ID
+    const raports = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+console.log(raports,"raports")
+    // Optionally show a success message
+    toast.success("Raports fetched successfully!");
+
+    // Return the array of raports
+    return raports;
+  } catch (error) {
+    // Show error message
+    toast.error(`Error fetching raports: ${error.message}`);
+    throw error;
+  }
+};

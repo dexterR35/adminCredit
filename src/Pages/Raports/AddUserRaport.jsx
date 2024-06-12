@@ -3,6 +3,7 @@ import { getAllConsultants } from "../../services/Hooks";
 import FormInput from "../../Components/Form/FormInput";
 import { selectClasses } from "@mui/material";
 import { CustomButton } from "../../Components/Buttons/Buttons";
+import { addRaport } from "../../services/Hooks"
 const FormUser = () => {
     const [consultants, setConsultants] = useState([]);
     const [formValues, setFormValues] = useState({
@@ -37,7 +38,6 @@ const FormUser = () => {
         userContactPersonOne: "",
         userContactPersonTwo: "",
         employerFieldActivity: "",
-
         phoneDetails: "",
         materialStatusDetails:"",
     });
@@ -45,8 +45,8 @@ const FormUser = () => {
     useEffect(() => {
         const fetchConsultantsData = async () => {
             try {
-                const data = await getAllConsultants();
-                setConsultants(data);
+                const dataConsultant = await getAllConsultants();
+                setConsultants(dataConsultant);
             } catch (error) {
                 console.error("Error fetching consultant data:", error);
             }
@@ -61,6 +61,15 @@ const FormUser = () => {
             ...prevFormValues,
             [name]: value,
         }));
+    };
+
+    const onSubmit = async (values) => {
+        try {
+            await addRaport(values);
+            console.log("Raport added successfully!");
+        } catch (error) {
+            console.error("Error adding raport:", error);
+        }
     };
 
     const fields = [
@@ -122,12 +131,12 @@ const FormUser = () => {
           
         },
         {
-            name: "userCNP",
-            label: "Client CNP",
+            name: "email",
+            label: "Email",
             as: "input",
-            value: formValues.userCNP,
+            value: formValues.email,
             onChange: handleChange,
-          
+        
         },
         {
             name: "phone",
@@ -138,13 +147,14 @@ const FormUser = () => {
         
         },
         {
-            name: "email",
-            label: "Email",
+            name: "userCNP",
+            label: "CNP",
             as: "input",
-            value: formValues.email,
+            value: formValues.userCNP,
             onChange: handleChange,
-        
+          
         },
+    
         {
             name: "userAddress",
             label: "Address",
@@ -200,7 +210,7 @@ const FormUser = () => {
             selectClassName: "w-full",
             details: {
                 name: "Material",
-                label: "Material Status Information",
+                label: "extra info",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
@@ -215,7 +225,7 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "Material Status Information",
+                label: "extra info",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
@@ -230,7 +240,7 @@ const FormUser = () => {
             onChange: handleChange,
             details: {
                 name: "Material",
-                label: "Material Status Information",
+                label: "extra info",
                 as: "textarea",
                 value: formValues.materialStatusDetails,
                 onChange: handleChange,
@@ -463,21 +473,19 @@ const FormUser = () => {
      
     ];
 
-    const onSubmit = (values) => {
-        console.log(values);
-    };
+    
 
     return (
         <div>
+            <h2 className="text-start">Add User Information</h2>
             <FormInput
                 initialValues={formValues}
                 onSubmit={onSubmit}
                 fields={fields}
-                formCustomClass="grid grid-cols-4 gap-2 w-full max-w-5xl mr-auto"
+                formCustomClass="grid grid-cols-4 gap-x-2 gap-y-1 w-full max-w-5xl mr-auto"
                 buttonCustomClass="bg-indigo-600 text-white font-semibold border-0 outline-0 uppercase"
                 submitButtonText="Show Preview"
-            />
-               
+                />        
         </div>
     );
 };
