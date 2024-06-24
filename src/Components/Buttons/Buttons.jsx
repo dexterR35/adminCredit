@@ -28,6 +28,7 @@ const CustomButton = ({ onClick, text = "default", buttonType = "default", type 
         logIn: 'IoCreate',
         submit:'IoLogout',
         info:'IoLogout',
+        disabled:'IoCreate',
     };
 
     const buttonClasses = disabled ? buttonStyles.disabled : buttonStyles[buttonType] || 'bg-primary text-white';

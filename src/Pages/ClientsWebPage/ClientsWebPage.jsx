@@ -10,25 +10,19 @@ const ContractTable = () => {
         {
             accessorKey: "name",
             header: "Name",
-            size: 100,
+            size: 120,
             Cell: ({ row }) => <span style={{ textTransform: 'capitalize' }}>{row.original.name}</span>,
         },
         { accessorKey: "phone", header: "Phone", size: 100 },
-        { accessorKey: "banks", header: "banks", size: 100 },
-        { accessorKey: "ifn", header: "ifn", size: 100 },
-        { accessorKey: "bankHistory", header: "bank History", size: 100 },
-        { accessorKey: "bankStatus", header: "bank Status", size: 100 },
-        { accessorKey: "others", header: "others", size: 100 },
-        { accessorKey: "selectedDate", header: "jobDate", size: 100 },
-        {
-            accessorKey: "email", header: "email", size: 10, cellStyle: {
-                maxWidth: 20,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-            },
-        },
-        { accessorKey: "timestamp", header: "Date", size: 100 },
-        { accessorKey: "status", header: "status", size: 100 },
+        { accessorKey: "banks", header: "banks", size: 120 },
+        { accessorKey: "ifn", header: "ifn", size: 120 },
+        { accessorKey: "bankHistory", header: "bank History", size: 70 },
+        { accessorKey: "bankStatus", header: "bank Status", size: 70 },
+        { accessorKey: "others", header: "others", size: 120 },
+        { accessorKey: "selectedDate", header: "jobDate", size: 70 },
+        { accessorKey: "email", header: "email", size: 100 },
+        { accessorKey: "timestamp", header: "Date", size: 120 },
+        { accessorKey: "status", header: "status", size: 50 },
     ];
 
     const actions = [
