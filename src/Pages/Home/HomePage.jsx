@@ -2,11 +2,11 @@
 import { FetchContractData, FetchCustomersData } from '../../services/Hooks';
 import CardSmall from '../../Components/CardSmall/_CardSmall';
 import CurrentDateTimeComp from '../../Components/utils/_CurrentTime';
-import ContractPage from '../Contract/ContractPage';
 import HomeRaportTable from './HomeRaportTable'
 const HomePage = ({ user }) => {
     const { customerData, customersAddedOnCurrentDay, nameOfLastAddedCustomer } = FetchCustomersData();
     const { lastContractName, contractsLength } = FetchContractData()
+    console.log(contractsLength,"fsaf")
     const userName = user ? user.email.split('@')[0].toUpperCase() : 'User';
 
     const cardData = [
@@ -34,14 +34,14 @@ const HomePage = ({ user }) => {
         },
         {
             _one: 'Buget Clients',
-            _two: "20%",
+            _two: "20",
             _three: "12540 RON",
             icon: 'cards',
             className: 'bg-low-color',
         },
         {
             _one: 'Buget Broker',
-            _two: "20%",
+            _two: "20",
             _three: "12540 RON",
             icon: 'cards',
             className: 'bg-low-color',

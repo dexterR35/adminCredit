@@ -1,35 +1,47 @@
 {
     "en": {
-      "welcome": "Welcome",
-      "greeting": "Hello",
-      "menu": {
-        "home": "Home",
+      "greetings":{
+        "welcome": "Welcome"
+      } ,
+      "button": {
         "login": "Login",
-        "logout": "Logout"
+        "logout": "Logout",
+        "details":"details"
       },
       "navMenu":{
-        "customersSite":"users",
-        "customersContract":"contract",
+        "home": "Home",
+        "clientsSite":"web clients",
+        "clientsContract":"contracts",
         "raportOld":"old raport",
         "raportNew":"new raport",
-        "customersCreate":"Create Consultant"
+        "clientsCreate":"Create Consultant"
+      },
+      "modalTitle": {
+       "createConsultant":"Create Consultant",
+        "detailsClients":"Clients Details"
       }
     },
     "ro": {
-      "welcome": "Bine ai venit",
-      "greeting": "Salut",
-      "menu": {
-        "home": "Acasă",
+      "greetings":{
+        "welcome": "Bine ai venit"
+      } ,
+      "button": {
         "login": "Autentificare",
-        "logout": "Deconectare"
+        "logout": "Deconectare",
+         "details":"detalii"
       },
       "navMenu":{
-        "customersSite":"site clienti",
-        "customersContract":"contract users",
-        "raportOld":"old raport",
-        "raportNew":"new raport",
-        "customersCreate":"Create Consultant"
-      }
+        "home": "Acasă",
+        "clientsSite":"clienti site",
+        "clientsContract":"Contracte",
+        "raportOld":"raport vechi",
+        "raportNew":"raport nou",
+        "clientsCreate":"Create Consultant"
+      },
+      "modalTitle": {
+        "createConsultant":"Creaza consultant",
+        "detailsClients":"Detalii Client"
+       }
     }
   }
   

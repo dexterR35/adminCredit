@@ -11,8 +11,6 @@ import {
 import { db } from '../firebase/config'
 import { toast } from "react-toastify";
 
-
-
 const auth = getAuth();
 // Function to check if the user is already authenticated
 
@@ -68,7 +66,6 @@ export const Login = async (email, password) => {
   }
 };
 
-
 export const Logout = async () => {
   try {
     // Sign out the user
@@ -121,16 +118,16 @@ export const FetchCustomersData = () => {
           ? customer.customer_info.banking_info.others.map(item => <div key={item}>{item}</div>)
           : <div>OK</div>,
         bankHistory: customer.customer_info.banking_info.bankHistory === false
-          ? <div className="bg-green-300 px-4">No bank history</div>
-          : <div className="bg-red-600 text-white px-4 font-semibold">Bank history</div>,
+          ? <div className="bg-succes p-1 text-gray-50 text-[0.85em] text-center font-bold">No bank history</div>
+          : <div className="bg-error p-1 text-gray-50 text-[0.85em] text-center font-bold">Bank history</div>,
         bankStatus: customer.customer_info.banking_info.bankHistory === true
-          ? <div className="bg-green-300 px-4">No bank status</div>
+          ? <div className="bg-succes p-1 text-gray-50 text-[0.85em] text-center font-bold">No raport status</div>
           : customer.customer_info.banking_status === false
-            ? <div className="bg-green-300 px-4">No bank status</div>
-            : <div className="bg-red-600 text-white px-4 font-semibold">Negativ Raport</div>,
+            ? <div className="bg-succes p-1 text-gray-50 text-[0.85em] text-center font-bold ">No raport status</div>
+            : <div className="bg-error p-1 text-gray-50 text-[0.85em] text-center font-bold">Negativ Raport</div>,
         selectedDate: customer.customer_info.formData.selectedDate
           ? customer.customer_info.formData.selectedDate
-          : "false",
+          : "not eligible",
         aboutUs: customer.customer_info.formData.aboutUs,
         timestamp: customer.timestamp,
         email: customer.customer_info.formData.email,
@@ -180,40 +177,36 @@ export const FetchCustomersData = () => {
 
   return { customerData, updateCustomer, deleteCustomer, customersAddedOnCurrentDay, lastAddedCustomer, lengthOfCustomersAddedOnCurrentDay, nameOfLastAddedCustomer };
 };
-
-
 export const FetchContractData = () => {
   const [contracts, setContracts] = useState([]);
-  console.log(contracts, "fasfaaaaa")
-  useEffect(() => {
-    const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const contractList = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          timestamp: FormatTimestamp(data.timeStamp.seconds * 1000),
-        };
-      });
-      setContracts(contractList);
-    });
-    return () => unsubscribe();
-  }, []);
+  const [loading, setLoading] = useState(true);
 
-  const onEdit = async (id, updatedData) => {
-    try {
-      await updateDoc(doc(db, 'contracts', id), updatedData);
-      setContracts((prevContracts) =>
-        prevContracts.map((contract) =>
-          contract.id === id ? { ...contract, ...updatedData } : contract
-        )
-      );
-      console.log('Contract successfully updated!', id);
-    } catch (error) {
-      console.error('Error updating contract:', error);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const contractList = querySnapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              timestamp: FormatTimestamp(data.timeStamp.seconds * 1000),
+            };
+          });
+          setContracts(contractList);
+          setLoading(false);
+        });
+
+        return () => unsubscribe();
+      } catch (error) {
+        console.error('Error fetching contracts:', error);
+      }
+    };
+
+    fetchData();
+
+  }, []);
 
   const onDelete = async (id) => {
     try {
@@ -221,21 +214,23 @@ export const FetchContractData = () => {
       setContracts((prevContracts) =>
         prevContracts.filter((contract) => contract.id !== id)
       );
+      console.log("7")
       console.log('Contract successfully deleted!', id);
     } catch (error) {
       console.error('Error deleting contract:', error);
     }
   };
 
-  const lastContractName = contracts.length > 0 ? `${contracts[0].firstName} ${contracts[0].lastName}` : '';
-  const contractsLength = contracts.length;
+  const lastContractName = useMemo(() => {
+    return contracts.length > 0 ? `${contracts[0].firstName} ${contracts[0].lastName}` : '';
+  }, [contracts]);
 
-  return { contracts, onEdit, onDelete, lastContractName, contractsLength };
+  const contractsLength = useMemo(() => contracts.length, [contracts]);
+console.log(contractsLength,"ds")
+console.log(lastContractName,"ds")
+console.log(contracts,"contracts")
+  return { contracts, loading, onDelete, lastContractName, contractsLength };
 };
-
-
-
-
 // Function to add a new consultant
 
 export const AddConsultant = async (email, password, username, role) => {
@@ -301,7 +296,6 @@ export const getConsultantByUserName = async (username) => {
     const consultantsCollection = collection(db, 'consultants');
     const consultantQuery = query(consultantsCollection, where('username', '==', username));
     const querySnapshot = await getDocs(consultantQuery);
-
     // If there is a document with the specified username, return its data
     if (!querySnapshot.empty) {
       const consultantData = querySnapshot.docs[0].data();

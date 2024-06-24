@@ -1,25 +1,22 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import IconR from "../../utils/_Icon"
-import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import useTranslate from '../../../services/useTranslate';
+import { CustomButton } from "../../Buttons/Buttons";
 
 function AsideMenu() {
-    const { t } = useTranslation();
+    const { t } = useTranslate();
     const links = [
-        { path: "/admin/home", label: t('menu.home'), icon: <IconR icon="FcHome" size={18} /> },
-        { path: "/admin/customers", label: t('navMenu.customersSite'), icon: <IconR icon="businessMan" size={18} /> },
-        { path: "/admin/contract", label: t('navMenu.customersContract'), icon: <IconR icon="FcReading" size={18} /> },
-        { path: "/admin/oldraport", label: t('navMenu.raportOld'), icon: <IconR icon="businessContact" size={18} /> },
-        { path: "/admin/newraport", label: t('navMenu.raportNew'), icon: <IconR icon="FcBearish" size={18} /> },
-        // { path: "/admin/CreateConsultant", label: t('navMenu.customersCreate'), icon: <IconR icon="FcOvertime" size={18} /> },
-
+        { path: "/admin/home", label: t('navMenu.home'), icon: <IconR icon="FcHome" /> },
+        { path: "/admin/customers", label: t('navMenu.clientsSite'), icon: <IconR icon="businessMan" /> },
+        { path: "/admin/contract", label: t('navMenu.clientsContract'), icon: <IconR icon="FcReading" /> },
+        { path: "/admin/oldraport", label: t('navMenu.raportOld'), icon: <IconR icon="businessContact" /> },
+        { path: "/admin/newraport", label: t('navMenu.raportNew'), icon: <IconR icon="FcBearish" /> },
     ];
     return (
-        <aside className='w-full py-2 p-4 h-full border border-t-0 border-b-0'>
-            <div className='flex flex-col justify-between h-96'>
-                <img className='text-center mt-10 mx-auto' alt="img" />
-                <nav>
-                    <ul className='flex flex-col space-y-3 text-md font-bold capitalize'>
+        <aside className='w-full px-4 h-full border border-t-0 border-b-0'>
+            <div className='grid grid-rows-2 justify-between h-[90%]'>
+                <nav className="self-center">
+                    <ul className='flex flex-col space-y-2 font-bold capitalize'>
                         {links.map((link, index) => (
                             <li key={index} className='flex flex-row space-x-2 items-start justify-start'>
                                 {link.icon}
@@ -28,6 +25,9 @@ function AsideMenu() {
                         ))}
                     </ul>
                 </nav>
+                <div className="self-end">
+                    <CustomButton text='button.logout' buttonType="logOut" additionalClasses="text-sm" />
+                </div>
             </div>
         </aside>
     );

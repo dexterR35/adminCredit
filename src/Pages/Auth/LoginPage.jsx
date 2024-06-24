@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Login } from '../../services/Hooks';
 import FormInput from '../../Components/Form/FormInput';
+
 const LoginPage = ({ setUser }) => {
   const navigate = useNavigate();
   const [loginValues, setLoginValues] = useState({
     email: "",
     password: ""
   });
+  const [error, setError] = useState(null); // State to handle errors
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -26,10 +28,11 @@ const LoginPage = ({ setUser }) => {
       navigate("/admin/home");
     } catch (error) {
       console.error("Login error:", error.message);
+      setError("An error occurred. Please try again."); 
     } finally {
-      setSubmitting(false);  
+      setSubmitting(false);
     }
-  }
+  };
 
   const fields = [
     {
@@ -39,7 +42,7 @@ const LoginPage = ({ setUser }) => {
       value: loginValues.email,
       onChange: handleChange,
       placeholder: "Email",
-      inputClass:""
+      inputClass: ""
     },
     {
       name: "password",
@@ -48,13 +51,14 @@ const LoginPage = ({ setUser }) => {
       as: "input",
       value: loginValues.password,
       onChange: handleChange,
-      inputClass:"mb-4"
+      inputClass: "mb-4"
     }
   ];
 
   return (
     <div className="w-full h-screen flex items-center justify-center flex-col">
       <h3 className='my-2 p-0 uppercase font-semibold'>Obtine Credit</h3>
+      {error && <p className="text-red-500">{error}</p>} {/* Display error message if error state is set */}
       <FormInput
         initialValues={loginValues}
         onSubmit={handleLogin}

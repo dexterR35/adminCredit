@@ -1,58 +1,49 @@
 import React from 'react';
-import IconR from '../utils/_Icon'
-const ActionButton = ({ onClick, text, buttonType, type = 'button', additionalClasses = '', ...props }) => {
+import IconR from '../utils/_Icon';
+import useTranslate from '../../services/useTranslate';
 
-    let backgroundColor, iconKey;
+const CustomButton = ({ onClick, text = "default", buttonType = "default", type = "button", additionalClasses = '', disabled = false}) => {
+    const { t } = useTranslate();
 
-    switch (buttonType) {
-        case 'submit':
-            backgroundColor = 'text-md text-dark bg-transparent bg-primary p-2 text-center flex items-center justify-center';
-            break;
-        case 'default':
-            backgroundColor = 'bg-inherit'
-            break
-        case 'edit':
-            backgroundColor = 'border-[1px] border-gray-400'
-            iconKey = 'IconPrint';
-            break
-        case 'save':
-            backgroundColor = 'bg-indigo-400'
-            break
-        case 'delete':
-            backgroundColor = 'border-[1px] bg-transparent border border-gray-400'
-            iconKey = 'hightPriority';
-            break
-        case 'modal':
-            backgroundColor = 'bg-primary text-white font-semibold text-sm'
-            iconKey = 'IoCreate';
-            break
-        default:
-            backgroundColor = 'bg-blue-400 text-white';
-            break;
-    }
+    const baseClasses = 'flex flex-row gap-2 items-center capitalize rounded-md border-0 outline-0 p-2';
+    const buttonStyles = {
+        submit: 'text-md text-dark bg-primary text-white mt-4',
+        default: 'bg-inherit',
+        delete: 'border-[1px] bg-transparent border border-gray-400',
+        modal: 'bg-primary text-white font-semibold text-sm',
+        logOut: 'border-[1px] bg-transparent border border-gray-400',
+        logIn: 'border-[1px] bg-transparent border border-gray-400',
+        success: 'bg-succes text-gray-50 font-bold',
+        error: 'bg-error text-gray-50 font-bold',
+        edit: 'border-[1px] border-gray-400',
+        info: 'bg-blue-600 text-gray-50',
+        disabled: 'bg-gray-300 text-gray-500 cursor-not-allowed',
+    };
+
+    const iconKeys = {
+        edit: 'IconPrint',
+        delete: 'hightPriority',
+        modal: 'IoCreate',
+        logOut: 'IoLogout',
+        logIn: 'IoCreate',
+        submit:'IoLogout',
+        info:'IoLogout',
+    };
+
+    const buttonClasses = disabled ? buttonStyles.disabled : buttonStyles[buttonType] || 'bg-primary text-white';
+    const iconKey = iconKeys[buttonType];
 
     return (
         <button
-            className={`rounded ${backgroundColor} ${additionalClasses} flex flex-row gap-2 items-center capitalize rounded-md border-0 outline-0 p-2`}
+            className={`${baseClasses} ${buttonClasses} ${additionalClasses}`}
             onClick={onClick}
             type={type}
-            {...props}
+            disabled={disabled}
         >
-            {iconKey && <IconR icon={iconKey} size={20} />}
-            <span>{text}</span>
+        {iconKey && iconKey !== '' && <IconR icon={iconKey} />}
+            <span>{t(text)}</span>
         </button>
     );
 };
 
-
-const CustomButton = ({ onClick, text = "default", buttonType = "default", type = "button", additionalClasses = '' }) => (
-    <ActionButton
-        onClick={onClick}
-        text={text}
-        buttonType={buttonType}
-        additionalClasses={additionalClasses}
-        type={type}
-    />
-);
-
-export { CustomButton };
+export { CustomButton }; 

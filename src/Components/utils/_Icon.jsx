@@ -26,10 +26,10 @@ const iconMap = {
     IconPrint: FcFinePrint,
 };
 
-const IconR = ({ icon, size = 24 }) => {
+const IconR = ({ icon, size = 20 }) => {
     const IconComponent = iconMap[icon];
     if (!IconComponent) {
-        return <p>Icon not found</p>;  // Fallback if no icon matches
+        return <p>Icon not found</p>; 
     }
     return <IconComponent size={size} />;
 };

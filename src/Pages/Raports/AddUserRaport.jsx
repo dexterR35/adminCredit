@@ -476,17 +476,25 @@ const FormUser = () => {
     
 
     return (
-        <div>
+        <>
+        <div className="flex flex-row justify-between">
+
+        <div className="w-[50%]">
             <h2 className="text-start">Add User Information</h2>
             <FormInput
                 initialValues={formValues}
                 onSubmit={onSubmit}
                 fields={fields}
-                formCustomClass="grid grid-cols-4 gap-x-2 gap-y-1 w-full max-w-5xl mr-auto"
+                formCustomClass="grid grid-cols-3 gap-x-2 gap-y-1 w-full max-w-5xl mr-auto"
                 buttonCustomClass="bg-indigo-600 text-white font-semibold border-0 outline-0 uppercase"
                 submitButtonText="Show Preview"
                 />        
         </div>
+        {/* <div className="w-[45%] bg-red-400 " >
+            <h2>preview</h2>
+        </div> */}
+        </div>
+        </>
     );
 };
 

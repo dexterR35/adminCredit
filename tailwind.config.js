@@ -14,10 +14,9 @@ module.exports = {
           'low-color':'#E3F4F4',
           'medium-color':'#E3F4F4',
           'dark-color':"#F0544F",
-          'error-color':'#DB162F',
-          'info-color':'#246EB9',
-          'succes-color':'#52AA5E',
-
+          'error':'#DB162F',
+          'info':'#246EB9',
+          'succes':'#52AA5E',
           'green':{
             100: '#E1F0DA', 
             200: '#DEF5E5', 
@@ -31,7 +30,6 @@ module.exports = {
             200:'#EEEEEE',
             700:'#676361'
           }
-
         },
      
       }

@@ -1,27 +1,18 @@
-import { Logout } from "../../../services/Hooks";
+import React from 'react';
 import SwitchLang from "../SwitchLang";
-import { CustomButton } from "../../Buttons/Buttons";
-import Modal from "../../Modal/Modal";
-import useModal from "../../Modal/useModal";
+import { useModal, Modal } from "../../Modal/useModal";
 import CreateConsultant from "../../Consultant/CreateConsultant";
+import { CustomButton } from "../../Buttons/Buttons";
 
 const HeaderUser = () => {
   const { isOpen, openModal, closeModal } = useModal();
-
-  const handleLogout = async () => {
-    await Logout();
-  };
-
   return (
     <>
-      <div className="h-14 bg-white shadow-md w-full flex justify-start gap-2 flex-row-reverse items-center px-10">
-        <CustomButton onClick={handleLogout} text="Log Out" buttonType="submit" additionalClasses="border-2  p-0 text-dark border-gray-500 text-white font-semibold uppercase"
-               />
-        <CustomButton onClick={openModal} text="Create Consultant" buttonType="modal" />
+      <div className="h-14 bg-white shadow-md w-full flex gap-2 flex-row items-center justify-end px-10">
+        <CustomButton onClick={openModal} text="modalTitle.createConsultant" buttonType="modal" />
         <SwitchLang />
       </div>
-
-      <Modal isOpen={isOpen} onClose={closeModal}>
+      <Modal isOpen={isOpen} onClose={closeModal} title="modalTitle.createConsultant" >
         <CreateConsultant />
       </Modal>
     </>

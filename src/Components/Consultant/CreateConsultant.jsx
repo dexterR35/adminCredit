@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AddConsultant } from '../../services/Hooks';
 import FormInput from '../Form/FormInput';
-import bcrypt from 'bcryptjs';
+
 
 const CreateConsultant = () => {
     const initialValues = {
@@ -9,53 +9,87 @@ const CreateConsultant = () => {
         password: '',
         confirmPassword: '',
         username: '',
+        role: 'consultant' // Default role value
     };
 
-    const [role, setRole] = useState('');
+    const [errors, setErrors] = useState({}); // State for validation errors
+    const [isLoading, setIsLoading] = useState(false); // State for loading indicator
 
     const onSubmit = async (values) => {
+        setIsLoading(true); // Set loading state
+        setErrors({}); // Clear any previous errors
+
         try {
-            // Check if passwords match
+            // Basic validation
+            if (!values.email || !values.password || !values.confirmPassword || !values.username) {
+                throw new Error("Please fill in all required fields");
+            }
+
             if (values.password !== values.confirmPassword) {
                 throw new Error("Passwords do not match");
             }
-            const hashedPassword = await hashPassword(values.password);
-            await AddConsultant(values.email, hashedPassword, values.username, role);
+            // Pass the password directly to the AddConsultant function
+            await AddConsultant(values.email, values.password, values.username, values.role);
             console.log('Consultant added successfully!');
         } catch (error) {
             console.error("Error adding consultant:", error);
+            setErrors({ ...errors, general: error.message }); 
         } finally {
-            // setSubmitting(false);
+            setIsLoading(false); // Reset loading state
         }
     };
 
-    const hashPassword = async (password) => {
-        // Generate salt and hash the password
-        const saltRounds = 10; // Recommended number of rounds
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        return hashedPassword;
-    };
+
 
     const fields = [
-        { name: 'email', label: 'Email', as: 'input' },
-        { name: 'password', label: 'Password', as: 'input', type: 'password' },
-        { name: 'confirmPassword', label: 'Confirm Password', as: 'input', type: 'password' }, // Confirm password field
-        { name: 'username', label: 'Username', as: 'input' },
+        {
+            name: 'email',
+            label: 'Email',
+            as: 'input',
+            type: 'email', // Input type for email
+            error: errors.email, // Show email error
+        },
+        {
+            name: 'password',
+            label: 'Password',
+            as: 'input',
+            type: 'password',
+            error: errors.password, // Show password error
+        },
+        {
+            name: 'confirmPassword',
+            label: 'Confirm Password',
+            as: 'input',
+            type: 'password',
+            error: errors.confirmPassword, // Show confirm password error
+        },
+        {
+            name: 'username',
+            label: 'Username',
+            as: 'input',
+            error: errors.username, // Show username error
+        },
         {
             name: 'role',
             label: 'Role',
-            as: 'select',
-            options: [
-                { value: 'consultant', label: 'consultant' },
-            ],
-            onChange: (e) => setRole(e.target.value)
-        }
+            as: 'input',
+            disabled: true,
+            value: 'consultant',
+        },
     ];
 
     return (
         <div>
-            <h2 className='text-start mb-0'>Create Consultant</h2>
-            <FormInput initialValues={initialValues} onSubmit={onSubmit} fields={fields} customClass="flex flex-col gap-4" />
+            {isLoading && <p>Loading...</p>} {/* Show loading indicator */}
+            {errors.general && <p className="error">{errors.general}</p>} {/* Show general error */}
+            <FormInput
+                initialValues={initialValues}
+                onSubmit={onSubmit}
+                fields={fields}
+                formCustomClass="test"
+                submitButtonText="salveaza"
+                isLoading={isLoading} // Pass loading state to FormInput
+            />
         </div>
     );
 };
