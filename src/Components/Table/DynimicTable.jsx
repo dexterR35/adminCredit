@@ -8,18 +8,19 @@ import {
   Dialog,
   Box,
 } from "@mui/material";
-import {CustomButton} from "../Buttons/Buttons"
+import { CustomButton } from "../Buttons/Buttons"
 const DynamicTable = ({
-    columns,
-    data,
-    loading,
-    onDelete,
-    onEdit,
-    actions,
-    title = "Default title", 
-    deleteDialogContent = "Are you sure you want to delete", 
-    deleteDialogTitle = "Confirm Delete", 
-  }) => { 
+  columns,
+  data,
+  loading,
+  onDelete,
+  onEdit,
+  actions,
+  title = "Default title",
+  linkTable = "",
+  deleteDialogContent = "Are you sure you want to delete",
+  deleteDialogTitle = "Confirm Delete",
+}) => {
   const [deleteContractId, setDeleteContractId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -30,7 +31,7 @@ const DynamicTable = ({
   };
 
   const confirmDelete = () => {
-    onDelete(deleteContractId); // Call onDelete passed from props
+    onDelete(deleteContractId);
     setShowDeleteModal(false);
     setDeleteContractId(null);
     console.log("2");
@@ -42,12 +43,12 @@ const DynamicTable = ({
     console.log("3");
   };
 
-  const handleContact = (contract) => {
-    const { firstName, lastName, phone } = contract;
-    alert(`Contacting ${firstName} ${lastName} at ${phone}`);
+  const handleContact = (list) => {
+    const { phone } = list;
+    alert(`Contacting at ${phone}`);
     window.open(`tel:${phone}`);
     console.log("4");
-    console.log(`Contacting ${firstName} ${lastName} at ${phone}`);
+
   };
 
   const table = useMaterialReactTable({
@@ -74,11 +75,9 @@ const DynamicTable = ({
       variant: "outlined",
     },
     renderTopToolbar: ({ table }) => (
-      <Box className="flex justify-between gap-2 my-2 py-2">
-        <MRT_GlobalFilterTextField table={table} />
-
-        <Box className="flex gap-2">
-        {actions.map((action, index) => (
+      <Box className="flex justify-end">
+        <Box className="flex gap-2 mb-4">
+          {actions.map((action, index) => (
             <CustomButton
               key={index}
               text={(action.label)}
@@ -96,7 +95,7 @@ const DynamicTable = ({
                   }
                 })
               }
-              
+
             >
               {action.label}
             </CustomButton>
@@ -112,7 +111,15 @@ const DynamicTable = ({
 
   return (
     <>
-  <h2 className="text-start m-2 mx-0">{title}</h2>
+   <div className="flex justify-between items-center">
+      <div >
+        <h2 className="text-start m-0">{title}</h2>
+        <p className="text-sm text-gray-500  mb-2">Info: <a href={linkTable} target="_blank" className=" text-blue-500" rel="noopener noreferrer">{linkTable.replace("https://", "")}</a></p>
+      </div>
+        <MRT_GlobalFilterTextField table={table} />
+      </div>
+      <hr />
+      <br />
       <MaterialReactTable table={table} />
       <Dialog open={showDeleteModal} onClose={cancelDelete}>
         <h4 className="text-center mt-4 mb-[-10px] font-bold text-xl">{deleteDialogTitle}</h4>
@@ -120,8 +127,8 @@ const DynamicTable = ({
           <p>{deleteDialogContent}</p>
         </div>
         <div className="flex items-center w-full justify-end gap-2 p-2">
-          <CustomButton onClick={confirmDelete} text="yes" buttonType="success" additionalClasses="w-20 justify-center !p-1.5"/>
-          <CustomButton onClick={cancelDelete} text="Cancel" buttonType="error" additionalClasses="w-20 justify-center !p-1.5"/>
+          <CustomButton onClick={confirmDelete} text="yes" buttonType="success" additionalClasses="w-20 justify-center !p-1.5" />
+          <CustomButton onClick={cancelDelete} text="Cancel" buttonType="error" additionalClasses="w-20 justify-center !p-1.5" />
         </div>
       </Dialog>
     </>

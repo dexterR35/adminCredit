@@ -1,10 +1,10 @@
-import  { useState } from "react";
+
 import DynamicTable from "../../Components/Table/DynimicTable";
 import { FetchContractData } from "../../services/Hooks";
 
 const ContractTable = () => {
   const { contracts, loading, onDelete } = FetchContractData();
-  // Define columns configuration
+
   const columns = [
     {
       accessorKey: "firstName",
@@ -17,7 +17,7 @@ const ContractTable = () => {
     {
       accessorKey: "photo",
       header: "Photo",
-      size: 100,
+      size: 50,
       Cell: ({ row }) => (
         <a href={row.original.photo} target="_blank" rel="noopener noreferrer">
           View Photo
@@ -27,7 +27,7 @@ const ContractTable = () => {
     {
       accessorKey: "pdfUrl",
       header: "PDF",
-      size: 100,
+      size: 50,
       Cell: ({ row }) => (
         <a href={row.original.pdfUrl} target="_blank" rel="noopener noreferrer">
           View PDF
@@ -43,7 +43,7 @@ const ContractTable = () => {
       onClick: (contract) => {
         console.log("Deleting contract:", contract.id);
         onDelete(contract.id); 
-      },
+      }
     },
     {
       label: "Contact",
@@ -65,8 +65,10 @@ const ContractTable = () => {
           onDelete={onDelete}
           actions={actions}
           title="Contracts"
+          linkTable="https://obtinecredit.ro/contract"
           deleteDialogTitle="Confirm Delete"
           deleteDialogContent="Are you sure you want to delete"
+          
         />
       )}
     </>

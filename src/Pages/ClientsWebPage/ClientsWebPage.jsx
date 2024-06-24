@@ -1,11 +1,8 @@
-import { useState } from "react";
 import DynamicTable from "../../Components/Table/DynimicTable";
 import { FetchCustomersData } from "../../services/Hooks";
 
-const ContractTable = () => {
+const ClientsTable = () => {
     const { customerData, loading, deleteCustomer } = FetchCustomersData();
-    // console.log(customerData, "fasfa")
-    // Define columns configuration
     const columns = [
         {
             accessorKey: "name",
@@ -28,19 +25,24 @@ const ContractTable = () => {
     const actions = [
         {
             label: "Delete",
-            onClick: (contract) => {
-                console.log("Deleting contract:", contract.id);
-                onDelete(contract.id);
+            onClick: (client) => {
+                console.log("Deleting client:", client.id);
+                deleteCustomer(client.id);
             },
         },
         {
             label: "Contact",
-            onClick: (contract) => {
-                console.log("Contacting:", contract.firstName, contract.lastName);
+            onClick: (client) => {
+                console.log("Contacting:", client.name);
+                handleContactClients(client);
             },
         },
+        
     ];
-
+    const handleContactClients = (client) => {
+        alert(`Contacting ${client.name} at ${client.phone}`);
+        window.open(`tel:${client.phone}`);
+      };
     return (
         <>
             {loading ? (
@@ -49,16 +51,17 @@ const ContractTable = () => {
                 <DynamicTable
                     columns={columns}
                     data={customerData}
-                    //   loading={loading}
                     onDelete={deleteCustomer}
                     actions={actions}
-                    title="Contracts"
+                    title="Website Clients"
+                    linkTable="https://obtinecredit.ro"
                     deleteDialogTitle="Confirm Delete"
                     deleteDialogContent="Are you sure you want to delete"
+                    handleContact={handleContactClients}
                 />
             )}
         </>
     );
 };
 
-export default ContractTable;
+export default ClientsTable;

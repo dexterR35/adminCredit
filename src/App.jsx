@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from './Pages/Home/HomePage';
 import MainLayout from './Components/Layout/Layout';
-import CustomersPage from './Pages/Customers/CustomersPage';
-// import ContractPage from './Pages/Contract/ContractPage';
 import ContractTable from './Pages/ContractTable/ContractTable';
 import ClientsWebPage from './Pages/ClientsWebPage/ClientsWebPage';
 import FormUser from './Pages/Raports/AddUserRaport';

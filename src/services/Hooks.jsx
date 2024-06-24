@@ -118,12 +118,12 @@ export const FetchCustomersData = () => {
           ? customer.customer_info.banking_info.others.map(item => <div key={item}>{item}</div>)
           : <div>OK</div>,
         bankHistory: customer.customer_info.banking_info.bankHistory === false
-          ? <div className="bg-succes p-1 text-gray-50 text-[0.85em] text-center font-bold">No bank history</div>
+          ? <div className="bg-success p-1 text-gray-50 text-[0.85em] text-center font-bold">No bank history</div>
           : <div className="bg-error p-1 text-gray-50 text-[0.85em] text-center font-bold">Bank history</div>,
         bankStatus: customer.customer_info.banking_info.bankHistory === true
-          ? <div className="bg-succes p-1 text-gray-50 text-[0.85em] text-center font-bold">No raport status</div>
+          ? <div className="bg-success p-1 text-gray-50 text-[0.85em] text-center font-bold">No raport status</div>
           : customer.customer_info.banking_status === false
-            ? <div className="bg-succes p-1 text-gray-50 text-[0.85em] text-center font-bold ">No raport status</div>
+            ? <div className="bg-success p-1 text-gray-50 text-[0.85em] text-center font-bold ">No raport status</div>
             : <div className="bg-error p-1 text-gray-50 text-[0.85em] text-center font-bold">Negativ Raport</div>,
         selectedDate: customer.customer_info.formData.selectedDate
           ? customer.customer_info.formData.selectedDate

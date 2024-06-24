@@ -9,11 +9,11 @@ const CustomButton = ({ onClick, text = "default", buttonType = "default", type 
     const buttonStyles = {
         submit: 'text-md text-dark bg-primary text-white mt-4',
         default: 'bg-inherit',
-        delete: 'border-[1px] bg-transparent border border-gray-400',
+        delete: 'bg-error border border-gray-400 text-gray-50',
         modal: 'bg-primary text-white font-semibold text-sm',
         logOut: 'border-[1px] bg-transparent border border-gray-400',
         logIn: 'border-[1px] bg-transparent border border-gray-400',
-        success: 'bg-succes text-gray-50 font-bold',
+        success: 'bg-success text-gray-50 font-bold',
         error: 'bg-error text-gray-50 font-bold',
         edit: 'border-[1px] border-gray-400',
         info: 'bg-blue-600 text-gray-50',
@@ -22,7 +22,6 @@ const CustomButton = ({ onClick, text = "default", buttonType = "default", type 
 
     const iconKeys = {
         edit: 'IconPrint',
-        delete: 'hightPriority',
         modal: 'IoCreate',
         logOut: 'IoLogout',
         logIn: 'IoCreate',

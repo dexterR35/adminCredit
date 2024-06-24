@@ -16,7 +16,7 @@ module.exports = {
           'dark-color':"#F0544F",
           'error':'#DB162F',
           'info':'#246EB9',
-          'succes':'#52AA5E',
+          'success':'#52AA5E',
           'green':{
             100: '#E1F0DA', 
             200: '#DEF5E5', 
