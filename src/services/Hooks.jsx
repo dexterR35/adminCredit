@@ -235,14 +235,12 @@ console.log(contracts,"contracts")
 
 export const AddConsultant = async (email, password, username, role) => {
   try {
-    // Add consultant details to Firestore collection 'Consultants'
     const docRef = await addDoc(collection(db, "consultants"), {
       email: email,
       password: password,
       username: username,
       role: role,
       timestamp: serverTimestamp(),
-      // You can add more fields as needed from the form inputs
     });
 
     // Create user credentials using Firebase Authentication
@@ -332,26 +330,54 @@ export const addRaport = async (formData) => {
   }
 };
 
+export const useFetchRaportNew = () => {
+  const [raports, setRaports] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export const fetchRaportNew = async () => {
-  try {
-    // Fetch all documents from the 'raport' collection
-    const querySnapshot = await getDocs(collection(db, "raport"));
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const q = query(collection(db, 'raport'), orderBy('timestamp', 'desc'));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const raportList = querySnapshot.docs.map((doc) => {
+            const data = doc.data();
+            console.log(data,"Dasfa");
+            return {
+              id: doc.id,
+              ...data,
+              timestamp: data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date(),
+            };
+          });
+          setRaports(raportList);
+          setLoading(false);
+        });
 
-    // Map through the documents and return their data along with the document ID
-    const raports = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+        return () => unsubscribe();
+      } catch (error) {
+        console.error('Error fetching raports:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const onDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, 'raport', id));
+      setRaports((prevRaports) => prevRaports.filter((raport) => raport.id !== id));
+      console.log('Raport successfully deleted!', id);
+    } catch (error) {
+      console.error('Error deleting raport:', error);
+    }
+  };
+
+  const lastRaportInfo = useMemo(
+    () => (raports.length > 0 ? `${raports[0].firstName} ${raports[0].lastName} - ${raports[0].timestamp.toLocaleDateString()}` : ''),
+    [raports]
+  );
+
+  const raportsLength = useMemo(() => raports.length, [raports]);
 console.log(raports,"raports")
-    // Optionally show a success message
-    toast.success("Raports fetched successfully!");
-
-    // Return the array of raports
-    return raports;
-  } catch (error) {
-    // Show error message
-    toast.error(`Error fetching raports: ${error.message}`);
-    throw error;
-  }
+  return { raports, loading, onDelete, lastRaportInfo, raportsLength };
 };

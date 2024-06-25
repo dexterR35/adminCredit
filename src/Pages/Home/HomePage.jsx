@@ -2,7 +2,7 @@
 import { FetchContractData, FetchCustomersData } from '../../services/Hooks';
 import CardSmall from '../../Components/CardSmall/_CardSmall';
 import CurrentDateTimeComp from '../../Components/utils/_CurrentTime';
-import HomeRaportTable from './HomeRaportTable'
+import  NewRaportTable  from "./HomeTable";
 const HomePage = ({ user }) => {
     const { customerData, customersAddedOnCurrentDay, nameOfLastAddedCustomer } = FetchCustomersData();
     const { lastContractName, contractsLength } = FetchContractData()
@@ -68,9 +68,9 @@ const HomePage = ({ user }) => {
                 <br />
                 <hr />
                 <div className="div">
-                    <h3>Tabel Raport</h3>
+                    <h3>Raport</h3>
                     <div className="w-full">
-                        <HomeRaportTable />
+                       <NewRaportTable/>
                     </div>
                 </div>
 
