@@ -61,11 +61,12 @@ const DynamicTable = ({
     initialState: {
       showGlobalFilter: true,
     },
+    
     paginationDisplayMode: "pages",
     positionToolbarAlertBanner: "bottom",
     muiSearchTextFieldProps: {
       placeholder: "Search",
-      sx: { minWidth: "300px" },
+      sx: { minWidth: "100px" },
       variant: "outlined",
     },
     muiPaginationProps: {
@@ -74,6 +75,15 @@ const DynamicTable = ({
       shape: "rounded",
       variant: "outlined",
     },
+    muiTableHeadCellProps: {
+      sx: {
+        backgroundColor: '#D8E2DC', 
+        color: '#333', 
+        textTransform:'uppercase',
+        fontSize:'0.9em',
+
+      }
+    },
     renderTopToolbar: ({ table }) => (
       <Box className="flex justify-end">
         <Box className="flex gap-2 mb-4">
@@ -81,17 +91,33 @@ const DynamicTable = ({
             <CustomButton
               key={index}
               text={(action.label)}
-              buttonType={action.label === "Delete" ? "delete" : (action.label === "Contact" ? "info" : "default")}
+              buttonType={
+                action.label === "Delete" ? "delete" :
+                action.label === "Contact" ? "info" :
+                action.label === "Edit" ? "edit" :
+                action.label === "Send" ? "info" :
+                "default" // This is the default case if none of the above conditions are met
+              }
               disabled={!table.getIsSomeRowsSelected()}
               variant="contained"
               onClick={() =>
                 table.getSelectedRowModel().flatRows.forEach((row) => {
-                  if (action.label === "Delete") {
-                    handleDelete(row.original.id);
-                  } else if (action.label === "Contact") {
-                    handleContact(row.original);
-                  } else {
-                    action.onClick(row.original);
+                  switch (action.label) {
+                    case "Delete":
+                      handleDelete(row.original.id);
+                      break;
+                    case "Contact":
+                      handleContact(row.original);
+                      break;
+                    case "Edit":
+                      // handleEdit(row.original); // You need to define handleEdit function
+                      break;
+                      case "Send":
+                        // handleEdit(row.original); // You need to define handleEdit function
+                        break;
+                    default:
+                      action.onClick(row.original);
+                      break;
                   }
                 })
               }

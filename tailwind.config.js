@@ -9,14 +9,15 @@ module.exports = {
           'custom-4':'repeat(4,200px)'
         },
         colors: {
-          'primary':'#03C988',
+          'primary':'#77AD78',
           'secondary':'#F96666',
-          'low-color':'#E3F4F4',
+          'low-color':'#D8E2DC',
           'medium-color':'#E3F4F4',
           'dark-color':"#F0544F",
-          'error':'#DB162F',
+          'error':'#E63946',
           'info':'#246EB9',
-          'success':'#52AA5E',
+          'edit':'#F18F01',
+          'success':'#256D1B',
           'green':{
             100: '#E1F0DA', 
             200: '#DEF5E5', 
@@ -25,7 +26,7 @@ module.exports = {
             500: '#88AB8E'  
           },
           'gray':{
-            50:'#F9F5EB',
+            50:'#E2DCDE',
             100:'#F6F5F2',
             200:'#EEEEEE',
             700:'#676361'

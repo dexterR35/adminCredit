@@ -7,13 +7,12 @@ const NewRaportTable = () => {
         {
             accessorKey: "firstName", 
             header: "Name",
-           
+  
             Cell: ({ row }) => <span style={{ textTransform: 'capitalize' }}>{`${row.original.firstName} ${row.original.lastName}`}</span>,
         },
         {
             accessorKey: "todayDate",
             header: "date",
-          
         },
         {
             accessorKey: "phone",
@@ -22,24 +21,12 @@ const NewRaportTable = () => {
         {
             accessorKey: "userCNP",
             header: "CNP",
-        }
+        },
+   
     ];
 
     const actions = [
-        {
-            label: "Edit",
-            onClick: (client) => {
-                console.log("Edit client:", client.id);
-                // onDelete(client.id);
-            },
-        },
-        {
-            label: "Delete",
-            onClick: (client) => {
-                console.log("Deleting client:", client.id);
-                onDelete(client.id);
-            },
-        },
+      
         {
             label: "send to Consultant",
             onClick: (client) => {
@@ -47,6 +34,7 @@ const NewRaportTable = () => {
                 // handleContactClients(client);
             },
         },
+    
         {
             label: "Contact",
             onClick: (client) => {
@@ -54,7 +42,24 @@ const NewRaportTable = () => {
                 handleContactClients(client);
             },
         },
-    
+        {
+            label: "Edit",
+            onClick: (client) => {
+                console.log("Edit client:", client.id);
+                // onDelete(client.id);
+            },
+            IconButtonProps: {
+                color: 'primary',
+            },
+        },
+   
+        {
+            label: "Delete",
+            onClick: (client) => {
+                console.log("Deleting client:", client.id);
+                onDelete(client.id);
+            },
+        },
         
     ];
     const handleContactClients = (client) => {
@@ -76,6 +81,7 @@ const NewRaportTable = () => {
                     deleteDialogTitle="Confirm Delete"
                     deleteDialogContent="Are you sure you want to delete"
                     handleContact={handleContactClients}
+             
                 />
             )}
         </>
