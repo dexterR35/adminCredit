@@ -8,8 +8,13 @@ const CustomButton = ({ onClick, text = "default", buttonType = "default", type 
     const baseClasses = 'flex flex-row gap-2 items-center capitalize rounded-md border-0 outline-0 p-2';
     const buttonStyles = {
         submit: 'text-md text-dark bg-primary text-white mt-4',
+<<<<<<< HEAD
         default: 'bg-primary',
         delete: 'bg-error border text-white',
+=======
+        default: 'bg-inherit bg-red-400',
+        delete: 'bg-error text-gray-50',
+>>>>>>> 44a2cb8 (update files)
         modal: 'bg-primary text-white font-semibold text-sm',
         logOut: 'border-[1px] bg-transparent border border-gray-400',
         logIn: 'border-[1px] bg-transparent border border-gray-400',

@@ -5,7 +5,11 @@ import MainLayout from './Components/Layout/Layout';
 import ContractTable from './Pages/ContractTable/ContractTable';
 import ClientsWebPage from './Pages/ClientsWebPage/ClientsWebPage';
 import FormUser from './Pages/Raports/AddUserRaport';
+<<<<<<< HEAD
 // import LoginPage from './Pages/Auth/LoginPage';
+=======
+import LoginPage from './Pages/Auth/LoginPage';
+>>>>>>> 44a2cb8 (update files)
 // import FetchCSVData from './Pages/FetchCsv/FetchCsv';
 import ConsultantPage from './Pages/Consultant/ConsultantPage';
 import CreateConsultant from './Components/Consultant/CreateConsultant';
