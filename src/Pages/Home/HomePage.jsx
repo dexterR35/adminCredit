@@ -2,13 +2,7 @@
 import { FetchContractData, FetchCustomersData } from '../../services/Hooks';
 import CardSmall from '../../Components/CardSmall/_CardSmall';
 import CurrentDateTimeComp from '../../Components/utils/_CurrentTime';
-<<<<<<< HEAD
 import  NewRaportTable  from "./HomeTable";
-=======
-import { CustomButton } from '../../Components/Buttons/Buttons';
-// import HomeRaportTable from './HomeRaportTable'
-
->>>>>>> 44a2cb8 (update files)
 const HomePage = ({ user }) => {
     const { customerData, customersAddedOnCurrentDay, nameOfLastAddedCustomer } = FetchCustomersData();
     const { lastContractName, contractsLength } = FetchContractData()
@@ -76,11 +70,7 @@ const HomePage = ({ user }) => {
                 <div className="div">
                     <h3>Raport</h3>
                     <div className="w-full">
-<<<<<<< HEAD
                        <NewRaportTable/>
-=======
-                          {/* <HomeRaportTable /> */}
->>>>>>> 44a2cb8 (update files)
                     </div>
                 </div>
 

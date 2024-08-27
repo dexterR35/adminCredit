@@ -4,7 +4,7 @@ import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, setDoc, 
 import {
   getAuth,
   signOut,
-  signInWithEmailAndPassword,
+  signInWithPopup, GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
@@ -42,25 +42,42 @@ export const checkAuthStatus = (setUser) => {
 };
 
 // Function to perform login
-export const Login = async (email, password) => {
+export const Login = async () => {
+  const provider = new GoogleAuthProvider();
+
   try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
     toast.success("Login successful!");
-    return userCredential.user;
+    return user;
   } catch (error) {
-    if (
-      error.code === "auth/invalid-email" ||
-      error.code === "auth/user-not-found"
-    ) {
-      // Show specific notification for invalid credentials
-      toast.error("Invalid credentials. Please try again.");
-    } else {
-      // Show general error notification for other types of authentication errors
-      toast.error(`Authentication error: ${error.message}`);
+    // Handle different types of Firebase authentication errors
+    switch (error.code) {
+      case "auth/account-exists-with-different-credential":
+        toast.error("An account already exists with a different credential.");
+        break;
+      case "auth/auth-domain-config-required":
+        toast.error("Auth domain configuration is required.");
+        break;
+      case "auth/cancelled-popup-request":
+        toast.error("Popup request was canceled. Please try again.");
+        break;
+      case "auth/operation-not-allowed":
+        toast.error("Operation not allowed. Please contact support.");
+        break;
+      case "auth/popup-blocked":
+        toast.error("Popup was blocked by the browser. Please enable popups and try again.");
+        break;
+      case "auth/popup-closed-by-user":
+        toast.error("Popup closed by user. Please try again.");
+        break;
+      case "auth/unauthorized-domain":
+        toast.error("This domain is not authorized. Please check your Firebase settings.");
+        break;
+      default:
+        toast.error(`Authentication error: ${error.message}`);
+        break;
     }
     throw new Error(`Authentication error: ${error.message}`);
   }
@@ -68,18 +85,13 @@ export const Login = async (email, password) => {
 
 export const Logout = async () => {
   try {
-    // Sign out the user
     await signOut(auth);
-    sessionStorage.clear();
-    console.log("Logout successful");
-    toast.succes("Logout successful!");
+    toast.success("Logout successful!");
   } catch (error) {
-    console.error("Logout error:", error.message);
     toast.error(`Logout error: ${error.message}`);
-    throw error; // Re-throw the error to propagate it to the caller, if needed.
+    throw new Error(`Logout error: ${error.message}`);
   }
 };
-
 export const FormatTimestamp = (timestampInMillis) => {
   const timeStampString = new Date(timestampInMillis);
   const formattedTimestamp = timeStampString
