@@ -6,6 +6,7 @@ import {
   signOut,
   signInWithPopup, GoogleAuthProvider,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
 import { db } from '../firebase/config'
@@ -42,44 +43,42 @@ export const checkAuthStatus = (setUser) => {
 };
 
 // Function to perform login
-export const Login = async () => {
-  const provider = new GoogleAuthProvider();
-
+export const Login = async (email, password) => {
   try {
-    const result = await signInWithPopup(auth, provider);
+    // Attempt to sign in with email and password
+    const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
 
+    // On successful login, show a success toast
     toast.success("Login successful!");
     return user;
+
   } catch (error) {
     // Handle different types of Firebase authentication errors
     switch (error.code) {
-      case "auth/account-exists-with-different-credential":
-        toast.error("An account already exists with a different credential.");
+      case "auth/wrong-password":
+        toast.error("Incorrect password. Please try again.");
         break;
-      case "auth/auth-domain-config-required":
-        toast.error("Auth domain configuration is required.");
+
+      case "auth/user-not-found":
+        toast.error("No user found with this email.");
         break;
-      case "auth/cancelled-popup-request":
-        toast.error("Popup request was canceled. Please try again.");
+
+      case "auth/invalid-email":
+        toast.error("Invalid email format.");
         break;
-      case "auth/operation-not-allowed":
-        toast.error("Operation not allowed. Please contact support.");
+
+      case "auth/user-disabled":
+        toast.error("This account has been disabled.");
         break;
-      case "auth/popup-blocked":
-        toast.error("Popup was blocked by the browser. Please enable popups and try again.");
-        break;
-      case "auth/popup-closed-by-user":
-        toast.error("Popup closed by user. Please try again.");
-        break;
-      case "auth/unauthorized-domain":
-        toast.error("This domain is not authorized. Please check your Firebase settings.");
-        break;
+
       default:
-        toast.error(`Authentication error: ${error.message}`);
+        toast.error(`Login error: ${error.message}`);
         break;
     }
-    throw new Error(`Authentication error: ${error.message}`);
+
+    // Throw the error for further handling
+    throw new Error(`Login error: ${error.message}`);
   }
 };
 
