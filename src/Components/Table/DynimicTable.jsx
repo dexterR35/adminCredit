@@ -77,11 +77,24 @@ const DynamicTable = ({
     },
     muiTableHeadCellProps: {
       sx: {
-        backgroundColor: '#D8E2DC', 
-        color: '#333', 
-        textTransform:'uppercase',
-        fontSize:'0.9em',
-
+        backgroundColor: '#374151',
+        color: '#f9fafb',
+        fontWeight: 600,
+        fontSize: '0.875rem',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        borderBottom: '2px solid #4b5563',
+      }
+    },
+    muiTableBodyCellProps: {
+      sx: {
+        borderBottom: '1px solid #4b5563',
+        backgroundColor: '#1f2937',
+        color: '#f3f4f6',
+      }
+    },
+    muiTableBodyRowProps: {
+      sx: {
       }
     },
     renderTopToolbar: ({ table }) => (
@@ -137,24 +150,71 @@ const DynamicTable = ({
 
   return (
     <>
-   <div className="flex justify-between items-center">
-      <div >
-        <h2 className="text-start m-0">{title}</h2>
-        <p className="text-sm text-gray-500  mb-2">Info: <a href={linkTable} target="_blank" className=" text-blue-500" rel="noopener noreferrer">{linkTable.replace("https://", "")}</a></p>
-      </div>
-        <MRT_GlobalFilterTextField table={table} />
-      </div>
-      <hr />
-      <br />
-      <MaterialReactTable table={table} />
-      <Dialog open={showDeleteModal} onClose={cancelDelete}>
-        <h4 className="text-center mt-4 mb-[-10px] font-bold text-xl">{deleteDialogTitle}</h4>
-        <div className="py-6 px-4">
-          <p>{deleteDialogContent}</p>
+      <div className="bg-gray-800 rounded-xl shadow-sm border border-gray-700 p-6">
+        {/* Header Section */}
+        {title && (
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-1">{title}</h2>
+              {linkTable && (
+                <p className="text-sm text-gray-400">
+                  Info: <a href={linkTable} target="_blank" className="text-indigo-400 font-medium" rel="noopener noreferrer">
+                    {linkTable.replace("https://", "")}
+                  </a>
+                </p>
+              )}
+            </div>
+            <div className="w-full sm:w-auto">
+              <MRT_GlobalFilterTextField table={table} />
+            </div>
+          </div>
+        )}
+        {!title && (
+          <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 mb-6">
+            <div className="w-full sm:w-auto">
+              <MRT_GlobalFilterTextField table={table} />
+            </div>
+          </div>
+        )}
+
+        {/* Table */}
+        <div className="rounded-lg overflow-hidden border border-gray-700">
+          <MaterialReactTable table={table} />
         </div>
-        <div className="flex items-center w-full justify-end gap-2 p-2">
-          <CustomButton onClick={confirmDelete} text="yes" buttonType="success" additionalClasses="w-20 justify-center !p-1.5" />
-          <CustomButton onClick={cancelDelete} text="Cancel" buttonType="error" additionalClasses="w-20 justify-center !p-1.5" />
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog 
+        open={showDeleteModal} 
+        onClose={cancelDelete}
+        PaperProps={{
+          sx: {
+            borderRadius: '16px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            maxWidth: '400px',
+            width: '100%',
+            backgroundColor: '#1f2937',
+            border: '1px solid #374151',
+          }
+        }}
+      >
+        <div className="p-6 bg-gray-800">
+          <h4 className="text-xl font-bold text-white mb-2">{deleteDialogTitle}</h4>
+          <p className="text-gray-300 mb-6">{deleteDialogContent}</p>
+          <div className="flex items-center justify-end gap-3">
+            <CustomButton 
+              onClick={cancelDelete} 
+              text="Cancel" 
+              buttonType="error" 
+              additionalClasses="px-6 py-2 rounded-lg shadow-sm" 
+            />
+            <CustomButton 
+              onClick={confirmDelete} 
+              text="Yes, Delete" 
+              buttonType="success" 
+              additionalClasses="px-6 py-2 rounded-lg shadow-sm" 
+            />
+          </div>
         </div>
       </Dialog>
     </>

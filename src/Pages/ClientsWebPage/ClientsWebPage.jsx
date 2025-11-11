@@ -44,23 +44,28 @@ const ClientsTable = () => {
         window.open(`tel:${client.phone}`);
       };
     return (
-        <>
+        <div className="animate-fade-in">
             {loading ? (
-                <p>Loading...</p>
+                <div className="flex items-center justify-center h-64">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
+                        <p className="text-gray-300 font-medium">Loading clients...</p>
+                    </div>
+                </div>
             ) : (
                 <DynamicTable
                     columns={columns}
                     data={customerData}
                     onDelete={deleteCustomer}
                     actions={actions}
-                    title="Website Clients"
+                    title=""
                     linkTable="https://obtinecredit.ro"
                     deleteDialogTitle="Confirm Delete"
-                    deleteDialogContent="Are you sure you want to delete"
+                    deleteDialogContent="Are you sure you want to delete this client?"
                     handleContact={handleContactClients}
                 />
             )}
-        </>
+        </div>
     );
 };
 

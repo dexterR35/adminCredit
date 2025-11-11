@@ -54,9 +54,14 @@ const ContractTable = () => {
   ];
 
   return (
-    <>
+    <div className="animate-fade-in">
       {loading ? (
-        <p>Loading...</p>
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
+            <p className="text-gray-300 font-medium">Loading contracts...</p>
+          </div>
+        </div>
       ) : (
         <DynamicTable
           columns={columns}
@@ -64,14 +69,13 @@ const ContractTable = () => {
           loading={loading}
           onDelete={onDelete}
           actions={actions}
-          title="Contracts"
+          title=""
           linkTable="https://obtinecredit.ro/contract"
           deleteDialogTitle="Confirm Delete"
-          deleteDialogContent="Are you sure you want to delete"
-          
+          deleteDialogContent="Are you sure you want to delete this contract?"
         />
       )}
-    </>
+    </div>
   );
 };
 

@@ -69,19 +69,23 @@ const NewRaportTable = () => {
     return (
         <>
             {loading ? (
-                <p>Loading...</p>
+                <div className="flex items-center justify-center h-64">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
+                        <p className="text-gray-300 font-medium">Loading reports...</p>
+                    </div>
+                </div>
             ) : (
                 <DynamicTable
                     columns={columns}
                     data={raports}
                     onDelete={onDelete}
                     actions={actions}
-                    title="Raport Clients"
-                    linkTable="test"
+                    title=""
+                    linkTable=""
                     deleteDialogTitle="Confirm Delete"
-                    deleteDialogContent="Are you sure you want to delete"
+                    deleteDialogContent="Are you sure you want to delete this report?"
                     handleContact={handleContactClients}
-             
                 />
             )}
         </>

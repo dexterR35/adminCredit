@@ -9,31 +9,33 @@ const CardSmall = ({
   _two = "",
   _three = "",
   icon,
-  className = "bg-gray-100",
+  className = "bg-gradient-to-br from-gray-50 to-gray-100",
 }) => {
   const { isOpen, openModal, closeModal } = useModal();
+  
   return (
-    <div className={`${className} rounded-md py-2 px-3 shadow-md`}>
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm text-start font-semibold">{_one}</p>
-        <IconR icon={icon} />
+    <div className={`${className} rounded-xl p-5 shadow-sm border border-gray-600 backdrop-blur-sm bg-gray-800`}>
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <p className="text-sm font-semibold text-gray-300 uppercase tracking-wide">{_one}</p>
+        <div className="p-2 rounded-lg bg-gray-700">
+          <IconR icon={icon} />
+        </div>
       </div>
-      <p className="text-[1.7rem] font-bold">{_two}</p>
+      <p className="text-3xl font-bold text-white mb-2">{_two}</p>
       {_three === "Details" ? (
-        <p className="text-end">
+        <div className="mt-3 pt-3 border-t border-gray-600">
           <CustomButton
             text='button.details' 
-            additionalClasses="text-[12px] font-normal !p-1 m-0 bg-transparent underline capitalize text-gray-900 flex w-full justify-end"
+            additionalClasses="text-xs font-medium !p-2 m-0 bg-gray-700 text-gray-200 flex w-full justify-center rounded-lg shadow-sm"
             onClick={openModal}
             buttonType="default"
-            
           />
           <Modal isOpen={isOpen} onClose={closeModal} title="modalTitle.detailsClients">
             {/* <p>{title}</p> */}
           </Modal>
-        </p>
+        </div>
       ) : (
-        <p className="text-[12px] capitalize text-end p-1">{_three}</p>
+        <p className="text-xs font-medium text-gray-400 mt-2 capitalize">{_three}</p>
       )}
     </div>
   );

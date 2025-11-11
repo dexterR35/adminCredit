@@ -28,10 +28,18 @@ const CurrentDateTimeComp = () => {
     const formattedMinutes = currentMinutes < 10 ? '0' + currentMinutes : currentMinutes;
 
     return (
-        <div className='flex flex-wrap gap-2 text-gray-600'>
-            <span className="text-sm">Today Date: {currentDate}</span>/
-            <span className="text-sm">Time: {displayHours}:{formattedMinutes} {meridiem}</span>/
-            <span className="text-sm">Bucharest +25C</span>
+        <div className='flex flex-wrap items-center gap-3 text-white/90'>
+            <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">📅 {currentDate}</span>
+            </div>
+            <div className="w-1 h-1 rounded-full bg-white/50"></div>
+            <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">🕐 {displayHours}:{formattedMinutes} {meridiem}</span>
+            </div>
+            <div className="w-1 h-1 rounded-full bg-white/50"></div>
+            <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">🌡️ Bucharest +25°C</span>
+            </div>
         </div>
     );
 };

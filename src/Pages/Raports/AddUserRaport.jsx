@@ -476,25 +476,27 @@ const FormUser = () => {
     
 
     return (
-        <>
-        <div className="flex flex-row justify-between">
+        <div className="animate-fade-in">
+            <div className="modern-card p-8">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full"></div>
+                        <h2 className="text-3xl font-bold text-white">Add User Information</h2>
+                    </div>
+                </div>
 
-        <div className="w-[50%]">
-            <h2 className="text-start">Add User Information</h2>
-            <FormInput
-                initialValues={formValues}
-                onSubmit={onSubmit}
-                fields={fields}
-                formCustomClass="grid grid-cols-3 gap-x-2 gap-y-1 w-full max-w-5xl mr-auto"
-                buttonCustomClass="bg-indigo-600 text-white font-semibold border-0 outline-0 uppercase"
-                submitButtonText="Show Preview"
+                {/* Form */}
+                <FormInput
+                    initialValues={formValues}
+                    onSubmit={onSubmit}
+                    fields={fields}
+                    formCustomClass="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
+                    buttonCustomClass="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold border-0 outline-0 uppercase shadow-lg mt-6"
+                    submitButtonText="Create Report"
                 />        
+            </div>
         </div>
-        {/* <div className="w-[45%] bg-red-400 " >
-            <h2>preview</h2>
-        </div> */}
-        </div>
-        </>
     );
 };
 

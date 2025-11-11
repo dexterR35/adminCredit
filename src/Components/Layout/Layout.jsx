@@ -5,20 +5,30 @@ import AsideMenuRight from './Aside/AsideMenuRight';
 
 const MainLayout = ({ children }) => {
     return (
-        <div className="flex flex-col">
-            <div className='fixed right-0 w-full bg-white z-50'>
-            <NavBar />
-            </div>
-            <div className="grid grid-cols-custom-12 w-full h-[92vh] top-16 relative">
-                <div className='col-start-1 fixed left-0 h-full'>
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+            {/* Modern Header */}
+            <header className='fixed top-0 right-0 left-0 w-full bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700 shadow-lg z-50'>
+                <NavBar />
+            </header>
+            
+            {/* Main Layout Grid */}
+            <div className="flex w-full h-screen pt-16">
+                {/* Left Sidebar */}
+                <aside className='fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-gradient-to-b from-gray-900 to-gray-800 border-r border-gray-700 shadow-xl z-40'>
                     <AsideMenu />
-                </div>
-                <main className="p-6 col-start-2 col-end-12 flex-1 bg-white">
-                    {children}
+                </aside>
+                
+                {/* Main Content Area */}
+                <main className="flex-1 ml-64 mr-80 p-6 overflow-y-auto bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+                    <div className="max-w-7xl mx-auto animate-fade-in">
+                        {children}
+                    </div>
                 </main>
-                <div className='col-end-13 fixed right-0 h-full'>
+                
+                {/* Right Sidebar */}
+                <aside className='fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-gradient-to-b from-gray-900 to-gray-800 border-l border-gray-700 shadow-xl z-40 overflow-y-auto'>
                     <AsideMenuRight />
-                </div>
+                </aside>
             </div>
         </div>
     );
