@@ -1,7 +1,6 @@
 import React from 'react';
 import NavBar from './Header/NavBar';
 import AsideMenu from './Aside/AsideMenu';
-import AsideMenuRight from './Aside/AsideMenuRight';
 
 const MainLayout = ({ children }) => {
     return (
@@ -19,16 +18,11 @@ const MainLayout = ({ children }) => {
                 </aside>
                 
                 {/* Main Content Area */}
-                <main className="flex-1 ml-64 mr-80 p-6 overflow-y-auto bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-                    <div className="max-w-7xl mx-auto animate-fade-in">
+                <main className="flex-1 ml-64 p-0 overflow-y-auto bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+                    <div className="p-6 max-w-full mx-auto animate-fade-in">
                         {children}
                     </div>
                 </main>
-                
-                {/* Right Sidebar */}
-                <aside className='fixed right-0 top-16 h-[calc(100vh-4rem)] w-80 bg-gradient-to-b from-gray-900 to-gray-800 border-l border-gray-700 shadow-xl z-40 overflow-y-auto'>
-                    <AsideMenuRight />
-                </aside>
             </div>
         </div>
     );

@@ -1,18 +1,27 @@
 import IconR from "../../utils/_Icon"
-import { Link, useLocation } from 'react-router-dom';
-import useTranslate from '../../../services/useTranslate';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CustomButton } from "../../Buttons/Buttons";
+import { Logout } from "../../../services/Hooks";
 
 function AsideMenu() {
-    const { t } = useTranslate();
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await Logout();
+            navigate("/login");
+            window.location.reload(); // Force reload to clear all state
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    };
     
     const links = [
-        { path: "/admin/home", label: t('navMenu.home'), icon: <IconR icon="FcHome" /> },
-        { path: "/admin/customers", label: t('navMenu.clientsSite'), icon: <IconR icon="businessMan" /> },
-        { path: "/admin/contract", label: t('navMenu.clientsContract'), icon: <IconR icon="FcReading" /> },
-        { path: "/admin/oldraport", label: t('navMenu.raportOld'), icon: <IconR icon="businessContact" /> },
-        { path: "/admin/newraport", label: t('navMenu.raportNew'), icon: <IconR icon="FcBearish" /> },
+        { path: "/home", label: "Home", icon: <IconR icon="FcHome" /> },
+        { path: "/customers", label: "Web Clients", icon: <IconR icon="businessMan" /> },
+        { path: "/contract", label: "Contracts", icon: <IconR icon="FcReading" /> },
+        { path: "/newraport", label: "New Report", icon: <IconR icon="FcBearish" /> },
     ];
     
     return (
@@ -28,7 +37,7 @@ function AsideMenu() {
                                     to={link.path}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm ${
                                         isActive 
-                                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md' 
+                                            ? 'bg-indigo-600 text-white shadow-md' 
                                             : 'text-gray-300'
                                     }`}
                                 >
@@ -46,8 +55,9 @@ function AsideMenu() {
             {/* Logout Button */}
             <div className="pt-4 pb-6 border-t border-gray-700">
                 <CustomButton 
-                    text='button.logout' 
+                    text='Logout' 
                     buttonType="logOut" 
+                    onClick={handleLogout}
                     additionalClasses="w-full justify-center shadow-sm bg-gray-700 text-white border-gray-600" 
                 />
             </div>

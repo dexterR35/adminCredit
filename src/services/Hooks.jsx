@@ -16,30 +16,31 @@ const auth = getAuth();
 // Function to check if the user is already authenticated
 
 export const checkAuthStatus = (setUser) => {
-  const authUserString = sessionStorage.getItem("authUser");
-  if (authUserString) {
-    // If user data is present in sessionStorage, parse and set the user
-    const authUser = JSON.parse(authUserString);
-    setUser(authUser);
-    return; // Exit early, no need to proceed with onAuthStateChanged
-  }
-
-  // If no user data in sessionStorage, proceed with the auth state change listener
+  // Always set up the auth state listener for real-time updates
   const unsubscribe = onAuthStateChanged(auth, (user) => {
     try {
       if (user) {
-        // User is signed in
+        // User is signed in - sync with sessionStorage
+        sessionStorage.setItem("authUser", JSON.stringify(user));
         setUser(user);
-        console.log(auth.currentUser, "auth.currentUser");
       } else {
+        // User is signed out - clear sessionStorage
+        sessionStorage.removeItem("authUser");
         setUser(null);
       }
     } catch (error) {
       console.error("Authentication status error:", error.message);
+      setUser(null);
+      sessionStorage.removeItem("authUser");
     }
   });
+  
   // Return a cleanup function to unsubscribe when the component unmounts
-  return () => unsubscribe();
+  return () => {
+    if (unsubscribe) {
+      unsubscribe();
+    }
+  };
 };
 
 // Function to perform login
@@ -84,9 +85,13 @@ export const Login = async (email, password) => {
 
 export const Logout = async () => {
   try {
+    // Clear sessionStorage before signing out
+    sessionStorage.removeItem("authUser");
     await signOut(auth);
     toast.success("Logout successful!");
   } catch (error) {
+    // Clear sessionStorage even if signOut fails
+    sessionStorage.removeItem("authUser");
     toast.error(`Logout error: ${error.message}`);
     throw new Error(`Logout error: ${error.message}`);
   }
@@ -106,69 +111,101 @@ export const FormatTimestamp = (timestampInMillis) => {
 export const FetchCustomersData = () => {
   const [customerData, setCustomerData] = useState([]);
   const [lastAddedCustomer, setLastAddedCustomer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const data = querySnapshot.docs.map(doc => ({
-        ...doc.data(),
-        id: doc.id,
-        timestamp: FormatTimestamp(doc.data().timestamp.seconds * 1000),
-      }));
-      const formattedData = data.map(customer => ({
-        id: customer.id,
-        name: customer.customer_info.formData.name,
-        phone: customer.customer_info.formData.phone,
-        ifn: Array.isArray(customer.customer_info.banking_info.ifn) && customer.customer_info.banking_info.ifn.length > 0
-          ? customer.customer_info.banking_info.ifn.map(item => <div key={item}>{item}</div>)
-          : <div>OK</div>,
-        banks: Array.isArray(customer.customer_info.banking_info.banks) && customer.customer_info.banking_info.banks.length > 0
-          ? customer.customer_info.banking_info.banks.map(item => <div key={item}>{item}</div>)
-          : <div>OK</div>,
-        others: Array.isArray(customer.customer_info.banking_info.others) && customer.customer_info.banking_info.others.length > 0
-          ? customer.customer_info.banking_info.others.map(item => <div key={item}>{item}</div>)
-          : <div>OK</div>,
-        bankHistory: customer.customer_info.banking_info.bankHistory === false
-          ? <div className="bg-success p-1 text-gray-50 text-[0.85em] text-center font-bold">No bank history</div>
-          : <div className="bg-error p-1 text-gray-50 text-[0.85em] text-center font-bold">Bank history</div>,
-        bankStatus: customer.customer_info.banking_info.bankHistory === true
-          ? <div className="bg-success p-1 text-gray-50 text-[0.85em] text-center font-bold">No raport status</div>
-          : customer.customer_info.banking_status === false
-            ? <div className="bg-success p-1 text-gray-50 text-[0.85em] text-center font-bold ">No raport status</div>
-            : <div className="bg-error p-1 text-gray-50 text-[0.85em] text-center font-bold">Negativ Raport</div>,
-        selectedDate: customer.customer_info.formData.selectedDate
-          ? customer.customer_info.formData.selectedDate
-          : "not eligible",
-        aboutUs: customer.customer_info.formData.aboutUs,
-        timestamp: customer.timestamp,
-        email: customer.customer_info.formData.email,
-        status: customer.customer_status
-      }));
-      setCustomerData(formattedData);
-      // Set last added customer
-      if (formattedData.length > 0) {
-        setLastAddedCustomer(formattedData[0]);
+    let unsubscribe;
+    
+    try {
+      const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
+      unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          try {
+            const data = querySnapshot.docs.map(doc => ({
+              ...doc.data(),
+              id: doc.id,
+              timestamp: doc.data().timestamp?.seconds 
+                ? FormatTimestamp(doc.data().timestamp.seconds * 1000)
+                : new Date().toLocaleString(),
+            }));
+            
+            const formattedData = data.map(customer => ({
+              id: customer.id,
+              name: customer.customer_info?.formData?.name || '',
+              phone: customer.customer_info?.formData?.phone || '',
+              ifn: Array.isArray(customer.customer_info?.banking_info?.ifn) && customer.customer_info.banking_info.ifn.length > 0
+                ? customer.customer_info.banking_info.ifn.map(item => <div key={item}>{item}</div>)
+                : <div>OK</div>,
+              banks: Array.isArray(customer.customer_info?.banking_info?.banks) && customer.customer_info.banking_info.banks.length > 0
+                ? customer.customer_info.banking_info.banks.map(item => <div key={item}>{item}</div>)
+                : <div>OK</div>,
+              others: Array.isArray(customer.customer_info?.banking_info?.others) && customer.customer_info.banking_info.others.length > 0
+                ? customer.customer_info.banking_info.others.map(item => <div key={item}>{item}</div>)
+                : <div>OK</div>,
+              bankHistory: customer.customer_info?.banking_info?.bankHistory === false
+                ? "No bank history"
+                : "Bank history",
+              bankStatus: customer.customer_info?.banking_info?.bankHistory === true
+                ? "No raport status"
+                : customer.customer_info?.banking_status === false
+                  ? "No raport status"
+                  : "Negativ Raport",
+              selectedDate: customer.customer_info?.formData?.selectedDate || "not eligible",
+              aboutUs: customer.customer_info?.formData?.aboutUs || '',
+              timestamp: customer.timestamp,
+              email: customer.customer_info?.formData?.email || '',
+              status: customer.customer_status || ''
+            }));
+            
+            setCustomerData(formattedData);
+            if (formattedData.length > 0) {
+              setLastAddedCustomer(formattedData[0]);
+            }
+            setLoading(false);
+          } catch (error) {
+            console.error("Error processing customer data:", error);
+            setLoading(false);
+          }
+        },
+        (error) => {
+          console.error("Snapshot error for customers:", error);
+          setLoading(false);
+        }
+      );
+    } catch (error) {
+      console.error("Error setting up customer snapshot:", error);
+      setLoading(false);
+    }
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
       }
-      console.log(customerData, "hooks")
-    });
-    return () => unsubscribe();
+    };
   }, []);
 
   const updateCustomer = async (id, updatedData) => {
     try {
       await updateDoc(doc(db, "oc_data", id), updatedData);
-      console.log("Document successfully updated!", id);
+      toast.success("Customer updated successfully!");
+      // Snapshot will automatically update the state, no manual update needed
     } catch (error) {
       console.error("Error updating document: ", error);
+      toast.error(`Error updating customer: ${error.message}`);
+      throw error;
     }
   };
 
   const deleteCustomer = async (id) => {
     try {
       await deleteDoc(doc(db, "oc_data", id));
-      console.log("Document successfully deleted!", id);
+      toast.success("Customer deleted successfully!");
+      // Snapshot will automatically update the state, no manual update needed
     } catch (error) {
       console.error("Error deleting document: ", error);
+      toast.error(`Error deleting customer: ${error.message}`);
+      throw error;
     }
   };
 
@@ -186,60 +223,82 @@ export const FetchCustomersData = () => {
   const nameOfLastAddedCustomer = customersAddedOnCurrentDay.length > 0 ? customersAddedOnCurrentDay[0].name : null;
 
 
-  return { customerData, updateCustomer, deleteCustomer, customersAddedOnCurrentDay, lastAddedCustomer, lengthOfCustomersAddedOnCurrentDay, nameOfLastAddedCustomer };
+  return { 
+    customerData, 
+    loading,
+    updateCustomer, 
+    deleteCustomer, 
+    customersAddedOnCurrentDay, 
+    lastAddedCustomer, 
+    lengthOfCustomersAddedOnCurrentDay, 
+    nameOfLastAddedCustomer 
+  };
 };
 export const FetchContractData = () => {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-          const contractList = querySnapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              ...data,
-              timestamp: FormatTimestamp(data.timeStamp.seconds * 1000),
-            };
-          });
-          setContracts(contractList);
+    let unsubscribe;
+    
+    try {
+      const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
+      unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          try {
+            const contractList = querySnapshot.docs.map((doc) => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                ...data,
+                timestamp: data.timeStamp?.seconds 
+                  ? FormatTimestamp(data.timeStamp.seconds * 1000)
+                  : new Date().toLocaleString(),
+              };
+            });
+            setContracts(contractList);
+            setLoading(false);
+          } catch (error) {
+            console.error('Error processing contract data:', error);
+            setLoading(false);
+          }
+        },
+        (error) => {
+          console.error('Snapshot error for contracts:', error);
           setLoading(false);
-        });
+        }
+      );
+    } catch (error) {
+      console.error('Error setting up contract snapshot:', error);
+      setLoading(false);
+    }
 
-        return () => unsubscribe();
-      } catch (error) {
-        console.error('Error fetching contracts:', error);
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
       }
     };
-
-    fetchData();
-
   }, []);
 
   const onDelete = async (id) => {
     try {
       await deleteDoc(doc(db, 'contracts', id));
-      setContracts((prevContracts) =>
-        prevContracts.filter((contract) => contract.id !== id)
-      );
-      console.log("7")
-      console.log('Contract successfully deleted!', id);
+      toast.success("Contract deleted successfully!");
+      // Snapshot will automatically update the state, no manual update needed
     } catch (error) {
       console.error('Error deleting contract:', error);
+      toast.error(`Error deleting contract: ${error.message}`);
+      throw error;
     }
   };
 
   const lastContractName = useMemo(() => {
-    return contracts.length > 0 ? `${contracts[0].firstName} ${contracts[0].lastName}` : '';
+    return contracts.length > 0 ? `${contracts[0].firstName || ''} ${contracts[0].lastName || ''}`.trim() : '';
   }, [contracts]);
 
   const contractsLength = useMemo(() => contracts.length, [contracts]);
-console.log(contractsLength,"ds")
-console.log(lastContractName,"ds")
-console.log(contracts,"contracts")
+
   return { contracts, loading, onDelete, lastContractName, contractsLength };
 };
 // Function to add a new consultant
@@ -346,49 +405,68 @@ export const useFetchRaportNew = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const q = query(collection(db, 'raport'), orderBy('timestamp', 'desc'));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-          const raportList = querySnapshot.docs.map((doc) => {
-            const data = doc.data();
-            console.log(data,"Dasfa");
-            return {
-              id: doc.id,
-              ...data,
-              timestamp: data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date(),
-            };
-          });
-          setRaports(raportList);
+    let unsubscribe;
+    
+    try {
+      const q = query(collection(db, 'raport'), orderBy('timestamp', 'desc'));
+      unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          try {
+            const raportList = querySnapshot.docs.map((doc) => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                ...data,
+                timestamp: data.timestamp?.seconds 
+                  ? new Date(data.timestamp.seconds * 1000)
+                  : new Date(),
+              };
+            });
+            setRaports(raportList);
+            setLoading(false);
+          } catch (error) {
+            console.error('Error processing raport data:', error);
+            setLoading(false);
+          }
+        },
+        (error) => {
+          console.error('Snapshot error for raports:', error);
           setLoading(false);
-        });
+        }
+      );
+    } catch (error) {
+      console.error('Error setting up raport snapshot:', error);
+      setLoading(false);
+    }
 
-        return () => unsubscribe();
-      } catch (error) {
-        console.error('Error fetching raports:', error);
-        setLoading(false);
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
       }
     };
-
-    fetchData();
   }, []);
 
   const onDelete = async (id) => {
     try {
       await deleteDoc(doc(db, 'raport', id));
-      setRaports((prevRaports) => prevRaports.filter((raport) => raport.id !== id));
-      console.log('Raport successfully deleted!', id);
+      toast.success("Report deleted successfully!");
+      // Snapshot will automatically update the state, no manual update needed
     } catch (error) {
       console.error('Error deleting raport:', error);
+      toast.error(`Error deleting report: ${error.message}`);
+      throw error;
     }
   };
 
   const lastRaportInfo = useMemo(
-    () => (raports.length > 0 ? `${raports[0].firstName} ${raports[0].lastName} - ${raports[0].timestamp.toLocaleDateString()}` : ''),
+    () => (raports.length > 0 
+      ? `${raports[0].firstName || ''} ${raports[0].lastName || ''} - ${raports[0].timestamp?.toLocaleDateString() || ''}`.trim()
+      : ''),
     [raports]
   );
 
   const raportsLength = useMemo(() => raports.length, [raports]);
-console.log(raports,"raports")
+
   return { raports, loading, onDelete, lastRaportInfo, raportsLength };
 };

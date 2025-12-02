@@ -1,6 +1,32 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Custom Grid Template Columns */
+  --grid-template-columns-custom-12: 180px repeat(10, minmax(50px, 1fr)) 180px;
+  --grid-template-columns-custom-4: repeat(4, 200px);
+
+  /* Custom Colors */
+  --color-primary: #77AD78;
+  --color-secondary: #F96666;
+  --color-low-color: #D8E2DC;
+  --color-medium-color: #E3F4F4;
+  --color-dark-color: #F0544F;
+  --color-error: #E63946;
+  --color-info: #246EB9;
+  --color-edit: #F18F01;
+  --color-success: #256D1B;
+  
+  --color-green-100: #E1F0DA;
+  --color-green-200: #DEF5E5;
+  --color-green-300: #BFD8AF;
+  --color-green-400: #99BC85;
+  --color-green-500: #88AB8E;
+  
+  --color-gray-50: #E2DCDE;
+  --color-gray-100: #F6F5F2;
+  --color-gray-200: #EEEEEE;
+  --color-gray-700: #676361;
+}
 
 @layer base {
   * {
@@ -128,6 +154,15 @@
   .field_19, .field_20, .field_21, .field_22, .field_23, .field_24, 
   .field_25, .field_26, .field_27, .field_28, .field_29 {
     @apply col-span-4;
+  }
+
+  /* Grid Template Columns Utilities */
+  .grid-cols-custom-12 {
+    grid-template-columns: var(--grid-template-columns-custom-12);
+  }
+
+  .grid-cols-custom-4 {
+    grid-template-columns: var(--grid-template-columns-custom-4);
   }
 
   /* Remove Material-UI default shadows */

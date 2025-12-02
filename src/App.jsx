@@ -6,7 +6,6 @@ import ContractTable from './Pages/ContractTable/ContractTable';
 import ClientsWebPage from './Pages/ClientsWebPage/ClientsWebPage';
 import FormUser from './Pages/Raports/AddUserRaport';
 import LoginPage from './Pages/Auth/LoginPage';
-// import FetchCSVData from './Pages/FetchCsv/FetchCsv';
 import ConsultantPage from './Pages/Consultant/ConsultantPage';
 import CreateConsultant from './Components/Consultant/CreateConsultant';
 import { checkAuthStatus } from './services/Hooks';
@@ -24,32 +23,65 @@ const App = () => {
       setUser(authUser);
       setLoading(false);
     });
-    return () => unsubscribe?.();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
+  // ProtectedRoute: All admin routes require authentication
+  // If user is not authenticated, redirect to /login
   const ProtectedRoute = ({ children }) => {
     if (loading) {
-      return <div>Loading...</div>;
+      return <div className="flex items-center justify-center h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
+          <p className="text-gray-300 font-medium">Loading...</p>
+        </div>
+      </div>;
     }
-    return user ? <MainLayout>{children}</MainLayout> : <Navigate to="/admin/login" replace />;
+    // All admin routes are protected - require authentication
+    if (!user) {
+      return <Navigate to="/login" replace />;
+    }
+    return <MainLayout>{children}</MainLayout>;
+  };
+
+  // Public route wrapper that redirects logged-in users away from login page
+  const PublicRoute = ({ children }) => {
+    if (loading) {
+      return <div className="flex items-center justify-center h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
+          <p className="text-gray-300 font-medium">Loading...</p>
+        </div>
+      </div>;
+    }
+    // If user is logged in, redirect to home instead of showing login page
+    return user ? <Navigate to="/home" replace /> : children;
   };
 
   return (
     <>
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/admin/home" replace /> : <Navigate to="/admin/login" replace />} />
-        <Route path="/admin/login" element={<LoginPage setUser={setUser} />} />
-        <Route path="/admin/*" element={<ProtectedRoute>
+        {/* Root route: redirect to /home if authenticated, otherwise to /login */}
+        <Route path="/" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />} />
+        
+        {/* Login route: public, but redirects to /home if already logged in */}
+        <Route path="/login" element={<PublicRoute><LoginPage setUser={setUser} /></PublicRoute>} />
+        
+        {/* All other routes are protected admin routes - require authentication */}
+        <Route path="/*" element={<ProtectedRoute>
           <Routes>
             <Route path="home" element={<HomePage user={user} />} />
-            {/* <Route path="customers" element={<CustomersPage />} /> */}
             <Route path="customers" element={<ClientsWebPage />} />
             <Route path="contract" element={<ContractTable />} />
             <Route path="newraport" element={<FormUser />} />
-            {/* <Route path="oldraport" element={<FetchCSVData />} /> */}
             <Route path="CreateConsultant" element={<CreateConsultant />} />
             <Route path="consultant" element={<ConsultantPage />} />
-            <Route path="*" element={<Navigate to="/admin/home" replace />} />
+            {/* Catch-all: redirect unknown routes to /home */}
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </ProtectedRoute>} />
       </Routes>

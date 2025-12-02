@@ -1,23 +1,24 @@
 import React from 'react';
 import IconR from '../utils/_Icon';
-import useTranslate from '../../services/useTranslate';
+import { getButtonClasses } from '../../constants/colors';
 
 const CustomButton = ({ onClick, text = "default", buttonType = "default", type = "button", additionalClasses = '', disabled = false}) => {
-    const { t } = useTranslate();
 
-    const baseClasses = 'flex flex-row gap-2 items-center capitalize rounded-lg border-0 outline-0 px-4 py-2 font-medium';
+    const baseClasses = 'flex flex-row gap-2 items-center capitalize rounded-lg border outline-0 px-4 py-2 font-medium transition-all duration-200';
+    
+    // Button styles using centralized color constants
     const buttonStyles = {
-        submit: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md',
-        default: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-sm',
-        delete: 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm',
-        modal: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md text-sm',
-        logOut: 'bg-white border border-gray-300 text-gray-700 shadow-sm',
-        logIn: 'bg-white border border-gray-300 text-gray-700 shadow-sm',
-        success: 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm',
-        error: 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm',
-        edit: 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-sm',
-        info: 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-sm',
-        disabled: 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none',
+        submit: getButtonClasses('submit'),
+        default: getButtonClasses('default'),
+        delete: getButtonClasses('delete'),
+        modal: getButtonClasses('modal'),
+        logOut: getButtonClasses('logOut'),
+        logIn: getButtonClasses('logIn'),
+        success: getButtonClasses('success'),
+        error: getButtonClasses('error'),
+        edit: getButtonClasses('edit'),
+        info: getButtonClasses('info'),
+        disabled: getButtonClasses('disabled'),
     };
 
     const iconKeys = {
@@ -30,7 +31,7 @@ const CustomButton = ({ onClick, text = "default", buttonType = "default", type 
         disabled:'IoCreate',
     };
 
-    const buttonClasses = disabled ? buttonStyles.disabled : buttonStyles[buttonType] || 'bg-primary text-white';
+    const buttonClasses = disabled ? buttonStyles.disabled : buttonStyles[buttonType] || 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600';
     const iconKey = iconKeys[buttonType];
 
     return (
@@ -41,7 +42,7 @@ const CustomButton = ({ onClick, text = "default", buttonType = "default", type 
             disabled={disabled}
         >
         {iconKey && iconKey !== '' && <IconR icon={iconKey} />}
-            <span>{t(text)}</span>
+            <span>{text}</span>
         </button>
     );
 };

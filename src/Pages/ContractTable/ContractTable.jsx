@@ -1,6 +1,7 @@
-
+import React from "react";
 import DynamicTable from "../../Components/Table/DynimicTable";
 import { FetchContractData } from "../../services/Hooks";
+import Badge from "../../Components/Badge/Badge";
 
 const ContractTable = () => {
   const { contracts, loading, onDelete } = FetchContractData();
@@ -17,22 +18,56 @@ const ContractTable = () => {
     {
       accessorKey: "photo",
       header: "Photo",
-      size: 50,
-      Cell: ({ row }) => (
-        <a href={row.original.photo} target="_blank" rel="noopener noreferrer">
-          View Photo
-        </a>
-      ),
+      size: 120,
+      Cell: ({ row }) => {
+        const photo = row.original.photo;
+        if (!photo || photo === '' || photo === null || photo === undefined) {
+          return (
+            <Badge variant="error" size="sm">
+              No Photo
+            </Badge>
+          );
+        }
+        return (
+          <a 
+            href={photo} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block"
+          >
+            <Badge variant="success" size="sm">
+              View Photo
+            </Badge>
+          </a>
+        );
+      },
     },
     {
       accessorKey: "pdfUrl",
       header: "PDF",
-      size: 50,
-      Cell: ({ row }) => (
-        <a href={row.original.pdfUrl} target="_blank" rel="noopener noreferrer">
-          View PDF
-        </a>
-      ),
+      size: 120,
+      Cell: ({ row }) => {
+        const pdfUrl = row.original.pdfUrl;
+        if (!pdfUrl || pdfUrl === '' || pdfUrl === null || pdfUrl === undefined) {
+          return (
+            <Badge variant="error" size="sm">
+              No PDF
+            </Badge>
+          );
+        }
+        return (
+          <a 
+            href={pdfUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block"
+          >
+            <Badge variant="success" size="sm">
+              View PDF
+            </Badge>
+          </a>
+        );
+      },
     },
     { accessorKey: "timestamp", header: "Date", size: 100 },
   ];

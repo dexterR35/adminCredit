@@ -12,37 +12,37 @@ const HomePage = ({ user }) => {
         {
             _one: 'Total Clients',
             _two: customerData.length,
-            _three: 'Details',
+            _three: 'All clients',
             icon: 'alarmClock',
-            className: 'bg-gradient-to-br from-blue-900/50 via-indigo-900/50 to-purple-900/50 border border-indigo-700',
+            className: '',
         },
         {
             _one: 'Today Clients',
             _two: customersAddedOnCurrentDay.length,
             _three: nameOfLastAddedCustomer ? nameOfLastAddedCustomer : "No new clients",
             icon: 'alarmClock',
-            className: 'bg-gradient-to-br from-emerald-900/50 via-teal-900/50 to-cyan-900/50 border border-emerald-700',
+            className: '',
         },
         {
             _one: 'Contracts',
             _two: contractsLength,
             _three: lastContractName || "No contracts",
             icon: 'cards',
-            className: 'bg-gradient-to-br from-amber-900/50 via-orange-900/50 to-yellow-900/50 border border-amber-700',
+            className: '',
         },
         {
             _one: 'Client Budget',
             _two: "20",
             _three: "12,540 RON",
             icon: 'cards',
-            className: 'bg-gradient-to-br from-pink-900/50 via-rose-900/50 to-red-900/50 border border-pink-700',
+            className: '',
         },
         {
             _one: 'Broker Budget',
             _two: "20",
             _three: "12,540 RON",
             icon: 'cards',
-            className: 'bg-gradient-to-br from-violet-900/50 via-purple-900/50 to-indigo-900/50 border border-violet-700',
+            className: '',
         },
     ];
 
@@ -77,10 +77,8 @@ const HomePage = ({ user }) => {
             </div>
 
             {/* Reports Section */}
-            <div className="modern-card p-6">
-                <div className="w-full">
-                    <NewRaportTable />
-                </div>
+            <div className="rounded-xl p-6 border border-gray-700 bg-gray-900 shadow-lg">
+                <NewRaportTable />
             </div>
         </div>
     );

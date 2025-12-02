@@ -1,25 +1,126 @@
+import React from "react";
 import DynamicTable from "../../Components/Table/DynimicTable";
 import { FetchCustomersData } from "../../services/Hooks";
+import Badge from "../../Components/Badge/Badge";
 
 const ClientsTable = () => {
     const { customerData, loading, deleteCustomer } = FetchCustomersData();
+    
+    // Dynamic column configuration with badge support
     const columns = [
         {
             accessorKey: "name",
             header: "Name",
             size: 120,
-            Cell: ({ row }) => <span style={{ textTransform: 'capitalize' }}>{row.original.name}</span>,
+            Cell: ({ row }) => <span className="capitalize text-white font-medium">{row.original.name}</span>,
         },
-        { accessorKey: "phone", header: "Phone", size: 100 },
-        { accessorKey: "banks", header: "banks", size: 120 },
-        { accessorKey: "ifn", header: "ifn", size: 120 },
-        { accessorKey: "bankHistory", header: "bank History", size: 70 },
-        { accessorKey: "bankStatus", header: "bank Status", size: 70 },
-        { accessorKey: "others", header: "others", size: 120 },
-        { accessorKey: "selectedDate", header: "jobDate", size: 70 },
-        { accessorKey: "email", header: "email", size: 100 },
-        { accessorKey: "timestamp", header: "Date", size: 120 },
-        { accessorKey: "status", header: "status", size: 50 },
+        { 
+            accessorKey: "phone", 
+            header: "Phone", 
+            size: 100,
+            Cell: ({ row }) => <span className="text-gray-300">{row.original.phone || "—"}</span>,
+        },
+        { 
+            accessorKey: "banks", 
+            header: "Banks", 
+            size: 120,
+            Cell: ({ row }) => <span className="text-gray-300">{row.original.banks || "—"}</span>,
+        },
+        { 
+            accessorKey: "ifn", 
+            header: "IFN", 
+            size: 120,
+            Cell: ({ row }) => <span className="text-gray-300">{row.original.ifn || "—"}</span>,
+        },
+        { 
+            accessorKey: "bankHistory", 
+            header: "Bank History", 
+            size: 120,
+            badge: {
+                getVariant: (value) => {
+                    if (!value) return "default";
+                    const val = String(value).toLowerCase();
+                    // "No bank history" = good (green), "Bank history" = bad (red)
+                    if (val.includes("no bank history")) return "green";
+                    if (val.includes("bank history") && !val.includes("no")) return "red";
+                    return "default";
+                },
+                formatter: (value) => {
+                    if (!value) return "—";
+                    return String(value).charAt(0).toUpperCase() + String(value).slice(1);
+                },
+                size: "sm",
+            },
+        },
+        { 
+            accessorKey: "bankStatus", 
+            header: "Bank Status", 
+            size: 120,
+            badge: {
+                getVariant: (value) => {
+                    if (!value) return "default";
+                    const val = String(value).toLowerCase();
+                    // "No raport status" = good (green), "Negativ Raport" = bad (red)
+                    if (val.includes("no raport status")) return "green";
+                    if (val.includes("negativ raport")) return "red";
+                    return "default";
+                },
+                formatter: (value) => {
+                    if (!value) return "—";
+                    return String(value).charAt(0).toUpperCase() + String(value).slice(1);
+                },
+                size: "sm",
+            },
+        },
+        { 
+            accessorKey: "others", 
+            header: "Others", 
+            size: 120,
+            Cell: ({ row }) => <span className="text-gray-300">{row.original.others || "—"}</span>,
+        },
+        { 
+            accessorKey: "selectedDate", 
+            header: "Job Date", 
+            size: 100,
+            Cell: ({ row }) => <span className="text-gray-300">{row.original.selectedDate || "—"}</span>,
+        },
+        { 
+            accessorKey: "email", 
+            header: "Email", 
+            size: 150,
+            Cell: ({ row }) => <span className="text-gray-300">{row.original.email || "—"}</span>,
+        },
+        { 
+            accessorKey: "timestamp", 
+            header: "Date", 
+            size: 120,
+            Cell: ({ row }) => <span className="text-gray-300">{row.original.timestamp || "—"}</span>,
+        },
+        { 
+            accessorKey: "status", 
+            header: "Status", 
+            size: 100,
+            badge: {
+                variantMap: {
+                    "active": "green",
+                    "inactive": "red",
+                    "pending": "warning",
+                    "new": "info",
+                    "completed": "green",
+                    "cancelled": "red",
+                },
+                getVariant: (value) => {
+                    if (!value) return "default";
+                    const val = String(value).toLowerCase();
+                    if (val === "active" || val === "completed" || val === "approved") return "green";
+                    if (val === "inactive" || val === "cancelled" || val === "rejected") return "red";
+                    if (val === "pending") return "warning";
+                    if (val === "new") return "info";
+                    return "default";
+                },
+                formatter: (value) => value ? String(value).charAt(0).toUpperCase() + String(value).slice(1) : "—",
+            },
+        },
     ];
 
     const actions = [

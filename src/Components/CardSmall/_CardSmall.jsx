@@ -1,41 +1,32 @@
 import React from "react";
 import PropTypes from "prop-types";
 import IconR from "../utils/_Icon";
-import { CustomButton } from "../Buttons/Buttons";
-import { useModal, Modal } from "../Modal/useModal";
 
 const CardSmall = ({
   _one = "",
   _two = "",
   _three = "",
   icon,
-  className = "bg-gradient-to-br from-gray-50 to-gray-100",
+  className = "",
 }) => {
-  const { isOpen, openModal, closeModal } = useModal();
-  
   return (
-    <div className={`${className} rounded-xl p-5 shadow-sm border border-gray-600 backdrop-blur-sm bg-gray-800`}>
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <p className="text-sm font-semibold text-gray-300 uppercase tracking-wide">{_one}</p>
-        <div className="p-2 rounded-lg bg-gray-700">
-          <IconR icon={icon} />
+    <div className={`${className} rounded-xl p-6 border border-gray-700 bg-gray-900 transition-all duration-200 shadow-lg`}>
+      {/* Header */}
+      <div className="flex items-start justify-between mb-5">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{_one}</p>
+        <div className="p-2.5 rounded-lg bg-gray-800 border border-gray-700">
+          <IconR icon={icon} size={20} />
         </div>
       </div>
-      <p className="text-3xl font-bold text-white mb-2">{_two}</p>
-      {_three === "Details" ? (
-        <div className="mt-3 pt-3 border-t border-gray-600">
-          <CustomButton
-            text='button.details' 
-            additionalClasses="text-xs font-medium !p-2 m-0 bg-gray-700 text-gray-200 flex w-full justify-center rounded-lg shadow-sm"
-            onClick={openModal}
-            buttonType="default"
-          />
-          <Modal isOpen={isOpen} onClose={closeModal} title="modalTitle.detailsClients">
-            {/* <p>{title}</p> */}
-          </Modal>
-        </div>
-      ) : (
-        <p className="text-xs font-medium text-gray-400 mt-2 capitalize">{_three}</p>
+      
+      {/* Main Value */}
+      <div className="mb-4">
+        <p className="text-4xl font-bold text-white tracking-tight">{_two}</p>
+      </div>
+      
+      {/* Footer */}
+      {_three !== "Details" && (
+        <p className="text-sm font-medium text-gray-400 capitalize">{_three}</p>
       )}
     </div>
   );

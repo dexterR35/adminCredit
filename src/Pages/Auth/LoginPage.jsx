@@ -23,7 +23,7 @@ const LoginPage = ({ setUser }) => {
       const authUser = await Login(username, password);
       sessionStorage.setItem("authUser", JSON.stringify(authUser));
       setUser(authUser);
-      navigate("/admin/home");
+      navigate("/home");
     } catch (error) {
       console.error("Login error:", error.message);
       setError("Invalid username or password. Please try again.");

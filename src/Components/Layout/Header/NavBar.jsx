@@ -1,5 +1,4 @@
 import React from 'react';
-import SwitchLang from "../SwitchLang";
 import { useModal, Modal } from "../../Modal/useModal";
 import CreateConsultant from "../../Consultant/CreateConsultant";
 import { CustomButton } from "../../Buttons/Buttons";
@@ -23,14 +22,13 @@ const HeaderUser = () => {
         <div className="flex items-center gap-3">
           <CustomButton 
             onClick={openModal} 
-            text="modalTitle.createConsultant" 
+            text="Create Consultant" 
             buttonType="modal" 
             additionalClasses="shadow-md"
           />
-          <SwitchLang />
         </div>
       </div>
-      <Modal isOpen={isOpen} onClose={closeModal} title="modalTitle.createConsultant" >
+      <Modal isOpen={isOpen} onClose={closeModal} title="Create Consultant" >
         <CreateConsultant />
       </Modal>
     </>
