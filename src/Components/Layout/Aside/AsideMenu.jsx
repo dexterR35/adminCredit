@@ -10,8 +10,8 @@ function AsideMenu() {
     const handleLogout = async () => {
         try {
             await Logout();
+            // Don't reload - the auth state listener will handle navigation
             navigate("/login");
-            window.location.reload(); // Force reload to clear all state
         } catch (error) {
             console.error("Logout error:", error);
         }

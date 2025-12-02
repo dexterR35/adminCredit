@@ -153,6 +153,12 @@ const ClientsTable = () => {
       };
     return (
         <div className="animate-fade-in">
+            {/* Page Title & Subtitle */}
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold text-slate-100 mb-2">Web Clients</h1>
+                <p className="text-slate-400 text-sm">Manage and view all your web clients</p>
+            </div>
+
             <EditCustomer
                 customer={editingCustomer}
                 isOpen={!!editingCustomer}

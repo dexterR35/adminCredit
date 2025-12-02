@@ -36,10 +36,6 @@ const CurrentDateTimeComp = () => {
             <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">🕐 {displayHours}:{formattedMinutes} {meridiem}</span>
             </div>
-            <div className="w-1 h-1 rounded-full bg-white/50"></div>
-            <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">🌡️ Bucharest +25°C</span>
-            </div>
         </div>
     );
 };

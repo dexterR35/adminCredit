@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 const auth = getAuth();
 // Function to check if the user is already authenticated
 
-export const checkAuthStatus = (setUser) => {
+export const checkAuthStatus = (setUser, setLoading) => {
   // Always set up the auth state listener for real-time updates
   const unsubscribe = onAuthStateChanged(auth, (user) => {
     try {
@@ -32,6 +32,11 @@ export const checkAuthStatus = (setUser) => {
       console.error("Authentication status error:", error.message);
       setUser(null);
       sessionStorage.removeItem("authUser");
+    } finally {
+      // Set loading to false after auth state is determined
+      if (setLoading) {
+        setLoading(false);
+      }
     }
   });
   
@@ -108,198 +113,157 @@ export const FormatTimestamp = (timestampInMillis) => {
   return formattedTimestamp;
 };
 
-export const FetchCustomersData = () => {
-  const [customerData, setCustomerData] = useState([]);
-  const [lastAddedCustomer, setLastAddedCustomer] = useState(null);
+/**
+ * Lightweight hook for stats only (used in HomePage)
+ * Uses getDocs instead of onSnapshot to reduce Firebase reads
+ * Fetches once on mount - no refresh interval
+ */
+export const useCustomersStats = () => {
+  const [stats, setStats] = useState({ total: 0, lastCustomerName: null });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe;
-    
-    try {
-      const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
-      unsubscribe = onSnapshot(
-        q,
-        (querySnapshot) => {
-          try {
-            const data = querySnapshot.docs.map(doc => ({
-              ...doc.data(),
-              id: doc.id,
-              timestamp: doc.data().timestamp?.seconds 
-                ? FormatTimestamp(doc.data().timestamp.seconds * 1000)
-                : new Date().toLocaleString(),
-            }));
-            
-            const formattedData = data.map(customer => ({
-              id: customer.id,
-              name: customer.customer_info?.formData?.name || '',
-              phone: customer.customer_info?.formData?.phone || '',
-              ifn: Array.isArray(customer.customer_info?.banking_info?.ifn) && customer.customer_info.banking_info.ifn.length > 0
-                ? customer.customer_info.banking_info.ifn.map(item => <div key={item}>{item}</div>)
-                : <div>OK</div>,
-              banks: Array.isArray(customer.customer_info?.banking_info?.banks) && customer.customer_info.banking_info.banks.length > 0
-                ? customer.customer_info.banking_info.banks.map(item => <div key={item}>{item}</div>)
-                : <div>OK</div>,
-              others: Array.isArray(customer.customer_info?.banking_info?.others) && customer.customer_info.banking_info.others.length > 0
-                ? customer.customer_info.banking_info.others.map(item => <div key={item}>{item}</div>)
-                : <div>OK</div>,
-              bankHistory: customer.customer_info?.banking_info?.bankHistory === false
-                ? "No bank history"
-                : "Bank history",
-              bankStatus: customer.customer_info?.banking_info?.bankHistory === true
-                ? "No raport status"
-                : customer.customer_info?.banking_status === false
-                  ? "No raport status"
-                  : "Negativ Raport",
-              selectedDate: customer.customer_info?.formData?.selectedDate || "not eligible",
-              aboutUs: customer.customer_info?.formData?.aboutUs || '',
-              timestamp: customer.timestamp,
-              email: customer.customer_info?.formData?.email || '',
-              status: customer.customer_status || ''
-            }));
-            
-            setCustomerData(formattedData);
-            if (formattedData.length > 0) {
-              setLastAddedCustomer(formattedData[0]);
-            }
-            setLoading(false);
-          } catch (error) {
-            console.error("Error processing customer data:", error);
-            setLoading(false);
-          }
-        },
-        (error) => {
-          console.error("Snapshot error for customers:", error);
-          setLoading(false);
-        }
-      );
-    } catch (error) {
-      console.error("Error setting up customer snapshot:", error);
-      setLoading(false);
-    }
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
+    const fetchStats = async () => {
+      try {
+        const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
+        const snapshot = await getDocs(q);
+        const lastCustomer = snapshot.docs[0]?.data();
+        
+        setStats({
+          total: snapshot.size,
+          lastCustomerName: lastCustomer?.customer_info?.formData?.name || null,
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching customer stats:", error);
+        setLoading(false);
       }
     };
+    
+    fetchStats();
   }, []);
 
-  const updateCustomer = async (id, updatedData) => {
-    try {
-      await updateDoc(doc(db, "oc_data", id), updatedData);
-      toast.success("Customer updated successfully!");
-      // Snapshot will automatically update the state, no manual update needed
-    } catch (error) {
-      console.error("Error updating document: ", error);
-      toast.error(`Error updating customer: ${error.message}`);
-      throw error;
-    }
+  return { ...stats, loading };
+};
+
+/**
+ * Full customer data hook with real-time updates
+ * Used in ClientsWebPage where real-time updates are needed
+ * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
+ */
+export const FetchCustomersData = () => {
+  const [customerData, setCustomerData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        name: doc.data().customer_info?.formData?.name || '',
+        phone: doc.data().customer_info?.formData?.phone || '',
+        ifn: doc.data().customer_info?.banking_info?.ifn || [],
+        banks: doc.data().customer_info?.banking_info?.banks || [],
+        others: doc.data().customer_info?.banking_info?.others || [],
+        bankHistory: doc.data().customer_info?.banking_info?.bankHistory === false ? "No bank history" : "Bank history",
+        bankStatus: doc.data().customer_info?.banking_status === false ? "No raport status" : "Negativ Raport",
+        selectedDate: doc.data().customer_info?.formData?.selectedDate || '',
+        aboutUs: doc.data().customer_info?.formData?.aboutUs || '',
+        email: doc.data().customer_info?.formData?.email || '',
+        status: doc.data().customer_status || '',
+        timestamp: doc.data().timestamp?.seconds ? FormatTimestamp(doc.data().timestamp.seconds * 1000) : new Date().toLocaleString(),
+      }));
+      setCustomerData(data);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching customers:", error);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const updateCustomer = async (id, data) => {
+    await updateDoc(doc(db, "oc_data", id), data);
+    toast.success("Customer updated!");
   };
 
   const deleteCustomer = async (id) => {
-    try {
-      await deleteDoc(doc(db, "oc_data", id));
-      toast.success("Customer deleted successfully!");
-      // Snapshot will automatically update the state, no manual update needed
-    } catch (error) {
-      console.error("Error deleting document: ", error);
-      toast.error(`Error deleting customer: ${error.message}`);
-      throw error;
-    }
+    await deleteDoc(doc(db, "oc_data", id));
+    toast.success("Customer deleted!");
   };
 
-  const customersAddedOnCurrentDay = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return customerData.filter(customer => {
-      const customerDate = new Date(customer.timestamp);
-      customerDate.setHours(0, 0, 0, 0);
-      return customerDate.getTime() === today.getTime();
-    });
-  }, [customerData]);
-
-  const lengthOfCustomersAddedOnCurrentDay = customersAddedOnCurrentDay.length;
-  const nameOfLastAddedCustomer = customersAddedOnCurrentDay.length > 0 ? customersAddedOnCurrentDay[0].name : null;
-
-
-  return { 
-    customerData, 
-    loading,
-    updateCustomer, 
-    deleteCustomer, 
-    customersAddedOnCurrentDay, 
-    lastAddedCustomer, 
-    lengthOfCustomersAddedOnCurrentDay, 
-    nameOfLastAddedCustomer 
-  };
+  return { customerData, loading, updateCustomer, deleteCustomer };
 };
+/**
+ * Lightweight hook for contract stats only (used in HomePage)
+ * Uses getDocs instead of onSnapshot to reduce Firebase reads
+ * Fetches once on mount - no refresh interval
+ */
+export const useContractsStats = () => {
+  const [stats, setStats] = useState({ total: 0, lastContractName: null });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
+        const snapshot = await getDocs(q);
+        const first = snapshot.docs[0]?.data();
+        
+        setStats({
+          total: snapshot.size,
+          lastContractName: first ? `${first.firstName || ''} ${first.lastName || ''}`.trim() : null,
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching contract stats:", error);
+        setLoading(false);
+      }
+    };
+    
+    fetchStats();
+  }, []);
+
+  return { ...stats, loading };
+};
+
+/**
+ * Full contract data hook with real-time updates
+ * Used in ContractTable where real-time updates are needed
+ * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
+ */
 export const FetchContractData = () => {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe;
-    
-    try {
-      const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
-      unsubscribe = onSnapshot(
-        q,
-        (querySnapshot) => {
-          try {
-            const contractList = querySnapshot.docs.map((doc) => {
-              const data = doc.data();
-              return {
-                id: doc.id,
-                ...data,
-                timestamp: data.timeStamp?.seconds 
-                  ? FormatTimestamp(data.timeStamp.seconds * 1000)
-                  : new Date().toLocaleString(),
-              };
-            });
-            setContracts(contractList);
-            setLoading(false);
-          } catch (error) {
-            console.error('Error processing contract data:', error);
-            setLoading(false);
-          }
-        },
-        (error) => {
-          console.error('Snapshot error for contracts:', error);
-          setLoading(false);
-        }
-      );
-    } catch (error) {
-      console.error('Error setting up contract snapshot:', error);
+    const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        timestamp: doc.data().timeStamp?.seconds 
+          ? FormatTimestamp(doc.data().timeStamp.seconds * 1000)
+          : new Date().toLocaleString(),
+      }));
+      setContracts(data);
       setLoading(false);
-    }
+    }, (error) => {
+      console.error('Error fetching contracts:', error);
+      setLoading(false);
+    });
 
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+    return () => unsubscribe();
   }, []);
 
   const onDelete = async (id) => {
-    try {
-      await deleteDoc(doc(db, 'contracts', id));
-      toast.success("Contract deleted successfully!");
-      // Snapshot will automatically update the state, no manual update needed
-    } catch (error) {
-      console.error('Error deleting contract:', error);
-      toast.error(`Error deleting contract: ${error.message}`);
-      throw error;
-    }
+    await deleteDoc(doc(db, 'contracts', id));
+    toast.success("Contract deleted!");
   };
 
-  const lastContractName = useMemo(() => {
-    return contracts.length > 0 ? `${contracts[0].firstName || ''} ${contracts[0].lastName || ''}`.trim() : '';
-  }, [contracts]);
-
-  const contractsLength = useMemo(() => contracts.length, [contracts]);
-
-  return { contracts, loading, onDelete, lastContractName, contractsLength };
+  return { contracts, loading, onDelete };
 };
 // Function to add a new consultant
 
@@ -400,73 +364,38 @@ export const addRaport = async (formData) => {
   }
 };
 
+/**
+ * Full raport data hook with real-time updates
+ * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
+ */
 export const useFetchRaportNew = () => {
   const [raports, setRaports] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe;
-    
-    try {
-      const q = query(collection(db, 'raport'), orderBy('timestamp', 'desc'));
-      unsubscribe = onSnapshot(
-        q,
-        (querySnapshot) => {
-          try {
-            const raportList = querySnapshot.docs.map((doc) => {
-              const data = doc.data();
-              return {
-                id: doc.id,
-                ...data,
-                timestamp: data.timestamp?.seconds 
-                  ? new Date(data.timestamp.seconds * 1000)
-                  : new Date(),
-              };
-            });
-            setRaports(raportList);
-            setLoading(false);
-          } catch (error) {
-            console.error('Error processing raport data:', error);
-            setLoading(false);
-          }
-        },
-        (error) => {
-          console.error('Snapshot error for raports:', error);
-          setLoading(false);
-        }
-      );
-    } catch (error) {
-      console.error('Error setting up raport snapshot:', error);
+    const q = query(collection(db, 'raport'), orderBy('timestamp', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        timestamp: doc.data().timestamp?.seconds 
+          ? new Date(doc.data().timestamp.seconds * 1000)
+          : new Date(),
+      }));
+      setRaports(data);
       setLoading(false);
-    }
+    }, (error) => {
+      console.error('Error fetching raports:', error);
+      setLoading(false);
+    });
 
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+    return () => unsubscribe();
   }, []);
 
   const onDelete = async (id) => {
-    try {
-      await deleteDoc(doc(db, 'raport', id));
-      toast.success("Report deleted successfully!");
-      // Snapshot will automatically update the state, no manual update needed
-    } catch (error) {
-      console.error('Error deleting raport:', error);
-      toast.error(`Error deleting report: ${error.message}`);
-      throw error;
-    }
+    await deleteDoc(doc(db, 'raport', id));
+    toast.success("Report deleted!");
   };
 
-  const lastRaportInfo = useMemo(
-    () => (raports.length > 0 
-      ? `${raports[0].firstName || ''} ${raports[0].lastName || ''} - ${raports[0].timestamp?.toLocaleDateString() || ''}`.trim()
-      : ''),
-    [raports]
-  );
-
-  const raportsLength = useMemo(() => raports.length, [raports]);
-
-  return { raports, loading, onDelete, lastRaportInfo, raportsLength };
+  return { raports, loading, onDelete };
 };

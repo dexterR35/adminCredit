@@ -6,39 +6,67 @@ import { addRaport } from "../../services/Hooks"
 const FormUser = () => {
     const [consultants, setConsultants] = useState([]);
     const [formValues, setFormValues] = useState({
+        // Consultant & Date
         consultant: "",
+        consultantInfo: "",
         todayDate: new Date().toLocaleDateString('ro-RO'),
+        
+        // Client Source & Basic Info
         source: "",
-        firstName: "",
-        lastName: "",
-        userCNP: "",
+        clientFullName: "",
+        clientCNP: "",
         phone: "",
         email: "",
-        materialStatus: "",
-        partnerFirstName: "",
-        partnerLastName: "",
-        partnerMotherName: "",
+        
+        // Marital Status & Partner Info
+        maritalStatus: "",
+        partnerFullName: "",
         partnerCNP: "",
-        partnerNegativeStatus: "",
-        partnerJobContract: "",
+        partnerRatesDelays: "",
+        partnerRatesValue: "",
+        partnerHasJobContract: "",
+        
+        // Residence & Education
+        residenceSituation: "",
+        education: "",
+        motherMaidenName: "",
+        
+        // Credit Information
+        requestedCreditValue: "",
+        wantsRefinancing: "",
+        refinancingDetails: "",
+        pastProblems: "",
+        
+        // Employment Information
+        profession: "",
+        employerName: "",
+        employerCUI: "",
+        employerEmployees: "",
+        workHours: "",
+        contractType: "",
+        employmentStartDate: "",
+        netSalary: "",
+        salaryBank: "",
+        salaryContinuity: "",
+        mealVouchers: "",
+        commissions: "",
+        bonuses: "",
+        employerAddress: "",
+        employerFoundedDate: "",
+        employerActivity: "",
+        totalWorkExperience: "",
+        employersLast24Months: "",
+        
+        // Contact Persons
+        contactPerson1Name: "",
+        contactPerson1Phone: "",
+        contactPerson1Relation: "",
+        contactPerson2Name: "",
+        contactPerson2Phone: "",
+        contactPerson2Relation: "",
+        
+        // Status
         userStatus: "New",
-        userAddress: "",
-        userStudies: "",
-        userCreditValue: "",
-        userRefinance: "",
-        userProfession: "",
-        userNameOfEmployer: "",
-        userJobContract: "",
-        userDateLastJob: "",
-        userNetSalary: "",
-        userNetSalaryBank: "",
-        userJobScenario: "",
-        userVouchers: "",
-        userContactPersonOne: "",
-        userContactPersonTwo: "",
-        employerFieldActivity: "",
-        phoneDetails: "",
-        materialStatusDetails:"",
     });
 
     useEffect(() => {
@@ -54,17 +82,46 @@ const FormUser = () => {
         fetchConsultantsData();
     }, []);
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setFormValues((prevFormValues) => ({
-            ...prevFormValues,
-            [name]: value,
-        }));
-    };
+    // Formik handles form state, no need for handleChange
 
     const onSubmit = async (values) => {
         try {
-            await addRaport(values);
+            // Prepare data for database - clean up empty strings and format dates
+            const preparedData = {
+                ...values,
+                // Convert empty strings to null for optional fields
+                consultantInfo: values.consultantInfo || null,
+                email: values.email || null,
+                partnerFullName: values.partnerFullName || null,
+                partnerCNP: values.partnerCNP || null,
+                partnerRatesDelays: values.partnerRatesDelays || null,
+                partnerRatesValue: values.partnerRatesValue || null,
+                partnerHasJobContract: values.partnerHasJobContract || null,
+                residenceSituation: values.residenceSituation || null,
+                education: values.education || null,
+                motherMaidenName: values.motherMaidenName || null,
+                refinancingDetails: values.refinancingDetails || null,
+                pastProblems: values.pastProblems || null,
+                employerCUI: values.employerCUI || null,
+                employerEmployees: values.employerEmployees || null,
+                workHours: values.workHours || null,
+                mealVouchers: values.mealVouchers || null,
+                commissions: values.commissions || null,
+                bonuses: values.bonuses || null,
+                employerAddress: values.employerAddress || null,
+                employerFoundedDate: values.employerFoundedDate || null,
+                employerActivity: values.employerActivity || null,
+                totalWorkExperience: values.totalWorkExperience || null,
+                employersLast24Months: values.employersLast24Months || null,
+                contactPerson1Name: values.contactPerson1Name || null,
+                contactPerson1Phone: values.contactPerson1Phone || null,
+                contactPerson1Relation: values.contactPerson1Relation || null,
+                contactPerson2Name: values.contactPerson2Name || null,
+                contactPerson2Phone: values.contactPerson2Phone || null,
+                contactPerson2Relation: values.contactPerson2Relation || null,
+            };
+            
+            await addRaport(preparedData);
             console.log("Raport added successfully!");
         } catch (error) {
             console.error("Error adding raport:", error);
@@ -72,21 +129,37 @@ const FormUser = () => {
     };
 
     const fields = [
+        // Section 1: Consultant & Date
+        {
+            name: "consultant",
+            label: "Consultant",
+            as: "select",
+            options: [
+                { value: '', label: 'Select Consultant' },
+                ...consultants.map(consultant => ({ value: consultant.id, label: consultant.username })),
+            ],
+            selectClassName: "w-full",
+        },
+        {
+            name: "consultantInfo",
+            label: "Consultant Info (Optional)",
+            as: "input",
+            placeholder: "Additional consultant information",
+        },
         {
             name: "todayDate",
-            label: "Today's Date",
+            label: "Dată",
             as: "input",
-            value: formValues.todayDate,
             disabled: true,
-        
+            required: true,
         },
-              
+        
+        // Section 2: Client Source & Basic Information
         {
             name: "source",
-            label: "Source",
+            label: "Sursă Client",
             as: "select",
-            value: formValues.source,
-            onChange: handleChange,
+            required: true,
             options: [
                 { value: "", label: "Select Source" },
                 { value: "pliant", label: "Pliant" },
@@ -94,396 +167,344 @@ const FormUser = () => {
                 { value: "facebook", label: "Facebook" },
                 { value: "website", label: "Website" },
                 { value: "friends", label: "Friends" },
-                
-            ],
-            selectClassName: " w-full",
-        },
-        {
-            name: "consultant",
-            label: "Consultant",
-            as: "select",
-            value: formValues.consultant,
-            onChange: handleChange,
-            options: [
-                { value: '', label: 'Select Consultant' },
-                ...consultants.map(consultant => ({ value: consultant.id, label: consultant.username })),
+                { value: "other", label: "Other" },
             ],
             selectClassName: "w-full",
         },
-     
-    
-    
         {
-            name: "firstName",
-            label: "First Name",
+            name: "clientFullName",
+            label: "Nume și Prenume Client",
             as: "input",
-            value: formValues.firstName,
-            onChange: handleChange,
-         
+            required: true,
+            placeholder: "LINCAN MARIO",
         },
         {
-            name: "lastName",
-            label: "Last Name",
+            name: "clientCNP",
+            label: "CNP Client",
             as: "input",
-            value: formValues.lastName,
-            onChange: handleChange,
-          
-        },
-        {
-            name: "email",
-            label: "Email",
-            as: "input",
-            value: formValues.email,
-            onChange: handleChange,
-        
+            required: true,
+            placeholder: "5060210420135",
+            type: "text",
         },
         {
             name: "phone",
-            label: "Phone",
+            label: "Nr. Telefon (Abonament sau Cartelă)",
             as: "input",
-            value: formValues.phone,
-            onChange: handleChange,
+            required: true,
+            placeholder: "0759848404/ 0759365934",
+        },
+        {
+            name: "email",
+            label: "Adresă de e-mail",
+            as: "input",
+            type: "email",
+            placeholder: "lincamario@YAHOO.COM",
+        },
         
+        // Section 3: Marital Status & Partner Information
+        {
+            name: "maritalStatus",
+            label: "Stare civilă",
+            as: "select",
+            required: true,
+            options: [
+                { value: "", label: "Select Status" },
+                { value: "necsat", label: "NECSAT" },
+                { value: "casatorit", label: "Căsătorit" },
+                { value: "divortat", label: "Divorțat" },
+                { value: "singur", label: "Singur" },
+            ],
+            selectClassName: "w-full",
         },
         {
-            name: "userCNP",
-            label: "CNP",
+            name: "partnerFullName",
+            label: "Nume și Prenume Soț / Soție",
             as: "input",
-            value: formValues.userCNP,
-            onChange: handleChange,
-          
-        },
-    
-        {
-            name: "userAddress",
-            label: "Address",
-            as: "input",
-            value: formValues.userAddress,
-            onChange: handleChange,
-        
-        },
-        {
-            name: "partnerFirstName",
-            label: "Partner First Name",
-            as: "input",
-            value: formValues.partnerFirstName,
-            onChange: handleChange,
-         
-        },
-        {
-            name: "partnerLastName",
-            label: "Partner Last Name",
-            as: "input",
-            value: formValues.partnerLastName,
-            onChange: handleChange,
-         
-        },
-        {
-            name: "partnerMotherName",
-            label: "Partner Mother Name",
-            as: "input",
-            value: formValues.partnerMotherName,
-            onChange: handleChange,
-         
+            placeholder: "Full name",
         },
         {
             name: "partnerCNP",
-            label: "Partner CNP",
+            label: "CNP Soț / Soție",
             as: "input",
-            value: formValues.partnerCNP,
-            onChange: handleChange,
-          
+            placeholder: "CNP",
         },
         {
-            name: "materialStatus",
-            label: "Material Status",
+            name: "partnerRatesDelays",
+            label: "Soțul / soția au rate / întârzieri",
             as: "select",
-            value: formValues.materialStatus,
-            onChange: handleChange,
             options: [
-                { value: "", label: "Select Material" },
-                { value: "married", label: "Married" },
-                { value: "divorced", label: "Divorced" },
-                { value: "single", label: "Single" },
+                { value: "", label: "Select" },
+                { value: "yes", label: "Da" },
+                { value: "no", label: "Nu" },
             ],
             selectClassName: "w-full",
-            details: {
-                name: "Material",
-                label: "extra info",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
         },
         {
-            name: "partnerNegativeStatus",
-            label: "Partner Negative Status",
+            name: "partnerRatesValue",
+            label: "Valoarea rate / întârzieri",
             as: "input",
-            value: formValues.partnerNegativeStatus,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "extra info",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
+            placeholder: "Value",
         },
         {
-            name: "partnerJobContract",
-            label: "Partner Job Contract",
+            name: "partnerHasJobContract",
+            label: "Soțul / soția angajat cu Contract de muncă",
+            as: "select",
+            options: [
+                { value: "", label: "Select" },
+                { value: "yes", label: "Da" },
+                { value: "no", label: "Nu" },
+            ],
+            selectClassName: "w-full",
+        },
+        
+        // Section 4: Residence & Education
+        {
+            name: "residenceSituation",
+            label: "Situația domiciliului",
+            as: "select",
+            options: [
+                { value: "", label: "Select" },
+                { value: "parintii", label: "Părinții" },
+                { value: "proprietar", label: "Proprietar" },
+                { value: "chirias", label: "Chiriaș" },
+                { value: "other", label: "Altul" },
+            ],
+            selectClassName: "w-full",
+        },
+        {
+            name: "education",
+            label: "Studii absolvite",
             as: "input",
-            value: formValues.partnerJobContract,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "extra info",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
+            placeholder: "9 CLASE",
         },
-    
-      
         {
-            name: "userStudies",
-            label: "Education",
+            name: "motherMaidenName",
+            label: "Numele mamei înainte de căsătorie",
             as: "input",
-            value: formValues.userStudies,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
+            placeholder: "BURLAN",
         },
+        
+        // Section 5: Credit Information
         {
-            name: "userCreditValue",
-            label: "Credit Value",
+            name: "requestedCreditValue",
+            label: "Valoare credit solicitat",
             as: "input",
-            value: formValues.userCreditValue,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
+            required: true,
+            placeholder: "MAXIM 60K-80K",
         },
         {
-            name: "userRefinance",
-            label: "Refinance",
+            name: "wantsRefinancing",
+            label: "Clientul dorește refinanțarea creditelor actuale?",
+            as: "select",
+            options: [
+                { value: "", label: "Select" },
+                { value: "yes", label: "Da" },
+                { value: "no", label: "Nu" },
+            ],
+            selectClassName: "w-full",
+        },
+        {
+            name: "refinancingDetails",
+            label: "Detalii refinanțare",
+            as: "textarea",
+            rows: 2,
+            placeholder: "NU, FARA ISTORIC",
+        },
+        {
+            name: "pastProblems",
+            label: "Probleme în trecut",
+            as: "textarea",
+            rows: 2,
+            placeholder: "IN TRECUT PROBLEME LA TELKOM",
+        },
+        
+        // Section 6: Employment Information
+        {
+            name: "profession",
+            label: "Funcția / Profesia (Calificat sau Necalificat)",
             as: "input",
-            value: formValues.userRefinance,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
+            placeholder: "PAZNIC",
         },
         {
-            name: "userProfession",
-            label: "Profession",
+            name: "employerName",
+            label: "Nume angajator",
             as: "input",
-            value: formValues.userProfession,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
+            placeholder: "BGS SECURITY CONTRO SRL",
         },
         {
-            name: "userNameOfEmployer",
-            label: "Employer Name",
+            name: "employerCUI",
+            label: "CUI Angajator",
             as: "input",
-            value: formValues.userNameOfEmployer,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
+            placeholder: "CUI number",
         },
         {
-            name: "userJobContract",
-            label: "Job Contract",
+            name: "employerEmployees",
+            label: "Nr. angajați",
             as: "input",
-            value: formValues.userJobContract,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information",
-                details:"fasfa"
-            },
-            //  inputClass:"bg-red-900"
+            type: "number",
+            placeholder: "Number of employees",
         },
         {
-            name: "userDateLastJob",
-            label: "Last Job Date",
+            name: "workHours",
+            label: "Ore de lucru",
+            as: "input",
+            placeholder: "8H / 4H",
+        },
+        {
+            name: "contractType",
+            label: "Durată contract muncă (determinat / nedeterminat)",
+            as: "select",
+            options: [
+                { value: "", label: "Select" },
+                { value: "determinat", label: "Determinat" },
+                { value: "nedeterminat", label: "Nedeterminat" },
+            ],
+            selectClassName: "w-full",
+        },
+        {
+            name: "employmentStartDate",
+            label: "Data angajării ultimul loc de muncă",
             as: "date",
-            value: formValues.userDateLastJob,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            },
-           
+            placeholder: "8 OCTOMBRIE 2024",
         },
         {
-            name: "userNetSalary",
-            label: "Net Salary",
+            name: "netSalary",
+            label: "Salariul net (media pe ultimele 3 luni)",
             as: "input",
-            value: formValues.userNetSalary,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-                placeholder:"additional information"
-            }
+            placeholder: "3267 NET",
         },
         {
-            name: "userNetSalaryBank",
-            label: "Salary Bank",
+            name: "salaryBank",
+            label: "În ce bancă încasează",
             as: "input",
-            value: formValues.userNetSalaryBank,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-         
-            }
+            placeholder: "PE CT PE BCR",
         },
         {
-            name: "userJobScenario",
-            label: "Job Scenario",
-            as: "input",
-            value: formValues.userJobScenario,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-              
-            }
+            name: "salaryContinuity",
+            label: "Continuitate în ultimul an",
+            as: "select",
+            options: [
+                { value: "", label: "Select" },
+                { value: "fara-intrerupere", label: "Fără întrerupere mai mare de 1 lună" },
+                { value: "cu-intrerupere", label: "Cu întrerupere" },
+            ],
+            selectClassName: "w-full",
         },
         {
-            name: "userVouchers",
-            label: "Vouchers",
+            name: "mealVouchers",
+            label: "Bonuri de masă",
             as: "input",
-            value: formValues.userVouchers,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-            
-            }
+            placeholder: "INCLUSE IN SALARIU",
         },
         {
-            name: "employerFieldActivity",
-            label: "Employer Field Activity",
+            name: "commissions",
+            label: "Comisioane",
             as: "input",
-            value: formValues.employerFieldActivity,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-               
-            }
+            placeholder: "Commissions",
         },
         {
-            name: "userContactPersonOne",
-            label: "Contact Person 1",
+            name: "bonuses",
+            label: "Sporuri",
             as: "input",
-            value: formValues.userContactPersonOne,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-              
-            }
+            placeholder: "PANA LA 4000 NET PE BCR",
         },
         {
-            name: "userContactPersonTwo",
-            label: "Contact Person 2",
+            name: "employerAddress",
+            label: "Adresă angajator",
             as: "input",
-            value: formValues.userContactPersonTwo,
-            onChange: handleChange,
-            details: {
-                name: "Material",
-                label: "Material Status Information",
-                as: "textarea",
-                value: formValues.materialStatusDetails,
-                onChange: handleChange,
-               
-            }
+            placeholder: "Employer address",
         },
+        {
+            name: "employerFoundedDate",
+            label: "Data înființării angajator",
+            as: "date",
+        },
+        {
+            name: "employerActivity",
+            label: "Domeniul de activitate angajator",
+            as: "input",
+            placeholder: "Activity domain",
+        },
+        {
+            name: "totalWorkExperience",
+            label: "Vechime totala in campul muncii",
+            as: "input",
+            placeholder: "10 LUNI",
+        },
+        {
+            name: "employersLast24Months",
+            label: "Număr angajatori în ultimele 24 luni",
+            as: "input",
+            type: "number",
+            placeholder: "Number of employers",
+        },
+        
+        // Section 7: Contact Persons
+        {
+            name: "contactPerson1Name",
+            label: "Persoană de contact #1 (nume)",
+            as: "input",
+            placeholder: "BURCEOIU MARIA",
+        },
+        {
+            name: "contactPerson1Phone",
+            label: "Persoană de contact #1 (telefon)",
+            as: "input",
+            placeholder: "Phone number",
+        },
+        {
+            name: "contactPerson1Relation",
+            label: "Persoană de contact #1 (relația cu solicitantul)",
+            as: "input",
+            placeholder: "Relationship",
+        },
+        {
+            name: "contactPerson2Name",
+            label: "Persoană de contact #2 (nume)",
+            as: "input",
+            placeholder: "Name",
+        },
+        {
+            name: "contactPerson2Phone",
+            label: "Persoană de contact #2 (telefon)",
+            as: "input",
+            placeholder: "Phone number",
+        },
+        {
+            name: "contactPerson2Relation",
+            label: "Persoană de contact #2 (relația cu solicitantul)",
+            as: "input",
+            placeholder: "Relationship",
+        },
+        
+        // Status
         {
             name: "userStatus",
-            label: "User Status",
+            label: "Status",
             as: "input",
-            value: formValues.userStatus,
             disabled: true,
-            inputClass:"bg-gray-300 disabled"
+            inputClass: "bg-slate-700/50 cursor-not-allowed",
         },
-     
     ];
 
     
 
     return (
         <div className="animate-fade-in">
-            <div className="rounded-xl p-8 border border-gray-700 bg-gray-900 shadow-lg">
-                {/* Header */}
+            {/* Page Title & Subtitle */}
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold text-slate-100 mb-2">New Report</h1>
+                <p className="text-slate-400 text-sm">Create a new client report with complete information</p>
+            </div>
+
+            <div className="rounded-xl p-8 border border-slate-700/50 bg-slate-800/50 backdrop-blur-sm shadow-lg">
+                {/* Form Header */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-1 h-8 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-3xl font-bold text-white">Add User Information</h2>
+                        <h2 className="text-2xl font-bold text-slate-100">Fisa Client</h2>
                     </div>
-                    <p className="text-gray-400 text-sm ml-4">Fill in the form below to create a new report</p>
+                    <p className="text-slate-400 text-sm ml-4">Complete all required fields to create a new client report</p>
                 </div>
 
                 {/* Form */}

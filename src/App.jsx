@@ -19,10 +19,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = checkAuthStatus((authUser) => {
-      setUser(authUser);
-      setLoading(false);
-    });
+    const unsubscribe = checkAuthStatus(setUser, setLoading);
     return () => {
       if (unsubscribe) {
         unsubscribe();
@@ -69,7 +66,7 @@ const App = () => {
         <Route path="/" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />} />
         
         {/* Login route: public, but redirects to /home if already logged in */}
-        <Route path="/login" element={<PublicRoute><LoginPage setUser={setUser} /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         
         {/* All other routes are protected admin routes - require authentication */}
         <Route path="/*" element={<ProtectedRoute>

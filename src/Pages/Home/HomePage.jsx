@@ -1,25 +1,27 @@
-import { FetchContractData, FetchCustomersData } from '../../services/Hooks';
+import { useCustomersStats, useContractsStats } from '../../services/Hooks';
 import CardSmall from '../../Components/CardSmall/_CardSmall';
 import CurrentDateTimeComp from '../../Components/utils/_CurrentTime';
 import NewRaportTable from "./HomeTable";
 
 const HomePage = ({ user }) => {
-    const { customerData, customersAddedOnCurrentDay, nameOfLastAddedCustomer } = FetchCustomersData();
-    const { lastContractName, contractsLength } = FetchContractData();
+    // Use lightweight stats hooks instead of full data hooks to reduce Firebase reads
+    const { total: totalCustomers, lastCustomerName } = useCustomersStats();
+    const { total: contractsLength, lastContractName } = useContractsStats();
+    // Note: contractsLength is now just 'total' from stats
     const userName = user ? user.email.split('@')[0].toUpperCase() : 'User';
 
     const cardData = [
         {
             _one: 'Total Clients',
-            _two: customerData.length,
+            _two: totalCustomers,
             _three: 'All clients',
             icon: 'alarmClock',
             className: '',
         },
         {
-            _one: 'Today Clients',
-            _two: customersAddedOnCurrentDay.length,
-            _three: nameOfLastAddedCustomer ? nameOfLastAddedCustomer : "No new clients",
+            _one: 'Last Client',
+            _two: lastCustomerName || "—",
+            _three: 'Most recent',
             icon: 'alarmClock',
             className: '',
         },
@@ -48,11 +50,17 @@ const HomePage = ({ user }) => {
 
     return (
         <div className="space-y-8 animate-fade-in">
+            {/* Page Title & Subtitle */}
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold text-slate-100 mb-2">Dashboard</h1>
+                <p className="text-slate-400 text-sm">Welcome back, {userName}! Here's your overview</p>
+            </div>
+
             {/* Welcome Section */}
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 backdrop-blur-sm">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold text-slate-100 mb-2">Welcome back, {userName}!</h1>
+                        <h2 className="text-2xl font-semibold text-slate-100 mb-2">Welcome back, {userName}!</h2>
                         <CurrentDateTimeComp />
                     </div>
                     <div className="w-16 h-16 rounded-full bg-indigo-600/20 flex items-center justify-center">

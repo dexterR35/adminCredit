@@ -79,9 +79,15 @@ const CreateConsultant = () => {
     ];
 
     return (
-        <div>
-            {isLoading && <p>Loading...</p>} {/* Show loading indicator */}
-            {errors.general && <p className="error">{errors.general}</p>} {/* Show general error */}
+        <div className="animate-fade-in">
+            {/* Page Title & Subtitle */}
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold text-slate-100 mb-2">Create Consultant</h1>
+                <p className="text-slate-400 text-sm">Add a new consultant to the system</p>
+            </div>
+
+            {isLoading && <p className="text-slate-300">Loading...</p>}
+            {errors.general && <p className="text-red-400 mb-4">{errors.general}</p>}
             <FormInput
                 initialValues={initialValues}
                 onSubmit={onSubmit}

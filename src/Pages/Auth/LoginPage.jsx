@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Login } from '../../services/Hooks';
 
-const LoginPage = ({ setUser }) => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -20,9 +20,9 @@ const LoginPage = ({ setUser }) => {
       }
       
       setIsLoading(true);
-      const authUser = await Login(username, password);
-      sessionStorage.setItem("authUser", JSON.stringify(authUser));
-      setUser(authUser);
+      await Login(username, password);
+      // Don't manually set user or sessionStorage - let checkAuthStatus handle it
+      // The auth state listener will automatically update the user state
       navigate("/home");
     } catch (error) {
       console.error("Login error:", error.message);

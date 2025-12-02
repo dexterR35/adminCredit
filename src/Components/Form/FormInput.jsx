@@ -9,22 +9,64 @@ const useCustomForm = ({ initialValues, onSubmit, fields }) => {
   // Define a validation schema using Yup
   const validationSchema = Yup.object().shape(
     fields.reduce((schema, field) => {
-      let validator = Yup.string();
+      // Skip disabled fields from validation
+      if (field.disabled) {
+        schema[field.name] = Yup.string();
+        return schema;
+      }
+
+      // Determine validator type based on field type and as prop
+      let validator;
+      
+      if (field.as === "date") {
+        validator = Yup.date().nullable();
+      } else if (field.type === "number" || field.as === "number") {
+        validator = Yup.number().nullable();
+      } else if (field.type === "email") {
+        validator = Yup.string().email("Invalid email address");
+      } else if (field.as === "textarea") {
+        validator = Yup.string();
+      } else {
+        validator = Yup.string();
+      }
+
+      // Apply required validation
       if (field.required) {
-        validator = validator.required("This field is required");
+        if (field.as === "date") {
+          validator = validator.required("This field is required");
+        } else if (field.type === "number" || field.as === "number") {
+          validator = validator.required("This field is required").typeError("Must be a number");
+        } else {
+          validator = validator.required("This field is required");
+        }
+      } else {
+        // Optional fields can be empty
+        validator = validator.nullable();
       }
-      if (field.type === "email") {
-        validator = validator.email("Invalid email address");
+
+      // Add CNP validation (Romanian ID - 13 digits)
+      if (field.name.includes("CNP") || field.name.includes("cnp")) {
+        validator = validator.matches(/^\d{13}$/, "CNP must be exactly 13 digits");
       }
-      if (field.type === "number") {
-        validator = validator.number("Must be a number");
+
+      // Add phone validation
+      if (field.name.includes("phone") || field.name.includes("Phone")) {
+        validator = validator.matches(/^[\d\s\/\-+()]+$/, "Invalid phone number format");
       }
-      // Add more validations as needed
 
       schema[field.name] = validator;
+      
+      // Handle details field if present
       if (field.details) {
-        schema[field.details.name] = validator;
+        let detailsValidator = Yup.string();
+        if (field.details.required) {
+          detailsValidator = detailsValidator.required("This field is required");
+        } else {
+          detailsValidator = detailsValidator.nullable();
+        }
+        schema[field.details.name] = detailsValidator;
       }
+      
       return schema;
     }, {})
   );
@@ -95,9 +137,10 @@ const FormInput = ({
                   <div className="w-full flex flex-col gap-2 items-start justify-start">
                     <label
                       htmlFor={field.name}
-                      className="text-sm font-medium text-gray-300 flex items-center w-full mb-1"
+                      className="text-sm font-medium text-slate-300 flex items-center w-full mb-1"
                     >
                       {field.label}
+                      {field.required && <span className="text-red-400 ml-1">*</span>}
                     </label>
                     {field.as === "input" && (
                       <Field
@@ -105,7 +148,7 @@ const FormInput = ({
                         name={field.name}
                         type={field.type || "text"}
                         placeholder={field.placeholder || ""}
-                        className={`text-sm px-4 py-2.5 border border-gray-600 rounded-lg w-full bg-gray-900 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
+                        className={`text-sm px-4 py-2.5 border border-slate-700/50 rounded-lg w-full bg-slate-800/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
                           field.inputClass || ""
                         } ${field.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                         disabled={field.disabled || false}
@@ -116,13 +159,13 @@ const FormInput = ({
                         as="select"
                         id={field.name}
                         name={field.name}
-                        className={`w-full text-sm px-4 py-2.5 border border-gray-600 rounded-lg bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
+                        className={`w-full text-sm px-4 py-2.5 border border-slate-700/50 rounded-lg bg-slate-800/50 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
                           field.selectClassName || ""
                         } ${field.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                         disabled={field.disabled || false}
                       >
                         {field.options && field.options.map((option, optionIndex) => (
-                          <option key={optionIndex} value={option.value} className="bg-gray-900">
+                          <option key={optionIndex} value={option.value} className="bg-slate-800 text-slate-100">
                             {option.label}
                           </option>
                         ))}
@@ -134,7 +177,7 @@ const FormInput = ({
                         name={field.name}
                         type="date"
                         placeholder={field.placeholder || ""}
-                        className={`text-sm px-4 py-2.5 border border-gray-600 rounded-lg w-full bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
+                        className={`text-sm px-4 py-2.5 border border-slate-700/50 rounded-lg w-full bg-slate-800/50 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
                           field.disabled ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                         disabled={field.disabled || false}
@@ -147,7 +190,7 @@ const FormInput = ({
                         name={field.name}
                         rows={field.rows || 3}
                         placeholder={field.placeholder || ""}
-                        className={`text-sm px-4 py-2.5 border border-gray-600 rounded-lg w-full bg-gray-900 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none ${
+                        className={`text-sm px-4 py-2.5 border border-slate-700/50 rounded-lg w-full bg-slate-800/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none ${
                           field.inputClass || ""
                         } ${field.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                         disabled={field.disabled || false}
@@ -163,9 +206,10 @@ const FormInput = ({
                     <div className="flex flex-col items-start justify-start w-full gap-2">
                       <label
                         htmlFor={field.details.name}
-                        className="text-sm font-medium text-gray-300 capitalize mb-1"
+                        className="text-sm font-medium text-slate-300 capitalize mb-1"
                       >
                         {field.details.label}
+                        {field.details.required && <span className="text-red-400 ml-1">*</span>}
                       </label>
 
                       <Field
@@ -177,7 +221,7 @@ const FormInput = ({
                         }
                         as={field.details.as || "input"}
                         rows={field.details.rows || 1}
-                        className="px-4 py-2.5 text-sm border border-gray-600 rounded-lg w-full bg-gray-900 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none"
+                        className="px-4 py-2.5 text-sm border border-slate-700/50 rounded-lg w-full bg-slate-800/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none"
                       />
                       <ErrorMessage
                         name={field.details.name}
