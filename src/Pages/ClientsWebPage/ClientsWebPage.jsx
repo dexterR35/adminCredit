@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import DynamicTable from "../../Components/Table/DynimicTable";
 import { FetchCustomersData } from "../../services/Hooks";
 import Badge from "../../Components/Badge/Badge";
+import EditCustomer from "../../Components/Customer/EditCustomer";
 
 const ClientsTable = () => {
-    const { customerData, loading, deleteCustomer } = FetchCustomersData();
+    const { customerData, loading, deleteCustomer, updateCustomer } = FetchCustomersData();
+    const [editingCustomer, setEditingCustomer] = useState(null);
     
     // Dynamic column configuration with badge support
     const columns = [
@@ -125,6 +127,12 @@ const ClientsTable = () => {
 
     const actions = [
         {
+            label: "Edit",
+            onClick: (client) => {
+                setEditingCustomer(client);
+            },
+        },
+        {
             label: "Delete",
             onClick: (client) => {
                 console.log("Deleting client:", client.id);
@@ -138,7 +146,6 @@ const ClientsTable = () => {
                 handleContactClients(client);
             },
         },
-        
     ];
     const handleContactClients = (client) => {
         alert(`Contacting ${client.name} at ${client.phone}`);
@@ -146,6 +153,15 @@ const ClientsTable = () => {
       };
     return (
         <div className="animate-fade-in">
+            <EditCustomer
+                customer={editingCustomer}
+                isOpen={!!editingCustomer}
+                onClose={() => setEditingCustomer(null)}
+                onUpdate={() => {
+                    setEditingCustomer(null);
+                }}
+                updateCustomer={updateCustomer}
+            />
             {loading ? (
                 <div className="flex items-center justify-center h-64">
                     <div className="flex flex-col items-center gap-4">
