@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, setDoc, addDoc, doc, updateDoc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
 import {
   getAuth,
@@ -11,6 +11,88 @@ import {
 } from "firebase/auth";
 import { db } from '../firebase/config'
 import { toast } from "react-toastify";
+
+// Cache utility functions
+const CACHE_PREFIX = 'adminCredit_cache_';
+
+const getCacheKey = (key) => `${CACHE_PREFIX}${key}`;
+
+const getCachedData = (key) => {
+  try {
+    const cached = localStorage.getItem(getCacheKey(key));
+    if (!cached) return null;
+    
+    const { data } = JSON.parse(cached);
+    return data;
+  } catch (error) {
+    console.error(`Error reading cache for ${key}:`, error);
+    return null;
+  }
+};
+
+const setCachedData = (key, data) => {
+  try {
+    const cacheData = {
+      data,
+    };
+    localStorage.setItem(getCacheKey(key), JSON.stringify(cacheData));
+  } catch (error) {
+    console.error(`Error setting cache for ${key}:`, error);
+  }
+};
+
+const clearCache = (key) => {
+  try {
+    localStorage.removeItem(getCacheKey(key));
+  } catch (error) {
+    console.error(`Error clearing cache for ${key}:`, error);
+  }
+};
+
+// Shared listener manager to prevent duplicate Firebase listeners
+const listenerManager = {
+  listeners: new Map(),
+  subscribers: new Map(),
+  
+  subscribe(key, callback) {
+    if (!this.subscribers.has(key)) {
+      this.subscribers.set(key, new Set());
+    }
+    this.subscribers.get(key).add(callback);
+    
+    // Return unsubscribe function
+    return () => {
+      const subs = this.subscribers.get(key);
+      if (subs) {
+        subs.delete(callback);
+        // If no more subscribers, clean up listener
+        if (subs.size === 0) {
+          this.unsubscribe(key);
+        }
+      }
+    };
+  },
+  
+  notify(key, data) {
+    const subs = this.subscribers.get(key);
+    if (subs) {
+      subs.forEach(callback => callback(data));
+    }
+  },
+  
+  unsubscribe(key) {
+    const unsubscribe = this.listeners.get(key);
+    if (unsubscribe) {
+      unsubscribe();
+      this.listeners.delete(key);
+    }
+    this.subscribers.delete(key);
+  },
+  
+  hasListener(key) {
+    return this.listeners.has(key);
+  }
+};
 
 const auth = getAuth();
 // Function to check if the user is already authenticated
@@ -117,10 +199,19 @@ export const FormatTimestamp = (timestampInMillis) => {
  * Lightweight hook for stats only (used in HomePage)
  * Uses getDocs instead of onSnapshot to reduce Firebase reads
  * Fetches once on mount - no refresh interval
+ * CACHED: Returns cached data immediately, then updates if necessary
  */
 export const useCustomersStats = () => {
-  const [stats, setStats] = useState({ total: 0, lastCustomerName: null });
-  const [loading, setLoading] = useState(true);
+  const CACHE_KEY = 'customers_stats';
+  const [stats, setStats] = useState(() => {
+    // Initialize with cached data if available
+    const cached = getCachedData(CACHE_KEY);
+    return cached || { total: 0, lastCustomerName: null };
+  });
+  const [loading, setLoading] = useState(() => {
+    // Only show loading if no cache exists
+    return !getCachedData(CACHE_KEY);
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -129,10 +220,18 @@ export const useCustomersStats = () => {
         const snapshot = await getDocs(q);
         const lastCustomer = snapshot.docs[0]?.data();
         
-        setStats({
+        const newStats = {
           total: snapshot.size,
           lastCustomerName: lastCustomer?.customer_info?.formData?.name || null,
-        });
+        };
+        
+        // Only update if data changed
+        const cached = getCachedData(CACHE_KEY);
+        if (!cached || cached.total !== newStats.total || cached.lastCustomerName !== newStats.lastCustomerName) {
+          setStats(newStats);
+          setCachedData(CACHE_KEY, newStats);
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error("Error fetching customer stats:", error);
@@ -150,48 +249,88 @@ export const useCustomersStats = () => {
  * Full customer data hook with real-time updates
  * Used in ClientsWebPage where real-time updates are needed
  * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
+ * CACHED: Returns cached data immediately, then updates with real-time changes
  */
 export const FetchCustomersData = () => {
-  const [customerData, setCustomerData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const CACHE_KEY = 'customers_data';
+  const cachedInitial = getCachedData(CACHE_KEY) || [];
+  const [customerData, setCustomerData] = useState(cachedInitial);
+  const [loading, setLoading] = useState(!cachedInitial.length);
+  const dataRef = useRef(cachedInitial);
 
   useEffect(() => {
-    const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        name: doc.data().customer_info?.formData?.name || '',
-        phone: doc.data().customer_info?.formData?.phone || '',
-        ifn: doc.data().customer_info?.banking_info?.ifn || [],
-        banks: doc.data().customer_info?.banking_info?.banks || [],
-        others: doc.data().customer_info?.banking_info?.others || [],
-        bankHistory: doc.data().customer_info?.banking_info?.bankHistory === false ? "No bank history" : "Bank history",
-        bankStatus: doc.data().customer_info?.banking_status === false ? "No raport status" : "Negativ Raport",
-        selectedDate: doc.data().customer_info?.formData?.selectedDate || '',
-        aboutUs: doc.data().customer_info?.formData?.aboutUs || '',
-        email: doc.data().customer_info?.formData?.email || '',
-        status: doc.data().customer_status || '',
-        timestamp: doc.data().timestamp?.seconds ? FormatTimestamp(doc.data().timestamp.seconds * 1000) : new Date().toLocaleString(),
-      }));
-      setCustomerData(data);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching customers:", error);
+    // Update ref when state changes
+    dataRef.current = customerData;
+  }, [customerData]);
+
+  useEffect(() => {
+    const LISTENER_KEY = 'customers_listener';
+    
+    // Subscribe to updates
+    const unsubscribeSubscriber = listenerManager.subscribe(LISTENER_KEY, (data) => {
+      // Only update if data actually changed (compare by IDs and length)
+      const currentIds = dataRef.current.map(c => c.id).sort().join(',');
+      const newIds = data.map(c => c.id).sort().join(',');
+      
+      if (currentIds !== newIds || dataRef.current.length !== data.length) {
+        setCustomerData(data);
+        dataRef.current = data;
+      }
       setLoading(false);
     });
+    
+    // Only create listener if it doesn't exist
+    if (!listenerManager.hasListener(LISTENER_KEY)) {
+      const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
+      const unsubscribeListener = onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          name: doc.data().customer_info?.formData?.name || '',
+          phone: doc.data().customer_info?.formData?.phone || '',
+          ifn: doc.data().customer_info?.banking_info?.ifn || [],
+          banks: doc.data().customer_info?.banking_info?.banks || [],
+          others: doc.data().customer_info?.banking_info?.others || [],
+          bankHistory: doc.data().customer_info?.banking_info?.bankHistory === false ? "No bank history" : "Bank history",
+          bankStatus: doc.data().customer_info?.banking_status === false ? "No raport status" : "Negativ Raport",
+          selectedDate: doc.data().customer_info?.formData?.selectedDate || '',
+          aboutUs: doc.data().customer_info?.formData?.aboutUs || '',
+          email: doc.data().customer_info?.formData?.email || '',
+          status: doc.data().customer_status || '',
+          timestamp: doc.data().timestamp?.seconds ? FormatTimestamp(doc.data().timestamp.seconds * 1000) : new Date().toLocaleString(),
+        }));
+        
+        setCachedData(CACHE_KEY, data);
+        listenerManager.notify(LISTENER_KEY, data);
+      }, (error) => {
+        console.error("Error fetching customers:", error);
+        setLoading(false);
+      });
+      
+      listenerManager.listeners.set(LISTENER_KEY, unsubscribeListener);
+    } else {
+      // If listener already exists, load from cache and notify immediately
+      const cached = getCachedData(CACHE_KEY);
+      if (cached && cached.length > 0) {
+        setCustomerData(cached);
+        dataRef.current = cached;
+        setLoading(false);
+      }
+    }
 
-    return () => unsubscribe();
+    return () => unsubscribeSubscriber();
   }, []);
 
   const updateCustomer = async (id, data) => {
     await updateDoc(doc(db, "oc_data", id), data);
     toast.success("Customer updated!");
+    // Cache will be updated automatically by onSnapshot
   };
 
   const deleteCustomer = async (id) => {
     await deleteDoc(doc(db, "oc_data", id));
     toast.success("Customer deleted!");
+    // Cache will be updated automatically by onSnapshot
   };
 
   return { customerData, loading, updateCustomer, deleteCustomer };
@@ -200,10 +339,19 @@ export const FetchCustomersData = () => {
  * Lightweight hook for contract stats only (used in HomePage)
  * Uses getDocs instead of onSnapshot to reduce Firebase reads
  * Fetches once on mount - no refresh interval
+ * CACHED: Returns cached data immediately, then updates if necessary
  */
 export const useContractsStats = () => {
-  const [stats, setStats] = useState({ total: 0, lastContractName: null });
-  const [loading, setLoading] = useState(true);
+  const CACHE_KEY = 'contracts_stats';
+  const [stats, setStats] = useState(() => {
+    // Initialize with cached data if available
+    const cached = getCachedData(CACHE_KEY);
+    return cached || { total: 0, lastContractName: null };
+  });
+  const [loading, setLoading] = useState(() => {
+    // Only show loading if no cache exists
+    return !getCachedData(CACHE_KEY);
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -212,10 +360,18 @@ export const useContractsStats = () => {
         const snapshot = await getDocs(q);
         const first = snapshot.docs[0]?.data();
         
-        setStats({
+        const newStats = {
           total: snapshot.size,
           lastContractName: first ? `${first.firstName || ''} ${first.lastName || ''}`.trim() : null,
-        });
+        };
+        
+        // Only update if data changed
+        const cached = getCachedData(CACHE_KEY);
+        if (!cached || cached.total !== newStats.total || cached.lastContractName !== newStats.lastContractName) {
+          setStats(newStats);
+          setCachedData(CACHE_KEY, newStats);
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error("Error fetching contract stats:", error);
@@ -233,34 +389,73 @@ export const useContractsStats = () => {
  * Full contract data hook with real-time updates
  * Used in ContractTable where real-time updates are needed
  * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
+ * CACHED: Returns cached data immediately, then updates with real-time changes
  */
 export const FetchContractData = () => {
-  const [contracts, setContracts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const CACHE_KEY = 'contracts_data';
+  const cachedInitial = getCachedData(CACHE_KEY) || [];
+  const [contracts, setContracts] = useState(cachedInitial);
+  const [loading, setLoading] = useState(!cachedInitial.length);
+  const dataRef = useRef(cachedInitial);
 
   useEffect(() => {
-    const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        timestamp: doc.data().timeStamp?.seconds 
-          ? FormatTimestamp(doc.data().timeStamp.seconds * 1000)
-          : new Date().toLocaleString(),
-      }));
-      setContracts(data);
-      setLoading(false);
-    }, (error) => {
-      console.error('Error fetching contracts:', error);
+    // Update ref when state changes
+    dataRef.current = contracts;
+  }, [contracts]);
+
+  useEffect(() => {
+    const LISTENER_KEY = 'contracts_listener';
+    
+    // Subscribe to updates
+    const unsubscribeSubscriber = listenerManager.subscribe(LISTENER_KEY, (data) => {
+      // Only update if data actually changed (compare by IDs and length)
+      const currentIds = dataRef.current.map(c => c.id).sort().join(',');
+      const newIds = data.map(c => c.id).sort().join(',');
+      
+      if (currentIds !== newIds || dataRef.current.length !== data.length) {
+        setContracts(data);
+        dataRef.current = data;
+      }
       setLoading(false);
     });
+    
+    // Only create listener if it doesn't exist
+    if (!listenerManager.hasListener(LISTENER_KEY)) {
+      const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
+      const unsubscribeListener = onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timeStamp?.seconds 
+            ? FormatTimestamp(doc.data().timeStamp.seconds * 1000)
+            : new Date().toLocaleString(),
+        }));
+        
+        setCachedData(CACHE_KEY, data);
+        listenerManager.notify(LISTENER_KEY, data);
+      }, (error) => {
+        console.error('Error fetching contracts:', error);
+        setLoading(false);
+      });
+      
+      listenerManager.listeners.set(LISTENER_KEY, unsubscribeListener);
+    } else {
+      // If listener already exists, load from cache and notify immediately
+      const cached = getCachedData(CACHE_KEY);
+      if (cached && cached.length > 0) {
+        setContracts(cached);
+        dataRef.current = cached;
+        setLoading(false);
+      }
+    }
 
-    return () => unsubscribe();
+    return () => unsubscribeSubscriber();
   }, []);
 
   const onDelete = async (id) => {
     await deleteDoc(doc(db, 'contracts', id));
     toast.success("Contract deleted!");
+    // Cache will be updated automatically by onSnapshot
   };
 
   return { contracts, loading, onDelete };
@@ -367,34 +562,73 @@ export const addRaport = async (formData) => {
 /**
  * Full raport data hook with real-time updates
  * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
+ * CACHED: Returns cached data immediately, then updates with real-time changes
  */
 export const useFetchRaportNew = () => {
-  const [raports, setRaports] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const CACHE_KEY = 'raports_data';
+  const cachedInitial = getCachedData(CACHE_KEY) || [];
+  const [raports, setRaports] = useState(cachedInitial);
+  const [loading, setLoading] = useState(!cachedInitial.length);
+  const dataRef = useRef(cachedInitial);
 
   useEffect(() => {
-    const q = query(collection(db, 'raport'), orderBy('timestamp', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        timestamp: doc.data().timestamp?.seconds 
-          ? new Date(doc.data().timestamp.seconds * 1000)
-          : new Date(),
-      }));
-      setRaports(data);
-      setLoading(false);
-    }, (error) => {
-      console.error('Error fetching raports:', error);
+    // Update ref when state changes
+    dataRef.current = raports;
+  }, [raports]);
+
+  useEffect(() => {
+    const LISTENER_KEY = 'raports_listener';
+    
+    // Subscribe to updates
+    const unsubscribeSubscriber = listenerManager.subscribe(LISTENER_KEY, (data) => {
+      // Only update if data actually changed (compare by IDs and length)
+      const currentIds = dataRef.current.map(r => r.id).sort().join(',');
+      const newIds = data.map(r => r.id).sort().join(',');
+      
+      if (currentIds !== newIds || dataRef.current.length !== data.length) {
+        setRaports(data);
+        dataRef.current = data;
+      }
       setLoading(false);
     });
+    
+    // Only create listener if it doesn't exist
+    if (!listenerManager.hasListener(LISTENER_KEY)) {
+      const q = query(collection(db, 'raport'), orderBy('timestamp', 'desc'));
+      const unsubscribeListener = onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timestamp?.seconds 
+            ? new Date(doc.data().timestamp.seconds * 1000)
+            : new Date(),
+        }));
+        
+        setCachedData(CACHE_KEY, data);
+        listenerManager.notify(LISTENER_KEY, data);
+      }, (error) => {
+        console.error('Error fetching raports:', error);
+        setLoading(false);
+      });
+      
+      listenerManager.listeners.set(LISTENER_KEY, unsubscribeListener);
+    } else {
+      // If listener already exists, load from cache and notify immediately
+      const cached = getCachedData(CACHE_KEY);
+      if (cached && cached.length > 0) {
+        setRaports(cached);
+        dataRef.current = cached;
+        setLoading(false);
+      }
+    }
 
-    return () => unsubscribe();
+    return () => unsubscribeSubscriber();
   }, []);
 
   const onDelete = async (id) => {
     await deleteDoc(doc(db, 'raport', id));
     toast.success("Report deleted!");
+    // Cache will be updated automatically by onSnapshot
   };
 
   return { raports, loading, onDelete };
