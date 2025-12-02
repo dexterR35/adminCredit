@@ -11,13 +11,6 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    // Copy public files (including .htaccess and _redirects) to dist folder
-    copyPublicDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
-      },
-    },
   },
   publicDir: 'public',
 })
