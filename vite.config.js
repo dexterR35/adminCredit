@@ -8,8 +8,6 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  // Always use /admin/ base path since obtinecredit.ro is the main website and /admin is the dashboard
-  base: '/admin/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

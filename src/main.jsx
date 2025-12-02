@@ -9,11 +9,9 @@ const rootElement = document.getElementById("root");
 // Create a root.
 const root = ReactDOM.createRoot(rootElement);
 
-// Render the App component wrapped in BrowserRouter with basename for /admin subdirectory.
-// Always use /admin basename since obtinecredit.ro is the main website and /admin is the dashboard
+// Render the App component wrapped in BrowserRouter
 root.render(
     <Router 
-        basename="/admin"
         future={{
             v7_startTransition: true,
             v7_relativeSplatPath: true,

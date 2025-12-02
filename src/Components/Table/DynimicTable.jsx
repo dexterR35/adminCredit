@@ -141,32 +141,8 @@ const DynamicTable = ({
       };
     });
 
-    // Add selection column at the beginning if actions are provided
-    if (actions && actions.length > 0) {
-      return [
-        {
-          id: "select",
-          header: ({ table }) => (
-            <input
-              type="checkbox"
-              checked={table.getIsAllRowsSelected()}
-              onChange={table.getToggleAllRowsSelectedHandler()}
-              className="w-4 h-4 text-indigo-600 bg-gray-700/50 border-white/20 rounded focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
-            />
-          ),
-          cell: ({ row }) => (
-            <input
-              type="checkbox"
-              checked={row.getIsSelected()}
-              onChange={row.getToggleSelectedHandler()}
-              className="w-4 h-4 text-indigo-600 bg-gray-700/50 border-white/20 rounded focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
-            />
-          ),
-          size: 50,
-        },
-        ...baseColumns,
-      ];
-    }
+    // Return columns without selection checkbox column
+    // Row selection will be handled by clicking on the row itself
     return baseColumns;
   }, [columns, actions]);
 
@@ -432,11 +408,16 @@ const DynamicTable = ({
                   table.getRowModel().rows.map((row, index, array) => (
                     <tr
                       key={row.id}
+                      onClick={() => {
+                        if (actions && actions.length > 0) {
+                          row.toggleSelected();
+                        }
+                      }}
                       className={`${
                         row.getIsSelected() 
                           ? "bg-gray-800" 
                           : "bg-gray-900"
-                      } transition-colors`}
+                      } transition-colors ${actions && actions.length > 0 ? "cursor-pointer hover:bg-gray-800/50" : ""}`}
                       style={index < array.length - 1 ? { borderBottom: `1px solid ${colors.border.primary}40` } : {}}
                     >
                       {row.getVisibleCells().map((cell) => (

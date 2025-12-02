@@ -93,79 +93,79 @@ export const colors = {
   // Button colors mapping (includes hex values and Tailwind classes)
   button: {
     submit: {
-      bg: colors.primary.DEFAULT,
-      border: colors.primary.DEFAULT,
-      hover: colors.primary.dark,
-      text: colors.text.primary,
+      bg: '#6366f1', // colors.primary.DEFAULT
+      border: '#6366f1', // colors.primary.DEFAULT
+      hover: '#4f46e5', // colors.primary.dark
+      text: '#ffffff', // colors.text.primary
       tailwind: 'bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700',
     },
     default: {
-      bg: colors.gray[700],
-      border: colors.gray[600],
-      hover: colors.gray[600],
-      text: colors.text.primary,
+      bg: '#374151', // colors.gray[700]
+      border: '#4b5563', // colors.gray[600]
+      hover: '#4b5563', // colors.gray[600]
+      text: '#ffffff', // colors.text.primary
       tailwind: 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600',
     },
     delete: {
-      bg: colors.error.DEFAULT,
-      border: colors.error.DEFAULT,
-      hover: colors.error.dark,
-      text: colors.text.primary,
+      bg: '#ef4444', // colors.error.DEFAULT
+      border: '#ef4444', // colors.error.DEFAULT
+      hover: '#dc2626', // colors.error.dark
+      text: '#ffffff', // colors.text.primary
       tailwind: 'bg-red-600 border-red-600 text-white hover:bg-red-700',
     },
     modal: {
-      bg: colors.primary.DEFAULT,
-      border: colors.primary.DEFAULT,
-      hover: colors.primary.dark,
-      text: colors.text.primary,
+      bg: '#6366f1', // colors.primary.DEFAULT
+      border: '#6366f1', // colors.primary.DEFAULT
+      hover: '#4f46e5', // colors.primary.dark
+      text: '#ffffff', // colors.text.primary
       tailwind: 'bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700 text-sm',
     },
     success: {
-      bg: colors.success.DEFAULT,
-      border: colors.success.DEFAULT,
-      hover: colors.success.dark,
-      text: colors.text.primary,
+      bg: '#10b981', // colors.success.DEFAULT
+      border: '#10b981', // colors.success.DEFAULT
+      hover: '#059669', // colors.success.dark
+      text: '#ffffff', // colors.text.primary
       tailwind: 'bg-green-600 border-green-600 text-white hover:bg-green-700',
     },
     error: {
-      bg: colors.error.DEFAULT,
-      border: colors.error.DEFAULT,
-      hover: colors.error.dark,
-      text: colors.text.primary,
+      bg: '#ef4444', // colors.error.DEFAULT
+      border: '#ef4444', // colors.error.DEFAULT
+      hover: '#dc2626', // colors.error.dark
+      text: '#ffffff', // colors.text.primary
       tailwind: 'bg-red-600 border-red-600 text-white hover:bg-red-700',
     },
     edit: {
-      bg: colors.warning.DEFAULT,
-      border: colors.warning.DEFAULT,
-      hover: colors.warning.dark,
-      text: colors.text.primary,
+      bg: '#f59e0b', // colors.warning.DEFAULT
+      border: '#f59e0b', // colors.warning.DEFAULT
+      hover: '#d97706', // colors.warning.dark
+      text: '#ffffff', // colors.text.primary
       tailwind: 'bg-amber-600 border-amber-600 text-white hover:bg-amber-700',
     },
     info: {
-      bg: colors.info.DEFAULT,
-      border: colors.info.DEFAULT,
-      hover: colors.info.dark,
-      text: colors.text.primary,
+      bg: '#3b82f6', // colors.info.DEFAULT
+      border: '#3b82f6', // colors.info.DEFAULT
+      hover: '#2563eb', // colors.info.dark
+      text: '#ffffff', // colors.text.primary
       tailwind: 'bg-blue-600 border-blue-600 text-white hover:bg-blue-700',
     },
     logOut: {
-      bg: colors.gray[800],
-      border: colors.gray[700],
-      hover: colors.gray[700],
-      text: colors.text.secondary,
+      bg: '#1f2937', // colors.gray[800]
+      border: '#374151', // colors.gray[700]
+      hover: '#374151', // colors.gray[700]
+      text: '#e5e7eb', // colors.text.secondary
       tailwind: 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700',
     },
     logIn: {
-      bg: colors.gray[800],
-      border: colors.gray[700],
-      hover: colors.gray[700],
-      text: colors.text.secondary,
+      bg: '#1f2937', // colors.gray[800]
+      border: '#374151', // colors.gray[700]
+      hover: '#374151', // colors.gray[700]
+      text: '#e5e7eb', // colors.text.secondary
       tailwind: 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700',
     },
     disabled: {
-      bg: colors.gray[800],
-      border: colors.gray[700],
-      text: colors.text.muted,
+      bg: '#1f2937', // colors.gray[800]
+      border: '#374151', // colors.gray[700]
+      text: '#6b7280', // colors.text.muted
       opacity: 0.5,
       tailwind: 'bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed opacity-50',
     },
@@ -174,45 +174,45 @@ export const colors = {
   // Badge colors mapping (includes hex values and Tailwind classes)
   badge: {
     default: {
-      bg: `${colors.gray[700]}`,
-      text: colors.text.secondary,
-      border: colors.gray[600],
+      bg: '#374151', // colors.gray[700]
+      text: '#e5e7eb', // colors.text.secondary
+      border: '#4b5563', // colors.gray[600]
       tailwind: 'bg-gray-700 text-gray-300 border border-gray-600',
     },
     success: {
-      bg: `${colors.success.bg}4D`, // with transparency
-      text: colors.success.light,
-      border: `${colors.success.border}80`, // with transparency
+      bg: '#065f464D', // colors.success.bg with transparency
+      text: '#34d399', // colors.success.light
+      border: '#04785780', // colors.success.border with transparency
       tailwind: 'bg-green-900/30 text-green-400 border border-green-700/50',
     },
     error: {
-      bg: `${colors.error.bg}4D`,
-      text: colors.error.light,
-      border: `${colors.error.border}80`,
+      bg: '#991b1b4D', // colors.error.bg with transparency
+      text: '#f87171', // colors.error.light
+      border: '#b91c1c80', // colors.error.border with transparency
       tailwind: 'bg-red-900/30 text-red-400 border border-red-700/50',
     },
     warning: {
-      bg: `${colors.warning.bg}4D`,
-      text: colors.warning.light,
-      border: `${colors.warning.border}80`,
+      bg: '#78350f4D', // colors.warning.bg with transparency
+      text: '#fbbf24', // colors.warning.light
+      border: '#92400e80', // colors.warning.border with transparency
       tailwind: 'bg-amber-900/30 text-amber-400 border border-amber-700/50',
     },
     info: {
-      bg: `${colors.info.bg}4D`,
-      text: colors.info.light,
-      border: `${colors.info.border}80`,
+      bg: '#1e3a8a4D', // colors.info.bg with transparency
+      text: '#60a5fa', // colors.info.light
+      border: '#1e40af80', // colors.info.border with transparency
       tailwind: 'bg-blue-900/30 text-blue-400 border border-blue-700/50',
     },
     green: {
-      bg: `${colors.success.bg}4D`,
-      text: colors.success.light,
-      border: `${colors.success.border}80`,
+      bg: '#065f464D', // colors.success.bg with transparency
+      text: '#34d399', // colors.success.light
+      border: '#04785780', // colors.success.border with transparency
       tailwind: 'bg-green-900/30 text-green-400 border border-green-700/50',
     },
     red: {
-      bg: `${colors.error.bg}4D`,
-      text: colors.error.light,
-      border: `${colors.error.border}80`,
+      bg: '#991b1b4D', // colors.error.bg with transparency
+      text: '#f87171', // colors.error.light
+      border: '#b91c1c80', // colors.error.border with transparency
       tailwind: 'bg-red-900/30 text-red-400 border border-red-700/50',
     },
   },
