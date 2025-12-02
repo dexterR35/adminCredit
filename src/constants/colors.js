@@ -52,7 +52,7 @@ export const colors = {
     border: '#1e40af', // blue-700
   },
   
-  // Neutral colors (dark theme)
+  // Neutral colors (dark theme) - softer, more modern
   gray: {
     50: '#f9fafb',
     100: '#f3f4f6',
@@ -62,15 +62,17 @@ export const colors = {
     500: '#6b7280',
     600: '#4b5563',
     700: '#374151',
-    800: '#1f2937',
-    900: '#111827',
+    800: '#1e293b', // softer slate-800
+    850: '#0f172a', // slate-900
+    900: '#0a0e1a', // very dark, almost black
   },
   
-  // Background colors
+  // Background colors - modern dark theme
   background: {
-    primary: '#111827', // gray-900
-    secondary: '#1f2937', // gray-800
-    tertiary: '#374151', // gray-700
+    primary: '#0f172a', // slate-900 - main background
+    secondary: '#1e293b', // slate-800 - cards, sidebars
+    tertiary: '#334155', // slate-700 - elevated elements
+    elevated: '#1e293b', // slate-800
   },
   
   // Border colors

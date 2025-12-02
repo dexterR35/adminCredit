@@ -49,23 +49,23 @@ const HomePage = ({ user }) => {
     return (
         <div className="space-y-8 animate-fade-in">
             {/* Welcome Section */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-xl">
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 backdrop-blur-sm">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-4xl font-bold mb-2">Welcome back, {userName}!</h1>
+                        <h1 className="text-2xl font-semibold text-slate-100 mb-2">Welcome back, {userName}!</h1>
                         <CurrentDateTimeComp />
                     </div>
-                    <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <span className="text-3xl">👋</span>
+                    <div className="w-16 h-16 rounded-full bg-indigo-600/20 flex items-center justify-center">
+                        <span className="text-2xl">👋</span>
                     </div>
                 </div>
             </div>
 
             {/* Stats Cards Grid */}
             <div>
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full"></div>
-                    <h2 className="text-2xl font-bold text-white">Dashboard Overview</h2>
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="w-1 h-8 bg-indigo-600 rounded-full"></div>
+                    <h2 className="text-xl font-semibold text-slate-100">Dashboard Overview</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                     {cardData.map((card, index) => (
@@ -77,7 +77,7 @@ const HomePage = ({ user }) => {
             </div>
 
             {/* Reports Section */}
-            <div className="rounded-xl p-6 border border-gray-700 bg-gray-900 shadow-lg">
+            <div className="rounded-xl p-6 border border-slate-700/50 bg-slate-800/50 backdrop-blur-sm">
                 <NewRaportTable />
             </div>
         </div>

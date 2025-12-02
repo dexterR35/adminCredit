@@ -225,7 +225,7 @@ const DynamicTable = ({
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
-          <p className="text-gray-300 font-medium">Loading...</p>
+          <p className="text-slate-300 font-medium">Loading...</p>
         </div>
       </div>
     );
@@ -238,14 +238,14 @@ const DynamicTable = ({
         {title && (
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-1">{title}</h2>
+              <h2 className="text-2xl font-semibold text-slate-100 mb-1">{title}</h2>
               {linkTable && (
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-slate-400">
                   Info:{" "}
                   <a
                     href={linkTable}
                     target="_blank"
-                    className="text-indigo-400 font-medium"
+                    className="text-indigo-400 font-medium hover:text-indigo-300 transition-colors"
                     rel="noopener noreferrer"
                   >
                     {linkTable.replace("https://", "")}
@@ -259,7 +259,7 @@ const DynamicTable = ({
                 value={globalFilter ?? ""}
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 placeholder="Search..."
-                className="w-full sm:w-64 px-4 py-2 pl-10 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all"
+                className="w-full sm:w-64 px-4 py-2 pl-10 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                 style={{ 
                   border: `1px solid ${colors.border.primary}`,
                   '--tw-ring-color': colors.primary.DEFAULT,
@@ -273,7 +273,7 @@ const DynamicTable = ({
                   e.target.style.boxShadow = 'none';
                 }}
               />
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -287,7 +287,7 @@ const DynamicTable = ({
                 value={globalFilter ?? ""}
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 placeholder="Search..."
-                className="w-full sm:w-64 px-4 py-2 pl-10 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all"
+                className="w-full sm:w-64 px-4 py-2 pl-10 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                 style={{ 
                   border: `1px solid ${colors.border.primary}`,
                   '--tw-ring-color': colors.primary.DEFAULT,
@@ -301,7 +301,7 @@ const DynamicTable = ({
                   e.target.style.boxShadow = 'none';
                 }}
               />
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -311,7 +311,7 @@ const DynamicTable = ({
         {/* Action Buttons - Only show when rows are selected */}
         {actions && actions.length > 0 && table.getSelectedRowModel().flatRows.length > 0 && (
           <div 
-            className="flex flex-wrap justify-end gap-2 mb-6 p-4 bg-gray-800 rounded-lg"
+            className="flex flex-wrap justify-end gap-2 mb-6 p-4 bg-slate-800/50 border border-slate-700/50 rounded-lg"
             style={{ border: `1px solid ${colors.border.primary}` }}
           >
             <div className="flex items-center gap-3 mr-auto">
@@ -343,7 +343,7 @@ const DynamicTable = ({
 
         {/* Table */}
         <div 
-          className="rounded-xl overflow-hidden bg-gray-900 shadow-lg"
+          className="rounded-xl overflow-hidden bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm"
           style={{ border: `1px solid ${colors.border.primary}` }}
         >
           <div className="overflow-x-auto">
@@ -352,13 +352,13 @@ const DynamicTable = ({
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr
                     key={headerGroup.id}
-                    className="bg-gray-800"
+                    className="bg-slate-800/70"
                     style={{ borderBottom: `1px solid ${colors.border.primary}` }}
                   >
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wider"
+                        className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider"
                         style={{ width: header.getSize() }}
                       >
                         {header.isPlaceholder ? null : (
@@ -375,7 +375,7 @@ const DynamicTable = ({
                               header.getContext()
                             )}
                             {header.column.getCanSort() && (
-                              <span className="text-gray-500 group-hover:text-indigo-400 transition-colors">
+                              <span className="text-slate-500 group-hover:text-indigo-400 transition-colors">
                                 {{
                                   asc: " ↑",
                                   desc: " ↓",
@@ -389,7 +389,7 @@ const DynamicTable = ({
                   </tr>
                 ))}
               </thead>
-              <tbody className="bg-gray-900" style={{ borderColor: colors.border.primary }}>
+              <tbody className="bg-slate-800/30" style={{ borderColor: colors.border.primary + '40' }}>
                 {table.getRowModel().rows.length === 0 ? (
                   <tr>
                     <td
@@ -397,10 +397,10 @@ const DynamicTable = ({
                       className="px-6 py-12 text-center"
                     >
                       <div className="flex flex-col items-center gap-3">
-                        <svg className="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                         </svg>
-                        <p className="text-gray-400 font-medium">No data available</p>
+                        <p className="text-slate-400 font-medium">No data available</p>
                       </div>
                     </td>
                   </tr>
@@ -415,15 +415,15 @@ const DynamicTable = ({
                       }}
                       className={`${
                         row.getIsSelected() 
-                          ? "bg-gray-800" 
-                          : "bg-gray-900"
-                      } transition-colors ${actions && actions.length > 0 ? "cursor-pointer hover:bg-gray-800/50" : ""}`}
+                          ? "bg-indigo-600/20 border-l-2 border-indigo-500" 
+                          : "bg-slate-800/30"
+                      } transition-colors ${actions && actions.length > 0 ? "cursor-pointer hover:bg-slate-700/50" : ""}`}
                       style={index < array.length - 1 ? { borderBottom: `1px solid ${colors.border.primary}40` } : {}}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <td
                           key={cell.id}
-                          className="px-6 py-4 text-sm text-gray-200"
+                          className="px-6 py-4 text-sm text-slate-200"
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -440,14 +440,13 @@ const DynamicTable = ({
 
           {/* Pagination */}
           <div 
-            className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-gray-800"
-            style={{ borderTop: `1px solid ${colors.border.primary}` }}
+            className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-slate-800/50 border-t border-slate-700/50"
           >
             <div className="flex items-center gap-2">
               <button
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-2 rounded-lg bg-gray-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:bg-gray-700"
+                className="px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:bg-slate-700/50"
                 style={{ border: `1px solid ${colors.border.primary}` }}
                 title="First page"
               >
@@ -456,7 +455,7 @@ const DynamicTable = ({
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-2 rounded-lg bg-gray-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:bg-gray-700"
+                className="px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:bg-slate-700/50"
                 style={{ border: `1px solid ${colors.border.primary}` }}
                 title="Previous page"
               >
@@ -465,7 +464,7 @@ const DynamicTable = ({
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-2 rounded-lg bg-gray-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:bg-gray-700"
+                className="px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:bg-slate-700/50"
                 style={{ border: `1px solid ${colors.border.primary}` }}
                 title="Next page"
               >
@@ -474,7 +473,7 @@ const DynamicTable = ({
               <button
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-2 rounded-lg bg-gray-800 text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:bg-gray-700"
+                className="px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:bg-slate-700/50"
                 style={{ border: `1px solid ${colors.border.primary}` }}
                 title="Last page"
               >
@@ -482,13 +481,13 @@ const DynamicTable = ({
               </button>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-slate-400">
                 Page{" "}
-                <strong className="text-white">
+                <strong className="text-slate-100">
                   {table.getState().pagination.pageIndex + 1}
                 </strong>
                 {" "}of{" "}
-                <strong className="text-white">
+                <strong className="text-slate-100">
                   {table.getPageCount()}
                 </strong>
               </span>
@@ -497,7 +496,7 @@ const DynamicTable = ({
                 onChange={(e) => {
                   table.setPageSize(Number(e.target.value));
                 }}
-                className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 transition-all"
+                className="px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                 style={{ 
                   border: `1px solid ${colors.border.primary}`,
                   '--tw-ring-color': colors.primary.DEFAULT,

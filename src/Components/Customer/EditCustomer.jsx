@@ -140,10 +140,10 @@ const EditCustomer = ({ customer, isOpen, onClose, onUpdate, updateCustomer }) =
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Customer">
-        <form onSubmit={handleSubmit} className="space-y-4 p-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 Name
               </label>
               <input
@@ -151,13 +151,13 @@ const EditCustomer = ({ customer, isOpen, onClose, onUpdate, updateCustomer }) =
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 Phone
               </label>
               <input
@@ -165,12 +165,12 @@ const EditCustomer = ({ customer, isOpen, onClose, onUpdate, updateCustomer }) =
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 Email
               </label>
               <input
@@ -178,12 +178,12 @@ const EditCustomer = ({ customer, isOpen, onClose, onUpdate, updateCustomer }) =
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 Job Date
               </label>
               <input
@@ -191,58 +191,58 @@ const EditCustomer = ({ customer, isOpen, onClose, onUpdate, updateCustomer }) =
                 name="selectedDate"
                 value={formData.selectedDate}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 Banks (comma-separated)
               </label>
               <input
                 type="text"
                 value={Array.isArray(formData.banks) ? formData.banks.join(", ") : ""}
                 onChange={(e) => handleArrayChange("banks", e.target.value)}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                 placeholder="Bank1, Bank2, Bank3"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 IFN (comma-separated)
               </label>
               <input
                 type="text"
                 value={Array.isArray(formData.ifn) ? formData.ifn.join(", ") : ""}
                 onChange={(e) => handleArrayChange("ifn", e.target.value)}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                 placeholder="IFN1, IFN2, IFN3"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 Others (comma-separated)
               </label>
               <input
                 type="text"
                 value={Array.isArray(formData.others) ? formData.others.join(", ") : ""}
                 onChange={(e) => handleArrayChange("others", e.target.value)}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                 placeholder="Other1, Other2"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
                 Status
               </label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
               >
                 <option value="">Select Status</option>
                 <option value="active">Active</option>
@@ -275,9 +275,9 @@ const EditCustomer = ({ customer, isOpen, onClose, onUpdate, updateCustomer }) =
                 name="bankHistory"
                 checked={formData.bankHistory}
                 onChange={handleChange}
-                className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 rounded focus:ring-indigo-500"
+                className="w-4 h-4 text-indigo-600 bg-slate-700/50 border-slate-600 rounded focus:ring-indigo-500"
               />
-              <span className="text-sm text-gray-300">Has Bank History</span>
+              <span className="text-sm text-slate-300">Has Bank History</span>
             </label>
 
             <label className="flex items-center gap-2">
@@ -286,9 +286,9 @@ const EditCustomer = ({ customer, isOpen, onClose, onUpdate, updateCustomer }) =
                 name="bankStatus"
                 checked={formData.bankStatus}
                 onChange={handleChange}
-                className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 rounded focus:ring-indigo-500"
+                className="w-4 h-4 text-indigo-600 bg-slate-700/50 border-slate-600 rounded focus:ring-indigo-500"
               />
-              <span className="text-sm text-gray-300">Negative Report</span>
+              <span className="text-sm text-slate-300">Negative Report</span>
             </label>
           </div>
 

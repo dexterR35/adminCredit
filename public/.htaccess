@@ -1,5 +1,6 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  RewriteBase /
   
   # Don't rewrite files or directories
   RewriteCond %{REQUEST_FILENAME} !-f
@@ -8,4 +9,3 @@
   # Rewrite everything else to index.html to allow client-side routing
   RewriteRule ^ index.html [L]
 </IfModule>
-

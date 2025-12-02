@@ -27,7 +27,7 @@ function AsideMenu() {
     return (
         <div className='w-full h-full flex flex-col p-4'>
             {/* Navigation Links */}
-            <nav className="flex-1 pt-6">
+            <nav className="flex-1 pt-4">
                 <ul className='flex flex-col space-y-1'>
                     {links.map((link, index) => {
                         const isActive = location.pathname === link.path;
@@ -35,13 +35,13 @@ function AsideMenu() {
                             <li key={index}>
                                 <Link 
                                     to={link.path}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm ${
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
                                         isActive 
-                                            ? 'bg-indigo-600 text-white shadow-md' 
-                                            : 'text-gray-300'
+                                            ? 'bg-indigo-600/90 text-white' 
+                                            : 'text-slate-300 hover:text-slate-100 hover:bg-slate-700/50'
                                     }`}
                                 >
-                                    <span className="text-lg">
+                                    <span className="text-xl">
                                         {link.icon}
                                     </span>
                                     <span className="capitalize">{link.label}</span>
@@ -53,12 +53,12 @@ function AsideMenu() {
             </nav>
             
             {/* Logout Button */}
-            <div className="pt-4 pb-6 border-t border-gray-700">
+            <div className="pt-4 pb-4 border-t border-slate-700/50">
                 <CustomButton 
                     text='Logout' 
                     buttonType="logOut" 
                     onClick={handleLogout}
-                    additionalClasses="w-full justify-center shadow-sm bg-gray-700 text-white border-gray-600" 
+                    additionalClasses="w-full justify-center text-sm" 
                 />
             </div>
         </div>
