@@ -17,7 +17,9 @@ export const normalizeFisaStatus = (status) => {
 
   if (value === "approved" || value === "approve") return "Approved";
   if (value === "denied" || value === "deny" || value === "rejected") return "Denied";
-  if (value === "pending" || value === "new" || value === "") return "Pending";
+  if (value === "pending" || value === "new" || value === "submitted" || value === "") {
+    return "Pending";
+  }
 
   const match = FISA_REPORT_STATUSES.find(
     (item) => item.toLowerCase() === value

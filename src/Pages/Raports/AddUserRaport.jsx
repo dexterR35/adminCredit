@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import PropTypes from "prop-types";
 import { Formik, Form, Field } from "formik";
 import { useBlocker, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -73,7 +74,7 @@ const ReviewSummary = ({ values, allFields, steps, showConsultantMeta }) => {
                 <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
                   {field.label}
                 </dt>
-                <dd className="mt-1 text-sm font-medium text-gray-900 break-words">
+                <dd className="mt-1 text-sm font-medium text-gray-900 wrap-break-word">
                   {formatReviewValue(field, values[field.name], allFields, values)}
                 </dd>
               </div>
@@ -83,6 +84,13 @@ const ReviewSummary = ({ values, allFields, steps, showConsultantMeta }) => {
       ))}
     </div>
   );
+};
+
+ReviewSummary.propTypes = {
+  values: PropTypes.object.isRequired,
+  allFields: PropTypes.arrayOf(PropTypes.object).isRequired,
+  steps: PropTypes.arrayOf(PropTypes.object).isRequired,
+  showConsultantMeta: PropTypes.bool,
 };
 
 const StepFields = ({ fields, touched, errors }) => (
@@ -105,6 +113,12 @@ const StepFields = ({ fields, touched, errors }) => (
     ))}
   </div>
 );
+
+StepFields.propTypes = {
+  fields: PropTypes.arrayOf(PropTypes.object).isRequired,
+  touched: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
+};
 
 const FormUser = () => {
   const navigate = useNavigate();
