@@ -12,7 +12,7 @@ const FisaConsultantBanner = ({ userName, date }) => (
       </div>
     </div>
     <div className="rounded-lg border border-primary-100 bg-white px-3 py-2 sm:text-right">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Dată</p>
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Date</p>
       <p className="text-sm font-medium text-gray-900">{date}</p>
     </div>
   </div>

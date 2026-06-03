@@ -47,10 +47,10 @@ const HomePage = () => {
       accent: 'success',
     },
     {
-      _one: isAdmin ? 'All Fisa Reports' : 'My Fisa Reports',
+      _one: isAdmin ? 'All Client Records' : 'My Client Records',
       _two: fisaTotal,
-      _three: lastReportName || "No reports yet",
-      icon: 'FcBearish',
+      _three: lastReportName || "No records yet",
+      icon: 'IconPrint',
       accent: 'warning',
     },
   ];
@@ -78,7 +78,7 @@ const HomePage = () => {
       <section className="dash-card">
         <div className="dash-card-header">
           <div>
-            <h2 className="text-lg font-display font-semibold text-gray-900">Fisa Client Reports</h2>
+            <h2 className="text-lg font-display font-semibold text-gray-900">Client Records</h2>
             <p className="text-sm text-gray-500">
               {isAdmin ? "All consultant reports" : "Your reports only"}
             </p>

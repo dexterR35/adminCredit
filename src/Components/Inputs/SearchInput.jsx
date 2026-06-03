@@ -20,7 +20,7 @@ const SearchInput = ({
         type="text"
         value={value ?? ""}
         placeholder={placeholder}
-        className={inputClassName({ className: "h-10 w-full pl-10 sm:w-72" })}
+        className={inputClassName({ className: "h-10 w-full pl-10" })}
         {...props}
         {...handlers}
       />

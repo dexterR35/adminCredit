@@ -1,17 +1,9 @@
-import IconR from "../../utils/_Icon";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { IoClose } from "react-icons/io5";
+import { HiOutlineArrowRightOnRectangle, HiOutlineXMark } from "react-icons/hi2";
 import { toast } from "react-toastify";
-import { Button } from "../../Buttons";
 import { Logout } from "../../../services/Hooks";
+import { APP_NAME, NAV_ITEMS } from "../navConfig";
 import PropTypes from "prop-types";
-
-const NAV_LINKS = [
-  { path: "/home", label: "Dashboard", icon: "FcHome" },
-  { path: "/customers", label: "Web Clients", icon: "businessMan" },
-  { path: "/contract", label: "Contracts", icon: "FcReading" },
-  { path: "/newraport", label: "Fisa Clientului", icon: "FcBearish" },
-];
 
 function AsideMenu({ isOpen = false, onClose = () => {} }) {
   const location = useLocation();
@@ -36,7 +28,7 @@ function AsideMenu({ isOpen = false, onClose = () => {} }) {
       <div className="dash-sidebar-brand">
         <div className="dash-sidebar-logo">OC</div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-display font-bold text-gray-900">Obtine Credit</p>
+          <p className="truncate text-sm font-display font-bold text-gray-900">{APP_NAME}</p>
           <p className="truncate text-xs text-gray-500">Admin Dashboard</p>
         </div>
         <button
@@ -45,28 +37,35 @@ function AsideMenu({ isOpen = false, onClose = () => {} }) {
           onClick={onClose}
           aria-label="Close menu"
         >
-          <IoClose className="h-5 w-5" aria-hidden />
+          <HiOutlineXMark className="h-5 w-5" aria-hidden />
         </button>
       </div>
 
-      <nav className="dash-sidebar-nav">
+      <nav className="dash-sidebar-nav" aria-label="Main navigation">
         <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-          Navigation
+          Menu
         </p>
         <ul className="space-y-1">
-          {NAV_LINKS.map((link) => {
+          {NAV_ITEMS.map((link) => {
             const isActive = location.pathname === link.path;
+            const Icon = link.icon;
             return (
               <li key={link.path}>
                 <Link
                   to={link.path}
                   onClick={handleNavClick}
-                  className={`dash-nav-link ${isActive ? "dash-nav-link--active" : ""}`}
+                  className={`group dash-nav-link ${isActive ? "dash-nav-link--active" : ""}`}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   <span className="dash-nav-icon">
-                    <IconR icon={link.icon} />
+                    <Icon className="h-5 w-5" aria-hidden />
                   </span>
-                  <span>{link.label}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{link.label}</span>
+                    <span className="mt-0.5 block truncate text-[11px] font-normal text-gray-400 group-hover:text-gray-500">
+                      {link.description}
+                    </span>
+                  </span>
                 </Link>
               </li>
             );
@@ -75,14 +74,14 @@ function AsideMenu({ isOpen = false, onClose = () => {} }) {
       </nav>
 
       <div className="border-t border-gray-100 p-4">
-        <Button
-          text="Logout"
-          variant="ghost"
-          icon="IoLogout"
+        <button
+          type="button"
+          className="dash-sidebar-logout"
           onClick={handleLogout}
-          fullWidth
-          size="sm"
-        />
+        >
+          <HiOutlineArrowRightOnRectangle className="h-5 w-5 shrink-0" aria-hidden />
+          <span>Sign out</span>
+        </button>
       </div>
     </aside>
   );

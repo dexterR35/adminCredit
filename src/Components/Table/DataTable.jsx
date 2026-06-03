@@ -7,16 +7,16 @@ import {
   getFilteredRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { ConfirmModal } from "../Modal";
+import { toast } from "react-toastify";
+import { ConfirmModal, DeleteConfirmModal, getTableDeleteConfirm } from "../Modal";
 import { SearchInput, Select, inputClassName } from "../Inputs";
 import { Button } from "../Buttons";
 import { TableBadge } from "./tableBadges";
 import { getActionButtonType } from "./tableActions";
 import { sanitizeUrlForHref } from "../../utils/sanitize";
 import { useTrackLoading } from "../LoadingProgress";
-
-const DEFAULT_DELETE_TITLE = "Confirm Delete";
-const DEFAULT_DELETE_MESSAGE = "Are you sure you want to delete this item?";
+import ExportColumnsModal from "./ExportColumnsModal";
+import { exportRowsToCsv, resolveExportColumns } from "./tableExport";
 
 const DataTable = ({
   columns,
@@ -27,16 +27,19 @@ const DataTable = ({
   linkTable = "",
   searchPlaceholder = "Search records...",
   emptyMessage = "No data available",
-  deleteDialogTitle = DEFAULT_DELETE_TITLE,
-  deleteDialogContent = DEFAULT_DELETE_MESSAGE,
   enableRowSelection = true,
   onRowClick,
   pageSize = 10,
+  enableExport = true,
+  exportColumns,
+  exportFileName = "export",
 }) => {
   const [pendingConfirm, setPendingConfirm] = useState(null);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
   const [rowSelection, setRowSelection] = useState({});
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const rowClickable = typeof onRowClick === "function";
   const selectable = enableRowSelection && actions.length > 0 && !rowClickable;
@@ -134,6 +137,35 @@ const DataTable = ({
   });
 
   const selectedRows = table.getSelectedRowModel().flatRows;
+  const resolvedExportColumns = useMemo(
+    () => resolveExportColumns(columns, exportColumns),
+    [columns, exportColumns]
+  );
+  const filteredRows = table.getFilteredRowModel().rows.map((row) => row.original);
+  const showExport = enableExport && resolvedExportColumns.length > 0;
+
+  const handleExport = (selectedKeys) => {
+    setExporting(true);
+    try {
+      const didExport = exportRowsToCsv({
+        rows: filteredRows,
+        columns: resolvedExportColumns,
+        selectedKeys,
+        fileName: exportFileName,
+      });
+
+      if (didExport) {
+        toast.success(`Exported ${filteredRows.length} row(s) to CSV.`);
+        setExportModalOpen(false);
+      } else {
+        toast.error("Nothing to export.");
+      }
+    } catch (error) {
+      toast.error(error.message || "Could not export CSV.");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const runAction = (action, rows) => {
     rows.forEach((row) => action.onClick?.(row.original));
@@ -161,8 +193,7 @@ const DataTable = ({
   return (
     <>
       <div className="space-y-5">
-        <div className={`flex flex-col gap-4 ${title ? "sm:flex-row sm:items-start sm:justify-between" : "sm:flex-row sm:justify-end"}`}>
-          {title && (
+        {title && (
             <div>
               <h2 className="text-lg font-display font-semibold text-gray-900">{title}</h2>
               {safeLinkTable && (
@@ -181,11 +212,23 @@ const DataTable = ({
             </div>
           )}
 
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <SearchInput
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             placeholder={searchPlaceholder}
+            className="w-full sm:flex-1"
           />
+          {showExport && (
+            <Button
+              type="button"
+              variant="secondary"
+              text="Export CSV"
+              onClick={() => setExportModalOpen(true)}
+              disabled={loading || filteredRows.length === 0}
+              className="w-full shrink-0 sm:w-auto"
+            />
+          )}
         </div>
 
         {selectable && selectedRows.length > 0 && (
@@ -317,15 +360,33 @@ const DataTable = ({
         </div>
       </div>
 
-      <ConfirmModal
-        isOpen={!!pendingConfirm}
-        onClose={() => setPendingConfirm(null)}
-        onConfirm={confirmPendingAction}
-        title={pendingConfirm?.action.confirmTitle || deleteDialogTitle}
-        message={pendingConfirm?.action.confirmMessage || deleteDialogContent}
-        confirmText="Yes, Delete"
-        cancelText="No, Cancel"
-        confirmButtonType="delete"
+      {pendingConfirm?.action?.id === "delete" ? (
+        <DeleteConfirmModal
+          isOpen
+          onClose={() => setPendingConfirm(null)}
+          onConfirm={confirmPendingAction}
+          {...getTableDeleteConfirm(pendingConfirm.rows)}
+        />
+      ) : (
+        <ConfirmModal
+          isOpen={!!pendingConfirm}
+          onClose={() => setPendingConfirm(null)}
+          onConfirm={confirmPendingAction}
+          title={pendingConfirm?.action?.confirmTitle || "Are you sure?"}
+          message={pendingConfirm?.action?.confirmMessage || "Continue with this action?"}
+          confirmText={pendingConfirm?.action?.confirmText || "Yes"}
+          cancelText={pendingConfirm?.action?.cancelText || "No"}
+          confirmButtonType={pendingConfirm?.action?.confirmButtonType || "primary"}
+        />
+      )}
+
+      <ExportColumnsModal
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        columns={resolvedExportColumns}
+        rowCount={filteredRows.length}
+        onExport={handleExport}
+        exporting={exporting}
       />
     </>
   );

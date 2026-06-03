@@ -26,7 +26,7 @@ const FisaReportStepper = ({
               <Tabs.Item key={step.id}>
                 <Tab
                   label={step.title}
-                  index={index}
+                  showIndex={false}
                   isActive={isActive}
                   isCompleted={isCompleted}
                   disabled={!isReachable}

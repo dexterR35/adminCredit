@@ -10,8 +10,6 @@ import ContractTable from "./Pages/ContractTable/ContractTable";
 import ClientsWebPage from "./Pages/ClientsWebPage/ClientsWebPage";
 import FormUser from "./Pages/Raports/AddUserRaport";
 import LoginPage from "./Pages/Auth/LoginPage";
-import ConsultantPage from "./Pages/Consultant/ConsultantPage";
-import CreateConsultant from "./Components/Consultant/CreateConsultant";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoadingProgressProvider } from "./context/LoadingProgressContext";
 import { ToastContainer } from "react-toastify";
@@ -35,14 +33,6 @@ const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
-  return <MainLayout>{children}</MainLayout>;
-};
-
-const AdminRoute = ({ children }) => {
-  const { user, loading, isAdmin } = useAuth();
-  if (loading) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace />;
-  if (!isAdmin) return <Navigate to="/home" replace />;
   return <MainLayout>{children}</MainLayout>;
 };
 
@@ -104,22 +94,6 @@ const router = createBrowserRouter(
           element: (
             <ProtectedRoute>
               <FormUser />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: "/CreateConsultant",
-          element: (
-            <AdminRoute>
-              <CreateConsultant />
-            </AdminRoute>
-          ),
-        },
-        {
-          path: "/consultant",
-          element: (
-            <ProtectedRoute>
-              <ConsultantPage />
             </ProtectedRoute>
           ),
         },

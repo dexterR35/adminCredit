@@ -46,7 +46,7 @@ create table if not exists public.fisa_reports (
   today_date text,
   pdf_url text,
   photo_url text,
-  user_status text not null default 'New',
+  user_status text not null default 'Pending',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -106,10 +106,19 @@ create policy "web clients read scoped"
   );
 
 drop policy if exists "web clients update admin" on public.credit_applications;
-create policy "web clients update admin"
+drop policy if exists "web clients update scoped" on public.credit_applications;
+create policy "web clients update scoped"
   on public.credit_applications for update to authenticated
-  using (public.is_admin())
-  with check (public.is_admin());
+  using (
+    public.is_admin()
+    or assigned_user_id = auth.uid()
+    or assigned_user_id is null
+  )
+  with check (
+    public.is_admin()
+    or assigned_user_id = auth.uid()
+    or assigned_user_id is null
+  );
 
 drop policy if exists "web clients delete admin" on public.credit_applications;
 create policy "web clients delete admin"
@@ -124,7 +133,7 @@ create policy "institutions read scoped"
     exists (
       select 1
       from public.credit_applications ca
-      where ca.id = credit_application_id
+      where ca.id = application_id
         and (
           public.is_admin()
           or ca.assigned_user_id = auth.uid()

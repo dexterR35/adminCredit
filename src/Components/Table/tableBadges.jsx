@@ -2,9 +2,11 @@ import Badge from "../Badge/Badge";
 import {
   yesNoBadgeVariant,
   presenceBadgeVariant,
+  PHONE_BADGE_PRESET,
   resolveBadgeVariant,
 } from "../Badge/badgeStyles";
 import { sanitizeUrlForHref } from "../../utils/sanitize";
+import { openTelLink } from "../../utils/phone";
 
 const TABLE_BADGE_CLASS = "dash-table-badge";
 
@@ -46,7 +48,7 @@ export const LinkDataBadge = ({
   url,
   viewLabel,
   missingLabel,
-  viewVariant = "default",
+  viewVariant = "info",
   missingVariant = "default",
 }) => {
   const safeHref = sanitizeUrlForHref(url);
@@ -75,6 +77,33 @@ export const LinkDataBadge = ({
         {viewLabel}
       </Badge>
     </a>
+  );
+};
+
+/** Clickable phone number — blue info badge, opens tel: link */
+export const PhoneDataBadge = ({
+  phone,
+  emptyLabel = "—",
+  variant = PHONE_BADGE_PRESET.variant,
+}) => {
+  const value = String(phone ?? "").trim();
+
+  if (!value) {
+    return <TableBadge variant="default">{emptyLabel}</TableBadge>;
+  }
+
+  return (
+    <Badge
+      as="button"
+      type="button"
+      variant={resolveBadgeVariant(variant)}
+      size="sm"
+      interactive
+      className={TABLE_BADGE_CLASS}
+      onClick={() => openTelLink(value)}
+    >
+      {value}
+    </Badge>
   );
 };
 

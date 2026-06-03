@@ -11,11 +11,13 @@ export {
   photoColumn,
   pdfColumn,
   signatureColumn,
+  phoneColumn,
   yesNoColumn,
   dataBadgeColumn,
   statusBadgeColumn,
+  fisaStatusBadgeColumn,
 } from "./tableColumns";
-export { TableBadge, DataBadge, LinkDataBadge } from "./tableBadges";
+export { TableBadge, DataBadge, LinkDataBadge, PhoneDataBadge } from "./tableBadges";
 export {
   yesNoBadgeVariant,
   statusBadgeVariant,
@@ -23,3 +25,10 @@ export {
   LINK_BADGE_PRESETS,
 } from "../Badge/badgeStyles";
 export { useDataTable } from "./useDataTable";
+export {
+  resolveExportColumns,
+  exportRowsToCsv,
+  webClientExportColumns,
+  fisaReportExportColumns,
+  contractExportColumns,
+} from "./tableExport";

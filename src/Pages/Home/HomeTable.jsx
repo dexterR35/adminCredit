@@ -5,17 +5,18 @@ import {
   useDataTable,
   photoColumn,
   pdfColumn,
-  statusBadgeColumn,
+  phoneColumn,
+  fisaStatusBadgeColumn,
+  fisaReportExportColumns,
 } from "../../Components/Table";
 import FisaReportDetailModal from "../../Components/Customer/FisaReportDetailModal";
-import { useAuth } from "../../context/AuthContext";
 
 const reportColumns = [
   { accessorKey: "client_full_name", header: "Client" },
   { accessorKey: "today_date", header: "Date" },
-  { accessorKey: "phone", header: "Phone" },
+  phoneColumn(),
   { accessorKey: "client_cnp", header: "CNP" },
-  statusBadgeColumn({ accessorKey: "user_status", header: "Status" }),
+  fisaStatusBadgeColumn({ header: "Status" }),
   photoColumn(),
   pdfColumn(),
   { accessorKey: "created_at_label", header: "Created" },
@@ -27,15 +28,20 @@ const NewRaportTable = ({
   loading = false,
   onDelete,
 }) => {
-  const { isAdmin } = useAuth();
   const [detailReport, setDetailReport] = useState(null);
+
+  const handleReportUpdated = (updated) => {
+    setDetailReport(updated);
+  };
 
   const tableProps = useDataTable({
     data: raports,
     columns: reportColumns,
     loading,
     onRowClick: (report) => setDetailReport(report),
-    emptyMessage: "No fisa reports yet",
+    emptyMessage: "No client records yet",
+    exportColumns: fisaReportExportColumns,
+    exportFileName: "client-records",
   });
 
   return (
@@ -44,8 +50,8 @@ const NewRaportTable = ({
         report={detailReport}
         isOpen={!!detailReport}
         onClose={() => setDetailReport(null)}
-        isAdmin={isAdmin}
-        onDelete={isAdmin ? onDelete : undefined}
+        onDelete={onDelete}
+        onReportUpdated={handleReportUpdated}
       />
       <DataTable {...tableProps} />
     </>

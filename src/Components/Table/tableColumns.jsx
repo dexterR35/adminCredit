@@ -1,10 +1,16 @@
 import {
   LinkDataBadge,
   DataBadge,
+  PhoneDataBadge,
   TableBadge,
   formatCellValue,
 } from "./tableBadges";
-import { LINK_BADGE_PRESETS, statusBadgeVariant } from "../Badge/badgeStyles";
+import {
+  LINK_BADGE_PRESETS,
+  PHONE_BADGE_PRESET,
+  statusBadgeVariant,
+} from "../Badge/badgeStyles";
+import { normalizeFisaStatus } from "../../services/fisaReportStatus";
 
 export { TableBadge, DataBadge, LinkDataBadge, formatCellValue } from "./tableBadges";
 
@@ -14,12 +20,13 @@ export const createLinkBadgeColumn = ({
   size = 120,
   missingLabel = "Missing",
   viewLabel = "View",
-  viewVariant = "default",
+  viewVariant = "info",
   missingVariant = "default",
 }) => ({
   accessorKey,
   header,
   size,
+  exportValue: (row) => row[accessorKey] || "",
   Cell: ({ row }) => (
     <LinkDataBadge
       url={row.original[accessorKey]}
@@ -61,6 +68,30 @@ export const signatureColumn = (options = {}) =>
     ...options,
   });
 
+/** Clickable phone — same blue info badge as View PDF */
+export const phoneColumn = (options = {}) => {
+  const {
+    accessorKey = "phone",
+    header = "Phone",
+    size = 100,
+    emptyLabel = "—",
+  } = options;
+
+  return {
+    accessorKey,
+    header,
+    size,
+    exportValue: (row) => row[accessorKey] || "",
+    Cell: ({ row }) => (
+      <PhoneDataBadge
+        phone={row.original[accessorKey]}
+        emptyLabel={emptyLabel}
+        variant={PHONE_BADGE_PRESET.variant}
+      />
+    ),
+  };
+};
+
 /** Yes / No / — */
 export const yesNoColumn = ({
   accessorKey,
@@ -73,6 +104,12 @@ export const yesNoColumn = ({
   accessorKey,
   header,
   size,
+  exportValue: (row) => {
+    const value = row[accessorKey];
+    if (value === true) return yesLabel;
+    if (value === false) return noLabel;
+    return "";
+  },
   Cell: ({ row }) => (
     <DataBadge
       positive={row.original[accessorKey]}
@@ -107,6 +144,27 @@ export const dataBadgeColumn = ({
       : String(value);
 
     return <TableBadge variant="primary">{display}</TableBadge>;
+  },
+});
+
+/** Fisa report status: Pending / Approved / Denied */
+export const fisaStatusBadgeColumn = ({
+  accessorKey = "user_status",
+  header = "Status",
+  size = 100,
+  emptyLabel = "Pending",
+}) => ({
+  accessorKey,
+  header,
+  size,
+  exportValue: (row) => normalizeFisaStatus(row[accessorKey] || emptyLabel),
+  Cell: ({ row }) => {
+    const raw = formatCellValue(row.original[accessorKey]);
+    const value = normalizeFisaStatus(raw || emptyLabel);
+
+    return (
+      <TableBadge variant={statusBadgeVariant(value)}>{value}</TableBadge>
+    );
   },
 });
 

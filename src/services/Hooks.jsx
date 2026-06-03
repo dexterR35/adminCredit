@@ -10,7 +10,7 @@ import {
 import {
   assignWebClientToUser,
   deleteWebClient,
-  fetchConsultantsForAssignment,
+  fetchUsersForAssignment,
   fetchWebClients,
   updateWebClient,
 } from "./customers";
@@ -23,21 +23,13 @@ import {
   deleteFisaReport,
   fetchFisaReports,
 } from "./fisaReports";
-import {
-  AddConsultant,
-  getAllConsultants,
-  getAllUsers,
-  getConsultantByUserName,
-} from "./consultants";
+import { getAllUsers } from "./consultants";
 
 export {
   checkAuthStatus,
   Login,
   Logout,
-  AddConsultant,
-  getAllConsultants,
   getAllUsers,
-  getConsultantByUserName,
 };
 
 export { FormatTimestamp } from "../utils/date";
@@ -279,10 +271,10 @@ export const addRaport = async (formData, { isAdmin = false } = {}) => {
 
   try {
     const id = await addFisaReport(formData, user.id, { isAdmin });
-    toast.success("Raport added successfully!");
+    toast.success("Client record saved successfully!");
     return id;
   } catch (error) {
-    toast.error(error.message || "Error adding raport.");
+    toast.error(error.message || "Could not save client record.");
     throw error;
   }
 };
@@ -304,25 +296,25 @@ export const useFetchRaportNew = () => {
 };
 
 export const useAssignClient = () => {
-  const [consultants, setConsultants] = useState([]);
-  const [loadingConsultants, setLoadingConsultants] = useState(false);
+  const [assignableUsers, setAssignableUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
-  const loadConsultants = useCallback(async () => {
-    setLoadingConsultants(true);
+  const loadAssignableUsers = useCallback(async () => {
+    setLoadingUsers(true);
     try {
-      const data = await fetchConsultantsForAssignment();
-      setConsultants(data);
+      const data = await fetchUsersForAssignment();
+      setAssignableUsers(data);
     } catch (error) {
-      toast.error(error.message || "Could not load consultants.");
+      toast.error(error.message || "Could not load users.");
     } finally {
-      setLoadingConsultants(false);
+      setLoadingUsers(false);
     }
   }, []);
 
-  const assignClient = async (clientId, consultantId) => {
+  const assignClient = async (clientId, userId) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      await assignWebClientToUser(clientId, consultantId, user?.id);
+      await assignWebClientToUser(clientId, userId, user?.id);
       toast.success("Client assigned successfully!");
     } catch (error) {
       toast.error(error.message || "Could not assign client.");
@@ -330,7 +322,18 @@ export const useAssignClient = () => {
     }
   };
 
-  return { consultants, loadingConsultants, loadConsultants, assignClient };
+  return {
+    assignableUsers,
+    loadingUsers,
+    loadAssignableUsers,
+    assignClient,
+    /** @deprecated use assignableUsers */
+    consultants: assignableUsers,
+    /** @deprecated use loadAssignableUsers */
+    loadConsultants: loadAssignableUsers,
+    /** @deprecated use loadingUsers */
+    loadingConsultants: loadingUsers,
+  };
 };
 
 export const useAuthUser = () => {

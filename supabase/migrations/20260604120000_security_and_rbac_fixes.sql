@@ -40,7 +40,7 @@ create policy "institutions read scoped"
     exists (
       select 1
       from public.credit_applications ca
-      where ca.id = credit_application_id
+      where ca.id = application_id
         and (
           public.is_admin()
           or ca.assigned_user_id = auth.uid()

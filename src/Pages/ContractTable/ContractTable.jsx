@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { DataTable, useDataTable, photoColumn, pdfColumn, signatureColumn } from "../../Components/Table";
+import {
+  DataTable,
+  useDataTable,
+  photoColumn,
+  pdfColumn,
+  phoneColumn,
+  signatureColumn,
+  contractExportColumns,
+} from "../../Components/Table";
 import ContractDetailModal from "../../Components/Customer/ContractDetailModal";
 import { FetchContractData } from "../../services/Hooks";
 import { useAuth } from "../../context/AuthContext";
@@ -7,7 +15,7 @@ import { useAuth } from "../../context/AuthContext";
 const contractColumns = [
   { accessorKey: "first_name", header: "First name", size: 100 },
   { accessorKey: "last_name", header: "Last name", size: 100 },
-  { accessorKey: "phone", header: "Phone", size: 100 },
+  phoneColumn({ size: 100 }),
   { accessorKey: "email", header: "Email", size: 140 },
   photoColumn(),
   pdfColumn(),
@@ -27,6 +35,8 @@ const ContractTable = () => {
     onRowClick: (contract) => setDetailContract(contract),
     linkTable: "https://obtinecredit.ro/contract",
     emptyMessage: "No contracts yet",
+    exportColumns: contractExportColumns,
+    exportFileName: "contracts",
   });
 
   return (
@@ -34,9 +44,7 @@ const ContractTable = () => {
       <div className="dash-page-header">
         <div>
           <h1 className="dash-page-title">Contracts</h1>
-          <p className="dash-page-subtitle">
-            {isAdmin ? "obtinecredit.ro/contract" : "Your contract submissions"}
-          </p>
+          <p className="dash-page-subtitle">obtinecredit.ro/contract</p>
         </div>
       </div>
 

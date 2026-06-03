@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
-import { Modal, ConfirmModal } from "../Modal";
 import { Button } from "../Buttons";
-import { Badge, statusBadgeVariant, yesNoBadgeVariant } from "../Badge";
+import { Badge, yesNoBadgeVariant } from "../Badge";
 import {
   InputField,
   SelectField,
@@ -12,10 +11,21 @@ import {
 import {
   fetchWebClientById,
   REFERRAL_LABELS,
+  updateWebClientStatus,
 } from "../../services/customers";
+import { normalizeFisaStatus } from "../../services/fisaReportStatus";
 import { sanitizeFormValues } from "../../utils/sanitize";
-import { openTelLink } from "../../utils/phone";
 import DetailField from "../Modal/DetailField";
+import { DeleteConfirmModal } from "../Modal";
+import { PhoneDataBadge } from "../Table/tableBadges";
+import {
+  DetailModalShell,
+  DetailModalFooter,
+  DetailStatusSelect,
+  useDetailRefresh,
+  useDetailEditMode,
+  useDetailDelete,
+} from "./detailModal";
 
 const referralOptions = optionsFromEntries(REFERRAL_LABELS);
 
@@ -73,62 +83,58 @@ const ClientDetailModal = ({
   isOpen,
   onClose,
   isAdmin = false,
-  consultants = [],
+  users = [],
   updateCustomer,
   onDelete,
   onAssign,
   onClientUpdated,
   assignLoading = false,
 }) => {
-  const [displayClient, setDisplayClient] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const { isEditing, startEdit, cancelEdit } = useDetailEditMode(isOpen);
   const [editValues, setEditValues] = useState(emptyFormValues);
   const [saving, setSaving] = useState(false);
-  const [selectedConsultantId, setSelectedConsultantId] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [statusValue, setStatusValue] = useState("Pending");
 
-  const canEdit = Boolean(updateCustomer);
-  const fieldsDisabled = !isEditing || !canEdit;
+  const canEditFields = Boolean(updateCustomer);
+  const canDelete = isAdmin && Boolean(onDelete);
+  const canAssign = isAdmin && Boolean(onAssign);
+  const canOpenEditMode = canEditFields || canAssign;
+  const fieldsDisabled = !isEditing || !canEditFields;
+
+  const { row, setDisplayRow } = useDetailRefresh({
+    isOpen,
+    item: client,
+    fetchById: fetchWebClientById,
+    errorMessage: "Could not refresh client details.",
+  });
 
   useEffect(() => {
-    if (!isOpen) {
-      setIsEditing(false);
-      return;
+    if (!isOpen || !row?.id) return;
+    setSelectedUserId(row.assigned_user_id || "");
+    if (!isEditing) {
+      setStatusValue(normalizeFisaStatus(row.status));
     }
+  }, [isOpen, row?.id, row?.assigned_user_id, row?.status, isEditing]);
 
-    if (!client?.id) return;
-
-    setDisplayClient(client);
-    setSelectedConsultantId(client.assigned_user_id || "");
-    setIsEditing(false);
-
-    let cancelled = false;
-
-    const refresh = async () => {
-      try {
-        const row = await fetchWebClientById(client.id);
-        if (cancelled || !row) return;
-        setDisplayClient(row);
-        setSelectedConsultantId(row.assigned_user_id || "");
-      } catch (error) {
-        console.error("Error loading web client:", error);
-        toast.error("Could not refresh client details.");
-      }
-    };
-
-    refresh();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [client, isOpen]);
+  const {
+    confirmDelete,
+    setConfirmDelete,
+    deleting,
+    handleDeleteConfirm,
+  } = useDetailDelete({
+    onDelete,
+    onClose,
+    onAfterDelete: cancelEdit,
+    errorMessage: "Could not delete client.",
+  });
 
   if (!isOpen || !client) return null;
 
-  const row = displayClient || client;
   const fieldValues = isEditing ? editValues : valuesFromRow(row);
-  const assignedConsultant = consultants.find((c) => c.id === row.assigned_user_id);
+  const assignedUser = users.find((user) => user.id === row.assigned_user_id);
+  const displayStatus = normalizeFisaStatus(row.status);
+  const title = fieldValues.full_name || row.full_name || "Client details";
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -140,47 +146,57 @@ const ClientDetailModal = ({
 
   const handleStartEdit = () => {
     setEditValues(valuesFromRow(row));
-    setIsEditing(true);
+    setStatusValue(displayStatus);
+    setSelectedUserId(row.assigned_user_id || "");
+    startEdit();
   };
 
   const handleCancelEdit = () => {
     setEditValues(valuesFromRow(row));
-    setIsEditing(false);
-  };
-
-  const handleContact = () => {
-    openTelLink(fieldValues.phone || row.phone);
+    setStatusValue(displayStatus);
+    setSelectedUserId(row.assigned_user_id || "");
+    cancelEdit();
   };
 
   const handleAssign = async () => {
-    if (!selectedConsultantId || !onAssign) return;
-    await onAssign(row, selectedConsultantId);
-    setDisplayClient((prev) =>
-      prev ? { ...prev, assigned_user_id: selectedConsultantId } : prev
+    if (!selectedUserId || !onAssign) return;
+    await onAssign(row, selectedUserId);
+    setDisplayRow((prev) =>
+      prev ? { ...prev, assigned_user_id: selectedUserId } : prev
     );
   };
 
   const handleSave = async () => {
-    if (!isEditing || !row.id || !updateCustomer) return;
+    if (!isEditing || !row.id) return;
 
     setSaving(true);
     try {
-      const sanitized = sanitizeFormValues(editValues, {
-        full_name: "text",
-        phone: "phone",
-        email: "email",
-        referral_source: "text",
-        employment_start_date: "date",
-      });
+      if (canEditFields) {
+        const sanitized = sanitizeFormValues(editValues, {
+          full_name: "text",
+          phone: "phone",
+          email: "email",
+          referral_source: "text",
+          employment_start_date: "date",
+        });
+        await updateCustomer(row.id, sanitized);
+      }
 
-      await updateCustomer(row.id, sanitized);
+      const nextStatus = normalizeFisaStatus(statusValue);
+      if (nextStatus !== displayStatus) {
+        await updateWebClientStatus(row.id, nextStatus);
+      }
+
       const refreshed = await fetchWebClientById(row.id);
       if (refreshed) {
-        setDisplayClient(refreshed);
+        setDisplayRow(refreshed);
         setEditValues(valuesFromRow(refreshed));
+        setStatusValue(normalizeFisaStatus(refreshed.status));
+        setSelectedUserId(refreshed.assigned_user_id || "");
         onClientUpdated?.(refreshed);
       }
-      setIsEditing(false);
+      cancelEdit();
+      toast.success("Changes saved.");
     } catch (error) {
       console.error("Error updating web client:", error);
       toast.error(error.message || "Could not save client.");
@@ -189,236 +205,162 @@ const ClientDetailModal = ({
     }
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!onDelete) return;
-    setDeleting(true);
-    try {
-      await onDelete(row.id);
-      setConfirmDelete(false);
-      onClose();
-    } catch (error) {
-      toast.error(error.message || "Could not delete client.");
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const footer = (
-    <div className="flex flex-wrap justify-end gap-2">
-      {isEditing && canEdit ? (
-        <>
-          <Button
-            variant="secondary"
-            text="Cancel"
-            type="button"
-            onClick={handleCancelEdit}
-            disabled={saving}
-          />
-          <Button
-            variant="primary"
-            text="Save"
-            type="button"
-            onClick={handleSave}
-            loading={saving}
-            loadingText="Saving..."
-          />
-        </>
-      ) : (
-        <Button variant="secondary" text="Close" type="button" onClick={onClose} />
-      )}
-    </div>
-  );
-
   return (
     <>
-      <Modal
+      <DetailModalShell
         isOpen={isOpen}
         onClose={onClose}
-        title={fieldValues.full_name || row.full_name || "Client details"}
+        title={title}
         description="Web form submission — review details and actions below."
-        size="2xl"
-        footer={footer}
-        closeOnOverlay={false}
-        closeOnEscape={false}
-      >
-        <div className="space-y-6">
-            <div className="flex flex-wrap items-center gap-2">
-              {row.status && (
-                <Badge variant={statusBadgeVariant(row.status)} size="sm">
-                  {row.status}
-                </Badge>
-              )}
-              {!isEditing && (fieldValues.phone || row.phone) && (
-                <Badge
-                  as="button"
-                  type="button"
-                  variant="info"
-                  size="sm"
-                  interactive
-                  onClick={handleContact}
-                >
-                  Contact
-                </Badge>
-              )}
-              {canEdit && !isEditing && (
-                <Badge
-                  as="button"
-                  type="button"
-                  variant="edit"
-                  size="sm"
-                  interactive
-                  onClick={handleStartEdit}
-                >
-                  Edit
-                </Badge>
-              )}
-              {isAdmin && onDelete && !isEditing && (
-                <Badge
-                  as="button"
-                  type="button"
-                  variant="danger"
-                  size="sm"
-                  interactive
-                  onClick={() => setConfirmDelete(true)}
-                >
-                  Delete
-                </Badge>
-              )}
-              {isEditing && (
-                <span className="text-xs font-medium text-primary-600">
-                  Editing — click Save when done
-                </span>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <InputField
-                label="Name"
-                name="full_name"
-                value={fieldValues.full_name}
-                onChange={handleChange}
-                disabled={fieldsDisabled}
-                required={isEditing}
-              />
-              <InputField
-                label="Phone"
-                name="phone"
-                type="tel"
-                value={fieldValues.phone}
-                onChange={handleChange}
-                disabled={fieldsDisabled}
-              />
-              <InputField
-                label="Email"
-                name="email"
-                type="email"
-                value={fieldValues.email}
-                onChange={handleChange}
-                disabled={fieldsDisabled}
-              />
-              <SelectField
-                label="Source"
-                name="referral_source"
-                value={fieldValues.referral_source}
-                onChange={handleChange}
-                options={referralOptions}
-                placeholder="Select source"
-                disabled={fieldsDisabled}
-              />
-              <DetailField label="Path">{row.path_label}</DetailField>
-              <DetailField label="Outcome">{row.outcome_label}</DetailField>
-              <InputField
-                label="Employment date"
-                name="employment_start_date"
-                type="date"
-                value={fieldValues.employment_start_date}
-                onChange={handleChange}
-                disabled={fieldsDisabled}
-              />
-              <DetailField label="Banks">{row.banks}</DetailField>
-              <DetailField label="IFN">{row.ifn}</DetailField>
-              <DetailField label="Others">{row.others}</DetailField>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <YesNoFlag
-                label="Bank history"
-                value={fieldValues.has_banking_history}
-                isEditing={isEditing && canEdit}
-                onToggle={() =>
-                  setEditValues((prev) => ({
-                    ...prev,
-                    has_banking_history: !prev.has_banking_history,
-                  }))
-                }
-              />
-              <YesNoFlag
-                label="Negative BC"
-                value={fieldValues.has_negative_bc_report}
-                isEditing={isEditing && canEdit}
-                onToggle={() =>
-                  setEditValues((prev) => ({
-                    ...prev,
-                    has_negative_bc_report: !prev.has_negative_bc_report,
-                  }))
-                }
-              />
-            </div>
-
-            {assignedConsultant && !isEditing && (
-              <DetailField label="Assigned to">
-                {assignedConsultant.username} ({assignedConsultant.email})
-              </DetailField>
-            )}
-
-            {isAdmin && onAssign && !isEditing && (
-              <div className="rounded-xl border border-gray-200 bg-gray-50/80 p-4">
-                <p className="mb-3 text-sm font-semibold text-gray-900">
-                  Assign to consultant
-                </p>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        status={displayStatus}
+        showStatus
+        isEditing={isEditing}
+        canDelete={canDelete}
+        onDelete={() => setConfirmDelete(true)}
+        footer={
+          <DetailModalFooter
+            isEditing={isEditing}
+            canEdit={canOpenEditMode}
+            canSave={canOpenEditMode}
+            onStartEdit={handleStartEdit}
+            onCancelEdit={handleCancelEdit}
+            onSave={handleSave}
+            saving={saving}
+            onClose={onClose}
+            leading={
+              canAssign && isEditing ? (
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
                   <SelectField
-                    label="Consultant"
-                    name="consultant_assign"
-                    value={selectedConsultantId}
-                    onChange={(e) => setSelectedConsultantId(e.target.value)}
-                    options={consultants.map((c) => ({
-                      value: c.id,
-                      label: `${c.username} (${c.email})`,
+                    label="Assign to user"
+                    name="user_assign"
+                    value={selectedUserId}
+                    onChange={(e) => setSelectedUserId(e.target.value)}
+                    options={users.map((user) => ({
+                      value: user.id,
+                      label: `${user.username} (${user.email})`,
                     }))}
-                    placeholder="Select consultant"
-                    className="flex-1"
+                    placeholder="Select user"
+                    className="min-w-0 flex-1"
                   />
                   <Button
                     variant="primary"
                     text="Assign"
                     onClick={handleAssign}
-                    disabled={!selectedConsultantId || assignLoading}
+                    disabled={!selectedUserId || assignLoading || saving}
                     loading={assignLoading}
                     loadingText="Assigning..."
                     type="button"
-                    className="sm:shrink-0"
+                    className="w-full sm:w-auto sm:shrink-0"
                   />
                 </div>
-              </div>
-            )}
-        </div>
-      </Modal>
+              ) : null
+            }
+          />
+        }
+      >
+        {isEditing && (
+          <DetailStatusSelect
+            name="client_status"
+            value={statusValue}
+            onChange={(event) => setStatusValue(event.target.value)}
+            disabled={saving}
+          />
+        )}
 
-      <ConfirmModal
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <InputField
+            label="Name"
+            name="full_name"
+            value={fieldValues.full_name}
+            onChange={handleChange}
+            disabled={fieldsDisabled}
+            required={isEditing}
+          />
+          {isEditing ? (
+            <InputField
+              label="Phone"
+              name="phone"
+              type="tel"
+              value={fieldValues.phone}
+              onChange={handleChange}
+              disabled={fieldsDisabled}
+            />
+          ) : (
+            <DetailField label="Phone">
+              <PhoneDataBadge phone={fieldValues.phone || row.phone} />
+            </DetailField>
+          )}
+          <InputField
+            label="Email"
+            name="email"
+            type="email"
+            value={fieldValues.email}
+            onChange={handleChange}
+            disabled={fieldsDisabled}
+          />
+          <SelectField
+            label="Source"
+            name="referral_source"
+            value={fieldValues.referral_source}
+            onChange={handleChange}
+            options={referralOptions}
+            placeholder="Select source"
+            disabled={fieldsDisabled}
+          />
+          <DetailField label="Path">{row.path_label}</DetailField>
+          <DetailField label="Outcome">{row.outcome_label}</DetailField>
+          <InputField
+            label="Employment date"
+            name="employment_start_date"
+            type="date"
+            value={fieldValues.employment_start_date}
+            onChange={handleChange}
+            disabled={fieldsDisabled}
+          />
+          <DetailField label="Banks">{row.banks}</DetailField>
+          <DetailField label="IFN">{row.ifn}</DetailField>
+          <DetailField label="Others">{row.others}</DetailField>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <YesNoFlag
+            label="Bank history"
+            value={fieldValues.has_banking_history}
+            isEditing={isEditing && canEditFields}
+            onToggle={() =>
+              setEditValues((prev) => ({
+                ...prev,
+                has_banking_history: !prev.has_banking_history,
+              }))
+            }
+          />
+          <YesNoFlag
+            label="Negative BC"
+            value={fieldValues.has_negative_bc_report}
+            isEditing={isEditing && canEditFields}
+            onToggle={() =>
+              setEditValues((prev) => ({
+                ...prev,
+                has_negative_bc_report: !prev.has_negative_bc_report,
+              }))
+            }
+          />
+        </div>
+
+        {assignedUser && !isEditing && (
+          <DetailField label="Assigned to">
+            {assignedUser.username} ({assignedUser.email})
+          </DetailField>
+        )}
+
+      </DetailModalShell>
+
+      <DeleteConfirmModal
         isOpen={confirmDelete}
         onClose={() => setConfirmDelete(false)}
-        onConfirm={handleDeleteConfirm}
-        title="Are you sure?"
-        message={
-          <>
-            Delete <strong>{row.full_name}</strong>? This cannot be undone.
-          </>
-        }
-        confirmText="Yes"
-        cancelText="No"
-        confirmButtonType="delete"
+        onConfirm={() => handleDeleteConfirm(row.id)}
         loading={deleting}
+        subject={row.full_name}
       />
     </>
   );
@@ -429,7 +371,7 @@ ClientDetailModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   isAdmin: PropTypes.bool,
-  consultants: PropTypes.arrayOf(PropTypes.object),
+  users: PropTypes.arrayOf(PropTypes.object),
   updateCustomer: PropTypes.func,
   onDelete: PropTypes.func,
   onAssign: PropTypes.func,

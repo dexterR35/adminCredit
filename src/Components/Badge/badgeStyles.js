@@ -45,8 +45,8 @@ export const yesNoBadgeVariant = (value) => {
 /** Client / report status text */
 export const statusBadgeVariant = (status) => {
   const s = String(status || "").toLowerCase();
-  if (s === "approved" || s === "completed") return "primary";
-  if (s === "rejected" || s === "cancelled") return "danger";
+  if (s === "approved" || s === "approve" || s === "completed") return "success";
+  if (s === "denied" || s === "deny" || s === "rejected" || s === "cancelled") return "danger";
   if (s === "pending" || s === "new") return "edit";
   return "default";
 };
@@ -58,12 +58,15 @@ export const presenceBadgeVariant = (value) => {
   return "primary";
 };
 
-/** Link columns in contracts / reports tables */
+/** Link columns — blue info badge when a URL exists */
 export const LINK_BADGE_PRESETS = {
-  photo: { viewVariant: "default", missingVariant: "default" },
-  pdf: { viewVariant: "default", missingVariant: "default" },
-  signature: { viewVariant: "default", missingVariant: "default" },
+  photo: { viewVariant: "info", missingVariant: "default" },
+  pdf: { viewVariant: "info", missingVariant: "default" },
+  signature: { viewVariant: "info", missingVariant: "default" },
 };
+
+/** Phone columns — matches link badge styling */
+export const PHONE_BADGE_PRESET = { variant: "info" };
 
 export const badgeClassName = ({
   variant = "default",

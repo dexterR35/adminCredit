@@ -10,6 +10,7 @@ import {
   sanitizeText,
   sanitizeUrl,
 } from "../utils/sanitize";
+import { isFisaReportStatus, normalizeFisaStatus } from "./fisaReportStatus";
 
 export const mapFisaReportRow = (row) => ({
   id: row.id,
@@ -21,7 +22,7 @@ export const mapFisaReportRow = (row) => ({
   today_date: row.today_date || "",
   pdf_url: row.pdf_url || "",
   photo_url: row.photo_url || "",
-  user_status: row.user_status || "New",
+  user_status: normalizeFisaStatus(row.user_status),
   form_data: row.form_data || {},
   created_at: row.created_at,
   updated_at: row.updated_at,
@@ -29,7 +30,7 @@ export const mapFisaReportRow = (row) => ({
 });
 
 const FISA_LIST_COLUMNS =
-  "id, user_id, client_full_name, client_cnp, phone, email, today_date, pdf_url, photo_url, user_status, created_at, updated_at";
+  "id, user_id, client_full_name, client_cnp, phone, email, today_date, pdf_url, photo_url, user_status, form_data, created_at, updated_at";
 
 const FISA_DETAIL_COLUMNS = `${FISA_LIST_COLUMNS}, form_data`;
 
@@ -85,7 +86,7 @@ export const addFisaReport = async (formData, userId, options = {}) => {
     today_date: sanitizeText(safeForm.todayDate, { maxLength: 20, trim: true }),
     pdf_url: sanitizeUrl(safeForm.pdfUrl),
     photo_url: sanitizeUrl(safeForm.photoUrl),
-    user_status: sanitizeText(safeForm.userStatus || "New", { maxLength: 40, trim: true }),
+    user_status: normalizeFisaStatus(safeForm.userStatus || "Pending"),
   };
 
   const { data, error } = await supabase.from("fisa_reports").insert(payload).select("id").single();
@@ -96,6 +97,41 @@ export const addFisaReport = async (formData, userId, options = {}) => {
 export const deleteFisaReport = async (id) => {
   const { error } = await supabase.from("fisa_reports").delete().eq("id", id);
   if (error) throw error;
+};
+
+export const updateFisaReportStatus = async (id, status) => {
+  const normalized = normalizeFisaStatus(status);
+  if (!isFisaReportStatus(normalized)) {
+    throw new Error("Invalid report status.");
+  }
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("fisa_reports")
+    .select("form_data")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (fetchError) throw fetchError;
+  if (!existing) throw new Error("Report not found.");
+
+  const formData = {
+    ...(existing.form_data || {}),
+    userStatus: normalized,
+  };
+
+  const { data, error } = await supabase
+    .from("fisa_reports")
+    .update({
+      user_status: normalized,
+      form_data: formData,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select(FISA_LIST_COLUMNS)
+    .single();
+
+  if (error) throw error;
+  return mapFisaReportRow(data);
 };
 
 export const fetchFisaReportById = async (id) => {

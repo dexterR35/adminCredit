@@ -6,24 +6,25 @@ import {
   sanitizePhone,
   sanitizeText,
 } from "../utils/sanitize";
+import { isFisaReportStatus, normalizeFisaStatus } from "./fisaReportStatus";
 
 export const REFERRAL_LABELS = {
   facebook: "Facebook",
   pliant: "Pliant",
   tiktok: "TikTok",
   consultant: "Consultant",
-  recomandare: "Recomandare",
+  recomandare: "Referral",
 };
 
 export const PATH_LABELS = {
-  negative_report: "Raport negativ BC",
+  negative_report: "Negative BC report",
   standard: "Standard",
 };
 
 export const OUTCOME_LABELS = {
-  institutions_selected: "Instituții selectate",
-  has_history: "Cu istoric bancar",
-  no_history: "Fără istoric bancar",
+  institutions_selected: "Institutions selected",
+  has_history: "With banking history",
+  no_history: "No banking history",
 };
 
 const formatInstitutionList = (institutions = [], type) => {
@@ -40,7 +41,7 @@ export const mapWebClientRow = (row) => {
 
   return {
     id: row.id,
-    status: row.status,
+    status: normalizeFisaStatus(row.status),
     path: row.path,
     path_label: PATH_LABELS[row.path] || row.path,
     outcome: row.outcome,
@@ -148,6 +149,24 @@ export const updateWebClient = async (id, values) => {
   if (error) throw error;
 };
 
+export const updateWebClientStatus = async (id, status) => {
+  const normalized = normalizeFisaStatus(status);
+  if (!isFisaReportStatus(normalized)) {
+    throw new Error("Invalid client status.");
+  }
+
+  const { error } = await supabase
+    .from("credit_applications")
+    .update({
+      status: normalized,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+  return normalized;
+};
+
 export const deleteWebClient = async (id) => {
   const { error } = await supabase.from("credit_applications").delete().eq("id", id);
   if (error) throw error;
@@ -173,13 +192,16 @@ export const assignWebClientToUser = async (creditApplicationId, assignedUserId,
   if (error && error.code !== "PGRST204") throw error;
 };
 
-export const fetchConsultantsForAssignment = async () => {
+export const fetchUsersForAssignment = async () => {
   const { data, error } = await supabase
     .from("profiles")
     .select("id, username, email, role")
-    .eq("role", "consultant")
+    .in("role", ["admin", "consultant"])
     .order("username", { ascending: true });
 
   if (error) throw error;
   return data || [];
 };
+
+/** @deprecated use fetchUsersForAssignment */
+export const fetchConsultantsForAssignment = fetchUsersForAssignment;

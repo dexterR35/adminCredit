@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { useBlocker, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -81,11 +81,6 @@ const ReviewSummary = ({ values, allFields, steps, showConsultantMeta }) => {
           </dl>
         </section>
       ))}
-
-      <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Status</p>
-        <p className="mt-1 text-sm font-semibold text-primary-700">{values.userStatus}</p>
-      </div>
     </div>
   );
 };
@@ -121,6 +116,7 @@ const FormUser = () => {
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [hasUnsavedDraft, setHasUnsavedDraft] = useState(false);
   const [initialFormValues, setInitialFormValues] = useState(null);
+  const formActionsRef = useRef({ resetForm: null });
 
   const steps = useMemo(() => getStepsForRole(isAdmin), [isAdmin]);
   const baselineValues = useMemo(
@@ -219,7 +215,7 @@ const FormUser = () => {
       ...values,
       user: authUser?.id || values.user,
       userName: authUser?.username || authUser?.email?.split("@")[0] || values.userName,
-      todayDate: new Date().toLocaleDateString("ro-RO"),
+      todayDate: new Date().toLocaleDateString("en-GB"),
     };
   };
 
@@ -308,12 +304,18 @@ const FormUser = () => {
     }
   };
 
-  const handleCancelConfirm = (resetForm) => {
+  const resetReportForm = useCallback(() => {
+    const baseline = buildInitialValues(authUser, isAdmin);
     clearFisaDraft(authUser?.id);
     setHasUnsavedDraft(false);
-    resetForm({ values: buildInitialValues(authUser, isAdmin) });
     setCurrentStep(0);
     setMaxStepReached(0);
+    setInitialFormValues(baseline);
+    formActionsRef.current.resetForm?.({ values: baseline });
+  }, [authUser, isAdmin]);
+
+  const handleCancelConfirm = () => {
+    resetReportForm();
     setShowCancelModal(false);
     navigate("/home");
   };
@@ -335,6 +337,7 @@ const FormUser = () => {
   };
 
   const handleLeavePage = () => {
+    resetReportForm();
     setShowLeaveModal(false);
     if (blocker.state === "blocked") {
       blocker.proceed();
@@ -353,7 +356,7 @@ const FormUser = () => {
     <div className="fisa-form-page">
       <div className="fisa-form-card">
         <div className="fisa-form-header">
-          <h1 className="text-lg font-display font-bold text-gray-900 sm:text-2xl">Fisa Clientului</h1>
+          <h1 className="text-lg font-display font-bold text-gray-900 sm:text-2xl">Client Record</h1>
           <p className="mt-1 text-sm text-gray-500">
             Complete all required fields to create a new client report
           </p>
@@ -368,10 +371,14 @@ const FormUser = () => {
 
         <Formik
           initialValues={initialFormValues}
+          enableReinitialize
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, isSubmitting, setErrors, setTouched, resetForm }) => (
+          {({ values, errors, touched, isSubmitting, setErrors, setTouched, resetForm }) => {
+            formActionsRef.current.resetForm = resetForm;
+
+            return (
             <>
               <div className="fisa-form-body">
                 <FisaDraftSync
@@ -400,12 +407,25 @@ const FormUser = () => {
                   )}
 
                   {isReviewStep ? (
-                    <ReviewSummary
-                      values={values}
-                      allFields={allFields}
-                      steps={steps}
-                      showConsultantMeta={showConsultantMeta}
-                    />
+                    <>
+                      <ReviewSummary
+                        values={values}
+                        allFields={allFields}
+                        steps={steps}
+                        showConsultantMeta={showConsultantMeta}
+                      />
+                      <div className="mx-auto mt-4 w-full max-w-lg space-y-2 sm:mt-6">
+                        <StepFields
+                          fields={currentStepFields}
+                          touched={touched}
+                          errors={errors}
+                        />
+                        <p className="text-xs text-gray-500">
+                          Pending while the case is still open. Choose Approved when the client is
+                          fully resolved, or Denied when the client cannot be resolved.
+                        </p>
+                      </div>
+                    </>
                   ) : (
                     <StepFields
                       fields={currentStepFields}
@@ -460,7 +480,7 @@ const FormUser = () => {
               <ConfirmModal
                 isOpen={showCancelModal}
                 onClose={() => setShowCancelModal(false)}
-                onConfirm={() => handleCancelConfirm(resetForm)}
+                onConfirm={handleCancelConfirm}
                 title="Discard report?"
                 message="All entered data will be lost. This action cannot be undone."
                 confirmText="Yes, discard"
@@ -472,14 +492,15 @@ const FormUser = () => {
                 isOpen={showLeaveModal}
                 onClose={handleStayOnPage}
                 onConfirm={handleLeavePage}
-                title="Leave Fisa Clientului?"
-                message="You have unsaved changes. Your progress will be saved as a draft until you submit or discard the report. Do you want to leave this page?"
+                title="Leave Client Record?"
+                message="You have unsaved changes. Leaving will discard this report and clear your progress."
                 confirmText="Yes, leave"
                 cancelText="No, stay"
                 confirmButtonType="primary"
               />
             </>
-          )}
+            );
+          }}
         </Formik>
       </div>
     </div>

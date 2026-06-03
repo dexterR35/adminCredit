@@ -4,7 +4,9 @@ import {
   DataTable,
   useDataTable,
   yesNoColumn,
-  statusBadgeColumn,
+  phoneColumn,
+  fisaStatusBadgeColumn,
+  webClientExportColumns,
 } from "../../Components/Table";
 import { FetchCustomersData, useAssignClient } from "../../services/Hooks";
 import { useAuth } from "../../context/AuthContext";
@@ -19,7 +21,7 @@ const clientColumns = [
       <span className="font-medium capitalize text-gray-900">{row.original.full_name || "—"}</span>
     ),
   },
-  { accessorKey: "phone", header: "Phone", size: 100 },
+  phoneColumn({ size: 100 }),
   { accessorKey: "email", header: "Email", size: 150 },
   { accessorKey: "referral_source_label", header: "Source", size: 120 },
   { accessorKey: "path_label", header: "Path", size: 120 },
@@ -31,26 +33,26 @@ const clientColumns = [
   yesNoColumn({ accessorKey: "has_banking_history", header: "Bank history" }),
   yesNoColumn({ accessorKey: "has_negative_bc_report", header: "Negative BC" }),
   { accessorKey: "submitted_at_label", header: "Submitted", size: 120 },
-  statusBadgeColumn({ accessorKey: "status", header: "Status", size: 90 }),
+  fisaStatusBadgeColumn({ accessorKey: "status", header: "Status", size: 90 }),
 ];
 
 const ClientsTable = () => {
   const { customerData, loading, deleteCustomer, updateCustomer } = FetchCustomersData();
   const { isAdmin } = useAuth();
-  const { consultants, loadConsultants, assignClient } = useAssignClient();
+  const { assignableUsers, loadAssignableUsers, assignClient } = useAssignClient();
   const [detailClient, setDetailClient] = useState(null);
   const [assignLoading, setAssignLoading] = useState(false);
 
   useEffect(() => {
-    if (isAdmin) loadConsultants();
-  }, [isAdmin, loadConsultants]);
+    if (isAdmin) loadAssignableUsers();
+  }, [isAdmin, loadAssignableUsers]);
 
-  const handleAssign = async (client, consultantId) => {
+  const handleAssign = async (client, userId) => {
     setAssignLoading(true);
     try {
-      await assignClient(client.id, consultantId);
+      await assignClient(client.id, userId);
       setDetailClient((prev) =>
-        prev?.id === client.id ? { ...prev, assigned_user_id: consultantId } : prev
+        prev?.id === client.id ? { ...prev, assigned_user_id: userId } : prev
       );
     } catch (error) {
       toast.error(error.message || "Failed to assign client.");
@@ -66,6 +68,8 @@ const ClientsTable = () => {
     onRowClick: (client) => setDetailClient(client),
     linkTable: "https://obtinecredit.ro/formular",
     emptyMessage: "No web clients yet",
+    exportColumns: webClientExportColumns,
+    exportFileName: "web-clients",
   });
 
   return (
@@ -82,7 +86,7 @@ const ClientsTable = () => {
         isOpen={!!detailClient}
         onClose={() => setDetailClient(null)}
         isAdmin={isAdmin}
-        consultants={consultants}
+        users={assignableUsers}
         updateCustomer={updateCustomer}
         onClientUpdated={setDetailClient}
         onDelete={isAdmin ? deleteCustomer : undefined}

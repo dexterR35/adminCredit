@@ -8,14 +8,14 @@ const CurrentDateTimeComp = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const currentDate = currentTime.toLocaleDateString('ro-RO', {
+  const currentDate = currentTime.toLocaleDateString('en-GB', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
 
-  const formattedTime = currentTime.toLocaleTimeString('ro-RO', {
+  const formattedTime = currentTime.toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
   });

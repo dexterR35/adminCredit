@@ -54,6 +54,7 @@ const Modal = ({
   isOpen,
   onClose,
   title,
+  titleTrailing,
   description,
   children,
   size = "lg",
@@ -113,12 +114,17 @@ const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {(title || showCloseButton) && (
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div className="min-w-0">
+          <div className="dash-modal-header">
+            <div className="min-w-0 flex-1">
               {title && (
-                <h3 id="modal-title" className="dash-modal-title">
-                  {title}
-                </h3>
+                <div className="flex items-center justify-between gap-3">
+                  <h3 id="modal-title" className="dash-modal-title min-w-0 truncate">
+                    {title}
+                  </h3>
+                  {titleTrailing && (
+                    <div className="shrink-0">{titleTrailing}</div>
+                  )}
+                </div>
               )}
               {description && (
                 <p className="mt-1 text-sm text-gray-500">{description}</p>
@@ -137,9 +143,11 @@ const Modal = ({
           </div>
         )}
 
-        <div className="text-gray-700">{children}</div>
+        <div className="dash-modal-body">{children}</div>
 
-        {footerContent && <div className="mt-6 border-t border-gray-100 pt-4">{footerContent}</div>}
+        {footerContent && (
+          <div className="dash-modal-footer">{footerContent}</div>
+        )}
       </div>
     </div>
   );
@@ -149,6 +157,7 @@ Modal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func,
   title: PropTypes.string,
+  titleTrailing: PropTypes.node,
   description: PropTypes.string,
   children: PropTypes.node,
   size: PropTypes.oneOf(["sm", "md", "lg", "xl", "2xl"]),

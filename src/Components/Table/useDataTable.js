@@ -25,6 +25,9 @@ export const useDataTable = ({
   enableRowSelection = false,
   onRowClick,
   pageSize = 10,
+  enableExport = true,
+  exportColumns,
+  exportFileName,
 }) => ({
   data,
   columns,
@@ -37,4 +40,7 @@ export const useDataTable = ({
   enableRowSelection,
   onRowClick,
   pageSize,
+  enableExport,
+  exportColumns,
+  exportFileName,
 });
