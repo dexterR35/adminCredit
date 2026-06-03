@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -17,6 +17,7 @@ import { sanitizeUrlForHref } from "../../utils/sanitize";
 import { useTrackLoading } from "../LoadingProgress";
 import ExportColumnsModal from "./ExportColumnsModal";
 import { exportRowsToCsv, resolveExportColumns } from "./tableExport";
+import { useDebouncedValue } from "../../hooks/useDebounce";
 
 const DataTable = ({
   columns,
@@ -35,6 +36,8 @@ const DataTable = ({
   exportFileName = "export",
 }) => {
   const [pendingConfirm, setPendingConfirm] = useState(null);
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearch = useDebouncedValue(searchInput, 300);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -49,6 +52,10 @@ const DataTable = ({
   );
 
   useTrackLoading(loading);
+
+  useEffect(() => {
+    setGlobalFilter(debouncedSearch);
+  }, [debouncedSearch]);
 
   const tableColumns = useMemo(() => {
     return columns.map((col) => {
@@ -214,8 +221,8 @@ const DataTable = ({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <SearchInput
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder={searchPlaceholder}
             className="w-full sm:flex-1"
           />

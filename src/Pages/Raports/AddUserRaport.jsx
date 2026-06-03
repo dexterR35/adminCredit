@@ -23,6 +23,8 @@ import {
   getStepsForRole,
   prepareRaportPayload,
 } from "./fisaReportFormConfig";
+import { mutationRateLimiter } from "../../utils/rateLimiter";
+import { useThrottledCallback } from "../../hooks/useThrottle";
 
 const formatReviewValue = (field, value, allFields, values) => {
   if (value === null || value === undefined || value === "") {
@@ -268,7 +270,7 @@ const FormUser = () => {
     );
   };
 
-  const handleNext = async (values, setErrors, setTouched) => {
+  const handleNext = useThrottledCallback(async (values, setErrors, setTouched) => {
     const errors = await validateStep(values, currentStep);
 
     if (Object.keys(errors).length > 0) {
@@ -282,22 +284,28 @@ const FormUser = () => {
     setCurrentStep(nextStep);
     setMaxStepReached((prev) => Math.max(prev, nextStep));
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  }, 400, [currentStep, allFields, steps]);
 
-  const handleBack = () => {
+  const handleBack = useThrottledCallback(() => {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  }, 400, []);
 
-  const handleStepClick = (stepIndex) => {
+  const handleStepClick = useThrottledCallback((stepIndex) => {
     if (stepIndex <= maxStepReached) {
       setCurrentStep(stepIndex);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  };
+  }, 400, [maxStepReached]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
+      mutationRateLimiter.assertAllowed(
+        authUser?.id || "anonymous",
+        "You are submitting reports too quickly. Please wait a moment."
+      );
+      mutationRateLimiter.record(authUser?.id || "anonymous");
+
       const mergedValues = mergeAuthUserValues(values);
       const sanitizedValues = sanitizeFormValues(mergedValues, fieldTypeMap);
       await validationSchema.validate(sanitizedValues, { abortEarly: false });
@@ -310,7 +318,9 @@ const FormUser = () => {
       setMaxStepReached(0);
       navigate("/home");
     } catch (error) {
-      if (error.inner) {
+      if (error.code === "rate_limited") {
+        toast.error(error.message);
+      } else if (error.inner) {
         toast.error("Please complete all required fields before submitting.");
       }
     } finally {

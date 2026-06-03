@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { supabase } from "../supabase/client";
 import { filterRowsByPeriod } from "../utils/periodFilter";
+import { debounce } from "../utils/timing";
 import {
   checkAuthStatus,
   Login,
@@ -52,7 +53,7 @@ const useRealtimeTable = (table, enabled = true) => {
   const cached = dataCache[table];
   const [rows, setRows] = useState(() => cached ?? []);
   const [loading, setLoading] = useState(() => enabled && cached === null);
-  const debounceRef = useRef(null);
+  const debouncedLoadRef = useRef(null);
 
   useEffect(() => {
     if (!enabled) {
@@ -82,11 +83,10 @@ const useRealtimeTable = (table, enabled = true) => {
     };
 
     const scheduleLoad = () => {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        load();
-      }, REALTIME_DEBOUNCE_MS);
+      debouncedLoadRef.current?.();
     };
+
+    debouncedLoadRef.current = debounce(load, REALTIME_DEBOUNCE_MS);
 
     load();
 
@@ -99,7 +99,7 @@ const useRealtimeTable = (table, enabled = true) => {
 
     return () => {
       active = false;
-      clearTimeout(debounceRef.current);
+      debouncedLoadRef.current?.cancel();
       supabase.removeChannel(channel);
     };
   }, [table, enabled]);
@@ -114,7 +114,7 @@ const useDashboardOverview = () => {
   const [loading, setLoading] = useState(
     () => dashboardCache.clients === null || dashboardCache.contracts === null
   );
-  const debounceRef = useRef(null);
+  const debouncedLoadRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -140,9 +140,10 @@ const useDashboardOverview = () => {
     };
 
     const scheduleLoad = () => {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(load, REALTIME_DEBOUNCE_MS);
+      debouncedLoadRef.current?.();
     };
+
+    debouncedLoadRef.current = debounce(load, REALTIME_DEBOUNCE_MS);
 
     load();
 
@@ -166,7 +167,7 @@ const useDashboardOverview = () => {
 
     return () => {
       active = false;
-      clearTimeout(debounceRef.current);
+      debouncedLoadRef.current?.cancel();
       supabase.removeChannel(clientsChannel);
       supabase.removeChannel(contractsChannel);
     };

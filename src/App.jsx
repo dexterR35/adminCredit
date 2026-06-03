@@ -14,6 +14,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoadingProgressProvider } from "./context/LoadingProgressContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ErrorBoundary } from "./Components/ErrorBoundary";
 
 const LoadingScreen = () => (
   <div className="flex h-screen items-center justify-center bg-gray-50">
@@ -43,12 +44,14 @@ const PublicRoute = ({ children }) => {
 };
 
 const AppShell = () => (
-  <AuthProvider>
-    <LoadingProgressProvider>
-      <Outlet />
-      <ToastContainer />
-    </LoadingProgressProvider>
-  </AuthProvider>
+  <ErrorBoundary>
+    <AuthProvider>
+      <LoadingProgressProvider>
+        <Outlet />
+        <ToastContainer />
+      </LoadingProgressProvider>
+    </AuthProvider>
+  </ErrorBoundary>
 );
 
 const router = createBrowserRouter(
@@ -109,6 +112,10 @@ const router = createBrowserRouter(
   }
 );
 
-const App = () => <RouterProvider router={router} />;
+const App = () => (
+  <ErrorBoundary message="The application failed to load. Please reload the page.">
+    <RouterProvider router={router} />
+  </ErrorBoundary>
+);
 
 export default App;

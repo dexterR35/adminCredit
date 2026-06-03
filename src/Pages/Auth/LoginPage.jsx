@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Login } from "../../services/Hooks";
 import { InputField } from "../../Components/Inputs";
 import { useTrackLoading } from "../../Components/LoadingProgress";
 import { sanitizeEmail, sanitizePassword } from "../../utils/sanitize";
+import { loginRateLimiter } from "../../utils/rateLimiter";
+import { useThrottledCallback } from "../../hooks/useThrottle";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -14,21 +16,32 @@ const LoginPage = () => {
 
   useTrackLoading(isLoading);
 
-  const handleLogin = async (e) => {
+  const handleLogin = useThrottledCallback(async (e) => {
     e?.preventDefault();
     setError(null);
 
+    const safeEmail = sanitizeEmail(email);
+
     try {
-      if (!email || !password) {
+      if (!safeEmail || !password) {
         setError("Please enter both email and password.");
         return;
       }
 
+      loginRateLimiter.assertAllowed(
+        safeEmail,
+        "Too many sign-in attempts. Please wait before trying again."
+      );
+
       setIsLoading(true);
-      await Login(sanitizeEmail(email), sanitizePassword(password));
+      await Login(safeEmail, sanitizePassword(password));
+      loginRateLimiter.reset(safeEmail);
       navigate("/home");
     } catch (loginError) {
-      if (loginError.code === "invalid_credentials") {
+      if (loginError.code === "rate_limited") {
+        setError(loginError.message);
+      } else if (loginError.code === "invalid_credentials") {
+        loginRateLimiter.record(safeEmail);
         setError(loginError.message);
       } else {
         setError(loginError.message || "Sign in failed. Please try again.");
@@ -36,7 +49,7 @@ const LoginPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, 1000, [email, password, navigate]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
