@@ -1,0 +1,48 @@
+import PropTypes from "prop-types";
+
+const TabProgress = ({
+  current,
+  total,
+  label,
+  children,
+  className = "",
+}) => {
+  const progress = total > 0 ? Math.round(((current + 1) / total) * 100) : 0;
+  const stepLabel = label ?? `Step ${current + 1} of ${total}`;
+
+  return (
+    <div className={`space-y-4 ${className}`.trim()}>
+      <div>
+        <div className="mb-2 flex items-center justify-between text-sm">
+          <span className="font-medium text-gray-700">{stepLabel}</span>
+          <span className="font-semibold tabular-nums text-primary-600">{progress}%</span>
+        </div>
+        <div
+          className="h-2 overflow-hidden rounded-sm bg-gray-100"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Progress"
+        >
+          <div
+            className="h-full rounded-sm bg-linear-to-r from-primary-500 to-primary-600 transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {children}
+    </div>
+  );
+};
+
+TabProgress.propTypes = {
+  current: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
+  label: PropTypes.string,
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
+export default TabProgress;

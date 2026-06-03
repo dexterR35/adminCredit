@@ -1,635 +1,343 @@
-
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, setDoc, addDoc, doc, updateDoc, deleteDoc, where, serverTimestamp } from 'firebase/firestore';
-import {
-  getAuth,
-  signOut,
-  signInWithPopup, GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-} from "firebase/auth";
-import { db } from '../firebase/config'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { supabase } from "../supabase/client";
+import { filterRowsByPeriod } from "../utils/periodFilter";
+import {
+  checkAuthStatus,
+  Login,
+  Logout,
+} from "./auth";
+import {
+  assignWebClientToUser,
+  deleteWebClient,
+  fetchConsultantsForAssignment,
+  fetchWebClients,
+  updateWebClient,
+} from "./customers";
+import {
+  deleteContract,
+  fetchContracts,
+} from "./contracts";
+import {
+  addFisaReport,
+  deleteFisaReport,
+  fetchFisaReports,
+} from "./fisaReports";
+import {
+  AddConsultant,
+  getAllConsultants,
+  getAllUsers,
+  getConsultantByUserName,
+} from "./consultants";
 
-// Cache utility functions
-const CACHE_PREFIX = 'adminCredit_cache_';
-
-const getCacheKey = (key) => `${CACHE_PREFIX}${key}`;
-
-const getCachedData = (key) => {
-  try {
-    const cached = localStorage.getItem(getCacheKey(key));
-    if (!cached) return null;
-    
-    const { data } = JSON.parse(cached);
-    return data;
-  } catch (error) {
-    console.error(`Error reading cache for ${key}:`, error);
-    return null;
-  }
+export {
+  checkAuthStatus,
+  Login,
+  Logout,
+  AddConsultant,
+  getAllConsultants,
+  getAllUsers,
+  getConsultantByUserName,
 };
 
-const setCachedData = (key, data) => {
-  try {
-    const cacheData = {
-      data,
-    };
-    localStorage.setItem(getCacheKey(key), JSON.stringify(cacheData));
-  } catch (error) {
-    console.error(`Error setting cache for ${key}:`, error);
-  }
+export { FormatTimestamp } from "../utils/date";
+
+const REALTIME_DEBOUNCE_MS = 400;
+
+/** In-memory cache so dashboard/list pages don't flash empty state on remount. */
+const dataCache = {
+  credit_applications: null,
+  contracts: null,
+  fisa_reports: null,
 };
 
-const clearCache = (key) => {
-  try {
-    localStorage.removeItem(getCacheKey(key));
-  } catch (error) {
-    console.error(`Error clearing cache for ${key}:`, error);
-  }
+const dashboardCache = {
+  clients: null,
+  contracts: null,
 };
 
-// Shared listener manager to prevent duplicate Firebase listeners
-const listenerManager = {
-  listeners: new Map(),
-  subscribers: new Map(),
-  
-  subscribe(key, callback) {
-    if (!this.subscribers.has(key)) {
-      this.subscribers.set(key, new Set());
+const useRealtimeTable = (table, enabled = true) => {
+  const cached = dataCache[table];
+  const [rows, setRows] = useState(() => cached ?? []);
+  const [loading, setLoading] = useState(() => enabled && cached === null);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    if (!enabled) {
+      setRows([]);
+      setLoading(false);
+      return undefined;
     }
-    this.subscribers.get(key).add(callback);
-    
-    // Return unsubscribe function
-    return () => {
-      const subs = this.subscribers.get(key);
-      if (subs) {
-        subs.delete(callback);
-        // If no more subscribers, clean up listener
-        if (subs.size === 0) {
-          this.unsubscribe(key);
+
+    let active = true;
+
+    const load = async () => {
+      try {
+        let data = [];
+        if (table === "credit_applications") data = await fetchWebClients();
+        if (table === "contracts") data = await fetchContracts();
+        if (table === "fisa_reports") data = await fetchFisaReports();
+        if (active) {
+          setRows(data);
+          dataCache[table] = data;
         }
+      } catch (error) {
+        console.error(`Error fetching ${table}:`, error.message);
+        toast.error(`Could not load ${table.replace(/_/g, " ")}.`);
+      } finally {
+        if (active) setLoading(false);
       }
     };
-  },
-  
-  notify(key, data) {
-    const subs = this.subscribers.get(key);
-    if (subs) {
-      subs.forEach(callback => callback(data));
-    }
-  },
-  
-  unsubscribe(key) {
-    const unsubscribe = this.listeners.get(key);
-    if (unsubscribe) {
-      unsubscribe();
-      this.listeners.delete(key);
-    }
-    this.subscribers.delete(key);
-  },
-  
-  hasListener(key) {
-    return this.listeners.has(key);
-  }
+
+    const scheduleLoad = () => {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        load();
+      }, REALTIME_DEBOUNCE_MS);
+    };
+
+    load();
+
+    const channel = supabase
+      .channel(`${table}-changes`)
+      .on("postgres_changes", { event: "*", schema: "public", table }, () => {
+        scheduleLoad();
+      })
+      .subscribe();
+
+    return () => {
+      active = false;
+      clearTimeout(debounceRef.current);
+      supabase.removeChannel(channel);
+    };
+  }, [table, enabled]);
+
+  return { rows, loading, setRows };
 };
 
-const auth = getAuth();
-// Function to check if the user is already authenticated
+/** Dashboard overview: clients + contracts with shared realtime (no duplicate fisa fetch). */
+const useDashboardOverview = () => {
+  const [clients, setClients] = useState(() => dashboardCache.clients ?? []);
+  const [contracts, setContracts] = useState(() => dashboardCache.contracts ?? []);
+  const [loading, setLoading] = useState(
+    () => dashboardCache.clients === null || dashboardCache.contracts === null
+  );
+  const debounceRef = useRef(null);
 
-export const checkAuthStatus = (setUser, setLoading) => {
-  // Always set up the auth state listener for real-time updates
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
+  useEffect(() => {
+    let active = true;
+
+    const load = async () => {
+      try {
+        const [clientRows, contractRows] = await Promise.all([
+          fetchWebClients(),
+          fetchContracts(),
+        ]);
+        if (active) {
+          setClients(clientRows);
+          setContracts(contractRows);
+          dashboardCache.clients = clientRows;
+          dashboardCache.contracts = contractRows;
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard overview:", error.message);
+        toast.error("Could not load dashboard overview.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    const scheduleLoad = () => {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(load, REALTIME_DEBOUNCE_MS);
+    };
+
+    load();
+
+    const clientsChannel = supabase
+      .channel("dashboard-credit_applications")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "credit_applications" },
+        scheduleLoad
+      )
+      .subscribe();
+
+    const contractsChannel = supabase
+      .channel("dashboard-contracts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "contracts" },
+        scheduleLoad
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      clearTimeout(debounceRef.current);
+      supabase.removeChannel(clientsChannel);
+      supabase.removeChannel(contractsChannel);
+    };
+  }, []);
+
+  return { clients, contracts, loading };
+};
+
+/** Single home-page data source: one fisa realtime stream + overview stats. */
+export const useHomePageData = (period = "all") => {
+  const { rows: raports, loading: fisaLoading } = useRealtimeTable("fisa_reports");
+  const { clients, contracts, loading: overviewLoading } = useDashboardOverview();
+
+  const filteredRaports = useMemo(
+    () => filterRowsByPeriod(raports, period),
+    [raports, period]
+  );
+
+  const filteredClients = useMemo(
+    () => filterRowsByPeriod(clients, period, "submitted_at"),
+    [clients, period]
+  );
+
+  const filteredContracts = useMemo(
+    () => filterRowsByPeriod(contracts, period),
+    [contracts, period]
+  );
+
+  const onDeleteReport = useCallback(async (id) => {
     try {
-      if (user) {
-        // User is signed in - sync with sessionStorage
-        sessionStorage.setItem("authUser", JSON.stringify(user));
-        setUser(user);
-      } else {
-        // User is signed out - clear sessionStorage
-        sessionStorage.removeItem("authUser");
-        setUser(null);
-      }
+      await deleteFisaReport(id);
+      toast.success("Report deleted!");
     } catch (error) {
-      console.error("Authentication status error:", error.message);
-      setUser(null);
-      sessionStorage.removeItem("authUser");
-    } finally {
-      // Set loading to false after auth state is determined
-      if (setLoading) {
-        setLoading(false);
-      }
+      toast.error(error.message || "Could not delete report.");
+      throw error;
     }
-  });
-  
-  // Return a cleanup function to unsubscribe when the component unmounts
-  return () => {
-    if (unsubscribe) {
-      unsubscribe();
-    }
+  }, []);
+
+  const firstContract = filteredContracts[0];
+
+  return {
+    loading: fisaLoading || overviewLoading,
+    raports: filteredRaports,
+    fisaLoading,
+    onDeleteReport,
+    totalCustomers: filteredClients.length,
+    lastCustomerName: filteredClients[0]?.full_name || null,
+    contractsLength: filteredContracts.length,
+    lastContractName: firstContract
+      ? `${firstContract.first_name || ""} ${firstContract.last_name || ""}`.trim()
+      : null,
+    fisaTotal: filteredRaports.length,
+    lastReportName: filteredRaports[0]?.client_full_name || null,
   };
 };
 
-// Function to perform login
-export const Login = async (email, password) => {
-  try {
-    // Attempt to sign in with email and password
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    const user = result.user;
-
-    // On successful login, show a success toast
-    toast.success("Login successful!");
-    return user;
-
-  } catch (error) {
-    // Handle different types of Firebase authentication errors
-    switch (error.code) {
-      case "auth/wrong-password":
-        toast.error("Incorrect password. Please try again.");
-        break;
-
-      case "auth/user-not-found":
-        toast.error("No user found with this email.");
-        break;
-
-      case "auth/invalid-email":
-        toast.error("Invalid email format.");
-        break;
-
-      case "auth/user-disabled":
-        toast.error("This account has been disabled.");
-        break;
-
-      default:
-        toast.error(`Login error: ${error.message}`);
-        break;
-    }
-
-    // Throw the error for further handling
-    throw new Error(`Login error: ${error.message}`);
-  }
-};
-
-export const Logout = async () => {
-  try {
-    // Clear sessionStorage before signing out
-    sessionStorage.removeItem("authUser");
-    await signOut(auth);
-    toast.success("Logout successful!");
-  } catch (error) {
-    // Clear sessionStorage even if signOut fails
-    sessionStorage.removeItem("authUser");
-    toast.error(`Logout error: ${error.message}`);
-    throw new Error(`Logout error: ${error.message}`);
-  }
-};
-export const FormatTimestamp = (timestampInMillis) => {
-  const timeStampString = new Date(timestampInMillis);
-  const formattedTimestamp = timeStampString
-    .toLocaleString("ro-RO", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour12: true,
-    })
-  return formattedTimestamp;
-};
-
-/**
- * Lightweight hook for stats only (used in HomePage)
- * Uses getDocs instead of onSnapshot to reduce Firebase reads
- * Fetches once on mount - no refresh interval
- * CACHED: Returns cached data immediately, then updates if necessary
- */
-export const useCustomersStats = () => {
-  const CACHE_KEY = 'customers_stats';
-  const [stats, setStats] = useState(() => {
-    // Initialize with cached data if available
-    const cached = getCachedData(CACHE_KEY);
-    return cached || { total: 0, lastCustomerName: null };
-  });
-  const [loading, setLoading] = useState(() => {
-    // Only show loading if no cache exists
-    return !getCachedData(CACHE_KEY);
-  });
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
-        const snapshot = await getDocs(q);
-        const lastCustomer = snapshot.docs[0]?.data();
-        
-        const newStats = {
-          total: snapshot.size,
-          lastCustomerName: lastCustomer?.customer_info?.formData?.name || null,
-        };
-        
-        // Only update if data changed
-        const cached = getCachedData(CACHE_KEY);
-        if (!cached || cached.total !== newStats.total || cached.lastCustomerName !== newStats.lastCustomerName) {
-          setStats(newStats);
-          setCachedData(CACHE_KEY, newStats);
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching customer stats:", error);
-        setLoading(false);
-      }
-    };
-    
-    fetchStats();
-  }, []);
-
-  return { ...stats, loading };
-};
-
-/**
- * Full customer data hook with real-time updates
- * Used in ClientsWebPage where real-time updates are needed
- * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
- * CACHED: Returns cached data immediately, then updates with real-time changes
- */
 export const FetchCustomersData = () => {
-  const CACHE_KEY = 'customers_data';
-  const cachedInitial = getCachedData(CACHE_KEY) || [];
-  const [customerData, setCustomerData] = useState(cachedInitial);
-  const [loading, setLoading] = useState(!cachedInitial.length);
-  const dataRef = useRef(cachedInitial);
-
-  useEffect(() => {
-    // Update ref when state changes
-    dataRef.current = customerData;
-  }, [customerData]);
-
-  useEffect(() => {
-    const LISTENER_KEY = 'customers_listener';
-    
-    // Subscribe to updates
-    const unsubscribeSubscriber = listenerManager.subscribe(LISTENER_KEY, (data) => {
-      // Only update if data actually changed (compare by IDs and length)
-      const currentIds = dataRef.current.map(c => c.id).sort().join(',');
-      const newIds = data.map(c => c.id).sort().join(',');
-      
-      if (currentIds !== newIds || dataRef.current.length !== data.length) {
-        setCustomerData(data);
-        dataRef.current = data;
-      }
-      setLoading(false);
-    });
-    
-    // Only create listener if it doesn't exist
-    if (!listenerManager.hasListener(LISTENER_KEY)) {
-      const q = query(collection(db, "oc_data"), orderBy("timestamp", "desc"));
-      const unsubscribeListener = onSnapshot(q, (snapshot) => {
-        const data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          name: doc.data().customer_info?.formData?.name || '',
-          phone: doc.data().customer_info?.formData?.phone || '',
-          ifn: doc.data().customer_info?.banking_info?.ifn || [],
-          banks: doc.data().customer_info?.banking_info?.banks || [],
-          others: doc.data().customer_info?.banking_info?.others || [],
-          bankHistory: doc.data().customer_info?.banking_info?.bankHistory === false ? "No bank history" : "Bank history",
-          bankStatus: doc.data().customer_info?.banking_status === false ? "No raport status" : "Negativ Raport",
-          selectedDate: doc.data().customer_info?.formData?.selectedDate || '',
-          aboutUs: doc.data().customer_info?.formData?.aboutUs || '',
-          email: doc.data().customer_info?.formData?.email || '',
-          status: doc.data().customer_status || '',
-          timestamp: doc.data().timestamp?.seconds ? FormatTimestamp(doc.data().timestamp.seconds * 1000) : new Date().toLocaleString(),
-        }));
-        
-        setCachedData(CACHE_KEY, data);
-        listenerManager.notify(LISTENER_KEY, data);
-      }, (error) => {
-        console.error("Error fetching customers:", error);
-        setLoading(false);
-      });
-      
-      listenerManager.listeners.set(LISTENER_KEY, unsubscribeListener);
-    } else {
-      // If listener already exists, load from cache and notify immediately
-      const cached = getCachedData(CACHE_KEY);
-      if (cached && cached.length > 0) {
-        setCustomerData(cached);
-        dataRef.current = cached;
-        setLoading(false);
-      }
-    }
-
-    return () => unsubscribeSubscriber();
-  }, []);
+  const { rows: customerData, loading } = useRealtimeTable("credit_applications");
 
   const updateCustomer = async (id, data) => {
-    await updateDoc(doc(db, "oc_data", id), data);
-    toast.success("Customer updated!");
-    // Cache will be updated automatically by onSnapshot
+    try {
+      await updateWebClient(id, data);
+      toast.success("Customer updated!");
+    } catch (error) {
+      toast.error(error.message || "Could not update customer.");
+      throw error;
+    }
   };
 
   const deleteCustomer = async (id) => {
-    await deleteDoc(doc(db, "oc_data", id));
-    toast.success("Customer deleted!");
-    // Cache will be updated automatically by onSnapshot
+    try {
+      await deleteWebClient(id);
+      toast.success("Customer deleted!");
+    } catch (error) {
+      toast.error(error.message || "Could not delete customer.");
+      throw error;
+    }
   };
 
   return { customerData, loading, updateCustomer, deleteCustomer };
 };
-/**
- * Lightweight hook for contract stats only (used in HomePage)
- * Uses getDocs instead of onSnapshot to reduce Firebase reads
- * Fetches once on mount - no refresh interval
- * CACHED: Returns cached data immediately, then updates if necessary
- */
-export const useContractsStats = () => {
-  const CACHE_KEY = 'contracts_stats';
-  const [stats, setStats] = useState(() => {
-    // Initialize with cached data if available
-    const cached = getCachedData(CACHE_KEY);
-    return cached || { total: 0, lastContractName: null };
-  });
-  const [loading, setLoading] = useState(() => {
-    // Only show loading if no cache exists
-    return !getCachedData(CACHE_KEY);
-  });
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
-        const snapshot = await getDocs(q);
-        const first = snapshot.docs[0]?.data();
-        
-        const newStats = {
-          total: snapshot.size,
-          lastContractName: first ? `${first.firstName || ''} ${first.lastName || ''}`.trim() : null,
-        };
-        
-        // Only update if data changed
-        const cached = getCachedData(CACHE_KEY);
-        if (!cached || cached.total !== newStats.total || cached.lastContractName !== newStats.lastContractName) {
-          setStats(newStats);
-          setCachedData(CACHE_KEY, newStats);
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching contract stats:", error);
-        setLoading(false);
-      }
-    };
-    
-    fetchStats();
-  }, []);
-
-  return { ...stats, loading };
-};
-
-/**
- * Full contract data hook with real-time updates
- * Used in ContractTable where real-time updates are needed
- * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
- * CACHED: Returns cached data immediately, then updates with real-time changes
- */
 export const FetchContractData = () => {
-  const CACHE_KEY = 'contracts_data';
-  const cachedInitial = getCachedData(CACHE_KEY) || [];
-  const [contracts, setContracts] = useState(cachedInitial);
-  const [loading, setLoading] = useState(!cachedInitial.length);
-  const dataRef = useRef(cachedInitial);
-
-  useEffect(() => {
-    // Update ref when state changes
-    dataRef.current = contracts;
-  }, [contracts]);
-
-  useEffect(() => {
-    const LISTENER_KEY = 'contracts_listener';
-    
-    // Subscribe to updates
-    const unsubscribeSubscriber = listenerManager.subscribe(LISTENER_KEY, (data) => {
-      // Only update if data actually changed (compare by IDs and length)
-      const currentIds = dataRef.current.map(c => c.id).sort().join(',');
-      const newIds = data.map(c => c.id).sort().join(',');
-      
-      if (currentIds !== newIds || dataRef.current.length !== data.length) {
-        setContracts(data);
-        dataRef.current = data;
-      }
-      setLoading(false);
-    });
-    
-    // Only create listener if it doesn't exist
-    if (!listenerManager.hasListener(LISTENER_KEY)) {
-      const q = query(collection(db, 'contracts'), orderBy("timeStamp", "desc"));
-      const unsubscribeListener = onSnapshot(q, (snapshot) => {
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          timestamp: doc.data().timeStamp?.seconds 
-            ? FormatTimestamp(doc.data().timeStamp.seconds * 1000)
-            : new Date().toLocaleString(),
-        }));
-        
-        setCachedData(CACHE_KEY, data);
-        listenerManager.notify(LISTENER_KEY, data);
-      }, (error) => {
-        console.error('Error fetching contracts:', error);
-        setLoading(false);
-      });
-      
-      listenerManager.listeners.set(LISTENER_KEY, unsubscribeListener);
-    } else {
-      // If listener already exists, load from cache and notify immediately
-      const cached = getCachedData(CACHE_KEY);
-      if (cached && cached.length > 0) {
-        setContracts(cached);
-        dataRef.current = cached;
-        setLoading(false);
-      }
-    }
-
-    return () => unsubscribeSubscriber();
-  }, []);
+  const { rows: contracts, loading } = useRealtimeTable("contracts");
 
   const onDelete = async (id) => {
-    await deleteDoc(doc(db, 'contracts', id));
-    toast.success("Contract deleted!");
-    // Cache will be updated automatically by onSnapshot
+    try {
+      await deleteContract(id);
+      toast.success("Contract deleted!");
+    } catch (error) {
+      toast.error(error.message || "Could not delete contract.");
+      throw error;
+    }
   };
 
   return { contracts, loading, onDelete };
 };
-// Function to add a new consultant
 
-export const AddConsultant = async (email, password, username, role) => {
+export const addRaport = async (formData, { isAdmin = false } = {}) => {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) throw userError || new Error("Not authenticated");
+
   try {
-    const docRef = await addDoc(collection(db, "consultants"), {
-      email: email,
-      password: password,
-      username: username,
-      role: role,
-      timestamp: serverTimestamp(),
-    });
-
-    // Create user credentials using Firebase Authentication
-    await createUserWithEmailAndPassword(auth, email, password);
-
-    // Show success message
-    toast.success("Consultant added successfully!");
-
-    // Return success status or any other data as needed
-    return { id: docRef.id, email, username, role };
-  } catch (error) {
-    // Show error message
-    toast.error(`Error adding consultant: ${error.message}`);
-    throw error;
-  }
-};
-
-export const getAllConsultants = async () => {
-  try {
-    // Fetch all documents from the "consultants" collection
-    const consultantsCollection = collection(db, 'consultants');
-    const querySnapshot = await getDocs(consultantsCollection);
-
-    // Initialize an array to store all documents data
-    const consultantsData = [];
-
-    // Iterate through each document in the query snapshot
-    querySnapshot.forEach((doc) => {
-      // Extract the desired fields from each document and push them to the array
-      const consultantData = {
-        id: doc.id,
-        username: doc.data().username,
-        email: doc.data().email
-        // Add other desired fields here
-      };
-      consultantsData.push(consultantData);
-    });
-
-    // Return the array of document data
-    return consultantsData;
-  } catch (error) {
-    throw error;
-  }
-};
-
-
-
-export const getConsultantByUserName = async (username) => {
-  try {
-    // Query the 'consultants' collection for the consultant with the specified username
-    const consultantsCollection = collection(db, 'consultants');
-    const consultantQuery = query(consultantsCollection, where('username', '==', username));
-    const querySnapshot = await getDocs(consultantQuery);
-    // If there is a document with the specified username, return its data
-    if (!querySnapshot.empty) {
-      const consultantData = querySnapshot.docs[0].data();
-      return consultantData;
-    } else {
-      throw new Error("Consultant not found");
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-
-
-
-// Function to add a new report to the 'raport' collection
-export const addRaport = async (formData) => {
-  try {
-    // Add the form data to the Firestore collection 'raport'
-    const docRef = await addDoc(collection(db, "raport"), {
-      ...formData,
-      timestamp: serverTimestamp(),
-    });
-
-    // Show success message
+    const id = await addFisaReport(formData, user.id, { isAdmin });
     toast.success("Raport added successfully!");
-
-    // Return the document reference or any other data as needed
-    return docRef.id;
+    return id;
   } catch (error) {
-    // Show error message
-    toast.error(`Error adding raport: ${error.message}`);
+    toast.error(error.message || "Error adding raport.");
     throw error;
   }
 };
 
-/**
- * Full raport data hook with real-time updates
- * OPTIMIZATION: Limited to 500 records to reduce Firebase reads
- * CACHED: Returns cached data immediately, then updates with real-time changes
- */
 export const useFetchRaportNew = () => {
-  const CACHE_KEY = 'raports_data';
-  const cachedInitial = getCachedData(CACHE_KEY) || [];
-  const [raports, setRaports] = useState(cachedInitial);
-  const [loading, setLoading] = useState(!cachedInitial.length);
-  const dataRef = useRef(cachedInitial);
-
-  useEffect(() => {
-    // Update ref when state changes
-    dataRef.current = raports;
-  }, [raports]);
-
-  useEffect(() => {
-    const LISTENER_KEY = 'raports_listener';
-    
-    // Subscribe to updates
-    const unsubscribeSubscriber = listenerManager.subscribe(LISTENER_KEY, (data) => {
-      // Only update if data actually changed (compare by IDs and length)
-      const currentIds = dataRef.current.map(r => r.id).sort().join(',');
-      const newIds = data.map(r => r.id).sort().join(',');
-      
-      if (currentIds !== newIds || dataRef.current.length !== data.length) {
-        setRaports(data);
-        dataRef.current = data;
-      }
-      setLoading(false);
-    });
-    
-    // Only create listener if it doesn't exist
-    if (!listenerManager.hasListener(LISTENER_KEY)) {
-      const q = query(collection(db, 'raport'), orderBy('timestamp', 'desc'));
-      const unsubscribeListener = onSnapshot(q, (snapshot) => {
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          timestamp: doc.data().timestamp?.seconds 
-            ? new Date(doc.data().timestamp.seconds * 1000)
-            : new Date(),
-        }));
-        
-        setCachedData(CACHE_KEY, data);
-        listenerManager.notify(LISTENER_KEY, data);
-      }, (error) => {
-        console.error('Error fetching raports:', error);
-        setLoading(false);
-      });
-      
-      listenerManager.listeners.set(LISTENER_KEY, unsubscribeListener);
-    } else {
-      // If listener already exists, load from cache and notify immediately
-      const cached = getCachedData(CACHE_KEY);
-      if (cached && cached.length > 0) {
-        setRaports(cached);
-        dataRef.current = cached;
-        setLoading(false);
-      }
-    }
-
-    return () => unsubscribeSubscriber();
-  }, []);
+  const { rows: raports, loading } = useRealtimeTable("fisa_reports");
 
   const onDelete = async (id) => {
-    await deleteDoc(doc(db, 'raport', id));
-    toast.success("Report deleted!");
-    // Cache will be updated automatically by onSnapshot
+    try {
+      await deleteFisaReport(id);
+      toast.success("Report deleted!");
+    } catch (error) {
+      toast.error(error.message || "Could not delete report.");
+      throw error;
+    }
   };
 
   return { raports, loading, onDelete };
+};
+
+export const useAssignClient = () => {
+  const [consultants, setConsultants] = useState([]);
+  const [loadingConsultants, setLoadingConsultants] = useState(false);
+
+  const loadConsultants = useCallback(async () => {
+    setLoadingConsultants(true);
+    try {
+      const data = await fetchConsultantsForAssignment();
+      setConsultants(data);
+    } catch (error) {
+      toast.error(error.message || "Could not load consultants.");
+    } finally {
+      setLoadingConsultants(false);
+    }
+  }, []);
+
+  const assignClient = async (clientId, consultantId) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      await assignWebClientToUser(clientId, consultantId, user?.id);
+      toast.success("Client assigned successfully!");
+    } catch (error) {
+      toast.error(error.message || "Could not assign client.");
+      throw error;
+    }
+  };
+
+  return { consultants, loadingConsultants, loadConsultants, assignClient };
+};
+
+export const useAuthUser = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => checkAuthStatus(setUser, setLoading), []);
+
+  return { user, loading, isAdmin: user?.isAdmin === true };
 };

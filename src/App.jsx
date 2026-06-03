@@ -1,90 +1,140 @@
-import React, { useEffect, useState } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
-import HomePage from './Pages/Home/HomePage';
-import MainLayout from './Components/Layout/Layout';
-import ContractTable from './Pages/ContractTable/ContractTable';
-import ClientsWebPage from './Pages/ClientsWebPage/ClientsWebPage';
-import FormUser from './Pages/Raports/AddUserRaport';
-import LoginPage from './Pages/Auth/LoginPage';
-import ConsultantPage from './Pages/Consultant/ConsultantPage';
-import CreateConsultant from './Components/Consultant/CreateConsultant';
-import { checkAuthStatus } from './services/Hooks';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  RouterProvider,
+} from "react-router-dom";
+import HomePage from "./Pages/Home/HomePage";
+import MainLayout from "./Components/Layout/Layout";
+import ContractTable from "./Pages/ContractTable/ContractTable";
+import ClientsWebPage from "./Pages/ClientsWebPage/ClientsWebPage";
+import FormUser from "./Pages/Raports/AddUserRaport";
+import LoginPage from "./Pages/Auth/LoginPage";
+import ConsultantPage from "./Pages/Consultant/ConsultantPage";
+import CreateConsultant from "./Components/Consultant/CreateConsultant";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LoadingProgressProvider } from "./context/LoadingProgressContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+const LoadingScreen = () => (
+  <div className="flex h-screen items-center justify-center bg-gray-50">
+    <div className="flex flex-col items-center gap-4">
+      <div className="dash-spinner" />
+      <p className="text-sm font-medium text-gray-500">Loading...</p>
+    </div>
+  </div>
+);
 
-
-const App = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = checkAuthStatus(setUser, setLoading);
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, []);
-
-  // ProtectedRoute: All admin routes require authentication
-  // If user is not authenticated, redirect to /login
-  const ProtectedRoute = ({ children }) => {
-    if (loading) {
-      return <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
-          <p className="text-gray-300 font-medium">Loading...</p>
-        </div>
-      </div>;
-    }
-    // All admin routes are protected - require authentication
-    if (!user) {
-      return <Navigate to="/login" replace />;
-    }
-    return <MainLayout>{children}</MainLayout>;
-  };
-
-  // Public route wrapper that redirects logged-in users away from login page
-  const PublicRoute = ({ children }) => {
-    if (loading) {
-      return <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
-          <p className="text-gray-300 font-medium">Loading...</p>
-        </div>
-      </div>;
-    }
-    // If user is logged in, redirect to home instead of showing login page
-    return user ? <Navigate to="/home" replace /> : children;
-  };
-
-  return (
-    <>
-      <Routes>
-        {/* Root route: redirect to /home if authenticated, otherwise to /login */}
-        <Route path="/" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />} />
-        
-        {/* Login route: public, but redirects to /home if already logged in */}
-        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-        
-        {/* All other routes are protected admin routes - require authentication */}
-        <Route path="/*" element={<ProtectedRoute>
-          <Routes>
-            <Route path="home" element={<HomePage user={user} />} />
-            <Route path="customers" element={<ClientsWebPage />} />
-            <Route path="contract" element={<ContractTable />} />
-            <Route path="newraport" element={<FormUser />} />
-            <Route path="CreateConsultant" element={<CreateConsultant />} />
-            <Route path="consultant" element={<ConsultantPage />} />
-            {/* Catch-all: redirect unknown routes to /home */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
-          </Routes>
-        </ProtectedRoute>} />
-      </Routes>
-      <ToastContainer />
-    </>
-  );
+const RootRedirect = () => {
+  const { user } = useAuth();
+  return user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />;
 };
+
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  return <MainLayout>{children}</MainLayout>;
+};
+
+const AdminRoute = ({ children }) => {
+  const { user, loading, isAdmin } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!isAdmin) return <Navigate to="/home" replace />;
+  return <MainLayout>{children}</MainLayout>;
+};
+
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  return user ? <Navigate to="/home" replace /> : children;
+};
+
+const AppShell = () => (
+  <AuthProvider>
+    <LoadingProgressProvider>
+      <Outlet />
+      <ToastContainer />
+    </LoadingProgressProvider>
+  </AuthProvider>
+);
+
+const router = createBrowserRouter(
+  [
+    {
+      element: <AppShell />,
+      children: [
+        { path: "/", element: <RootRedirect /> },
+        {
+          path: "/login",
+          element: (
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          ),
+        },
+        {
+          path: "/home",
+          element: (
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/customers",
+          element: (
+            <ProtectedRoute>
+              <ClientsWebPage />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/contract",
+          element: (
+            <ProtectedRoute>
+              <ContractTable />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/newraport",
+          element: (
+            <ProtectedRoute>
+              <FormUser />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/CreateConsultant",
+          element: (
+            <AdminRoute>
+              <CreateConsultant />
+            </AdminRoute>
+          ),
+        },
+        {
+          path: "/consultant",
+          element: (
+            <ProtectedRoute>
+              <ConsultantPage />
+            </ProtectedRoute>
+          ),
+        },
+        { path: "*", element: <Navigate to="/home" replace /> },
+      ],
+    },
+  ],
+  {
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    },
+  }
+);
+
+const App = () => <RouterProvider router={router} />;
 
 export default App;

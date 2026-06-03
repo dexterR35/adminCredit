@@ -8,25 +8,44 @@ const CardSmall = ({
   _three = "",
   icon,
   className = "",
+  accent = "primary",
+  loading = false,
 }) => {
+  const accentClasses = {
+    primary: "dash-stat-icon",
+    success: "flex h-7 w-7 items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-700",
+    info: "flex h-7 w-7 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700",
+    warning: "flex h-7 w-7 items-center justify-center rounded-lg border border-amber-100 bg-amber-50 text-amber-700",
+  };
+
+  if (loading) {
+    return (
+      <div
+        className={`dash-stat-card ${className}`}
+        aria-busy="true"
+        aria-label={`Loading ${_one || "statistic"}`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="h-3 w-24 animate-pulse rounded bg-gray-200" />
+          <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-100" />
+        </div>
+        <div className="mt-3 h-7 w-12 animate-pulse rounded bg-gray-200" />
+        <div className="mt-2 h-3 w-32 animate-pulse rounded bg-gray-100" />
+      </div>
+    );
+  }
+
   return (
-    <div className={`${className} rounded-xl p-6 border border-slate-700/50 bg-slate-800/50 backdrop-blur-sm transition-all duration-200`}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{_one}</p>
-        <div className="p-2 rounded-lg bg-slate-700/50">
-          <IconR icon={icon} size={18} />
+    <div className={`dash-stat-card ${className}`}>
+      <div className="flex items-start justify-between gap-3">
+        <p className="dash-stat-label">{_one}</p>
+        <div className={accentClasses[accent] || accentClasses.primary}>
+          <IconR icon={icon} size={15} />
         </div>
       </div>
-      
-      {/* Main Value */}
-      <div className="mb-3">
-        <p className="text-3xl font-semibold text-slate-100 tracking-tight">{_two}</p>
-      </div>
-      
-      {/* Footer */}
+      <p className="dash-stat-value">{_two}</p>
       {_three !== "Details" && (
-        <p className="text-sm font-medium text-slate-400 capitalize">{_three}</p>
+        <p className="dash-stat-meta capitalize">{_three}</p>
       )}
     </div>
   );
@@ -40,4 +59,6 @@ CardSmall.propTypes = {
   _three: PropTypes.string,
   icon: PropTypes.string.isRequired,
   className: PropTypes.string,
+  accent: PropTypes.oneOf(["primary", "success", "info", "warning"]),
+  loading: PropTypes.bool,
 };

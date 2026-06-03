@@ -1,524 +1,489 @@
-import React, { useEffect, useState } from "react";
-import { getAllConsultants } from "../../services/Hooks";
-import FormInput from "../../Components/Form/FormInput";
-import { CustomButton } from "../../Components/Buttons/Buttons";
-import { addRaport } from "../../services/Hooks"
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Formik, Form, Field } from "formik";
+import { useBlocker, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { getAllUsers, addRaport } from "../../services/Hooks";
+import { useAuth } from "../../context/AuthContext";
+import { Button } from "../../Components/Buttons";
+import FormField from "../../Components/Inputs/FormField";
+import FormikControl from "../../Components/Inputs/FormikControl";
+import ConfirmModal from "../../Components/Modal/ConfirmModal";
+import { buildFieldTypeMap, sanitizeFormValues } from "../../utils/sanitize";
+import FisaReportStepper from "./FisaReportStepper";
+import FisaConsultantBanner from "./FisaConsultantBanner";
+import FisaDraftSync from "./FisaDraftSync";
+import { clearFisaDraft, loadFisaDraft } from "./fisaReportDraft";
+import {
+  buildFisaReportFields,
+  buildInitialValues,
+  buildValidationSchemaForSteps,
+  getFieldsForStep,
+  getReviewSections,
+  getStepsForRole,
+  prepareRaportPayload,
+} from "./fisaReportFormConfig";
+
+const formatReviewValue = (field, value, allFields, values) => {
+  if (value === null || value === undefined || value === "") {
+    return "—";
+  }
+
+  if (field.as === "select") {
+    const option = field.options?.find((item) => String(item.value) === String(value));
+    return option?.label || value;
+  }
+
+  if (field.name === "user") {
+    if (values.userName) return values.userName;
+    const userField = allFields.find((item) => item.name === "user");
+    const option = userField?.options?.find((item) => String(item.value) === String(value));
+    return option?.label || value;
+  }
+
+  return value;
+};
+
+const ReviewSummary = ({ values, allFields, steps, showConsultantMeta }) => {
+  const sections = getReviewSections(allFields, steps);
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-success-border bg-success-bg px-4 py-3">
+        <p className="text-sm font-medium text-success-dark">
+          Review your entries before creating the report. Use the stepper above to edit any section.
+        </p>
+      </div>
+
+      {showConsultantMeta && (
+        <FisaConsultantBanner userName={values.userName} date={values.todayDate} />
+      )}
+
+      {sections.map((section) => (
+        <section
+          key={section.id}
+          className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50/50"
+        >
+          <header className="border-b border-gray-200 bg-white px-4 py-3">
+            <h3 className="text-sm font-display font-semibold text-gray-900">{section.title}</h3>
+            <p className="text-xs text-gray-500">{section.description}</p>
+          </header>
+          <dl className="grid grid-cols-1 gap-px bg-gray-200">
+            {section.fields.map((field) => (
+              <div key={field.name} className="bg-white px-4 py-3">
+                <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                  {field.label}
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-gray-900 break-words">
+                  {formatReviewValue(field, values[field.name], allFields, values)}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+
+      <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Status</p>
+        <p className="mt-1 text-sm font-semibold text-primary-700">{values.userStatus}</p>
+      </div>
+    </div>
+  );
+};
+
+const StepFields = ({ fields, touched, errors }) => (
+  <div className="mx-auto w-full max-w-lg space-y-3 sm:space-y-4">
+    {fields.map((field) => (
+      <div key={field.name}>
+        <FormField
+          label={field.label}
+          htmlFor={field.name}
+          required={field.required}
+          error={touched[field.name] && errors[field.name]}
+        >
+          <Field name={field.name}>
+            {({ field: formikField, form }) => (
+              <FormikControl field={formikField} form={form} config={field} />
+            )}
+          </Field>
+        </FormField>
+      </div>
+    ))}
+  </div>
+);
+
 const FormUser = () => {
-    const [consultants, setConsultants] = useState([]);
-    const [formValues, setFormValues] = useState({
-        // Consultant & Date
-        consultant: "",
-        consultantInfo: "",
-        todayDate: new Date().toLocaleDateString('ro-RO'),
-        
-        // Client Source & Basic Info
-        source: "",
-        clientFullName: "",
-        clientCNP: "",
-        phone: "",
-        email: "",
-        
-        // Marital Status & Partner Info
-        maritalStatus: "",
-        partnerFullName: "",
-        partnerCNP: "",
-        partnerRatesDelays: "",
-        partnerRatesValue: "",
-        partnerHasJobContract: "",
-        
-        // Residence & Education
-        residenceSituation: "",
-        education: "",
-        motherMaidenName: "",
-        
-        // Credit Information
-        requestedCreditValue: "",
-        wantsRefinancing: "",
-        refinancingDetails: "",
-        pastProblems: "",
-        
-        // Employment Information
-        profession: "",
-        employerName: "",
-        employerCUI: "",
-        employerEmployees: "",
-        workHours: "",
-        contractType: "",
-        employmentStartDate: "",
-        netSalary: "",
-        salaryBank: "",
-        salaryContinuity: "",
-        mealVouchers: "",
-        commissions: "",
-        bonuses: "",
-        employerAddress: "",
-        employerFoundedDate: "",
-        employerActivity: "",
-        totalWorkExperience: "",
-        employersLast24Months: "",
-        
-        // Contact Persons
-        contactPerson1Name: "",
-        contactPerson1Phone: "",
-        contactPerson1Relation: "",
-        contactPerson2Name: "",
-        contactPerson2Phone: "",
-        contactPerson2Relation: "",
-        
-        // Status
-        userStatus: "New",
-    });
+  const navigate = useNavigate();
+  const { user: authUser, loading: authLoading, isAdmin } = useAuth();
+  const [users, setUsers] = useState([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [maxStepReached, setMaxStepReached] = useState(0);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [hasUnsavedDraft, setHasUnsavedDraft] = useState(false);
+  const [initialFormValues, setInitialFormValues] = useState(null);
 
-    useEffect(() => {
-        const fetchConsultantsData = async () => {
-            try {
-                const dataConsultant = await getAllConsultants();
-                setConsultants(dataConsultant);
-            } catch (error) {
-                console.error("Error fetching consultant data:", error);
-            }
-        };
+  const steps = useMemo(() => getStepsForRole(isAdmin), [isAdmin]);
+  const baselineValues = useMemo(
+    () => buildInitialValues(authUser, isAdmin),
+    [authUser, isAdmin]
+  );
+  const allFields = useMemo(() => buildFisaReportFields(users), [users]);
+  const fieldTypeMap = useMemo(() => buildFieldTypeMap(allFields), [allFields]);
+  const validationSchema = useMemo(
+    () => buildValidationSchemaForSteps(allFields, steps),
+    [allFields, steps]
+  );
+  const currentStepConfig = steps[currentStep];
+  const currentStepFields = useMemo(
+    () => getFieldsForStep(currentStep, allFields, steps),
+    [currentStep, allFields, steps]
+  );
+  const isReviewStep = currentStepConfig?.id === "review";
+  const isLastStep = currentStep === steps.length - 1;
+  const showConsultantMeta = !isAdmin;
 
-        fetchConsultantsData();
-    }, []);
+  const handleDirtyChange = useCallback((dirty) => {
+    setHasUnsavedDraft(dirty);
+  }, []);
 
-    // Formik handles form state, no need for handleChange
+  const blocker = useBlocker(
+    useCallback(
+      ({ currentLocation, nextLocation }) =>
+        hasUnsavedDraft &&
+        currentLocation.pathname !== nextLocation.pathname,
+      [hasUnsavedDraft]
+    )
+  );
 
-    const onSubmit = async (values) => {
-        try {
-            // Prepare data for database - clean up empty strings and format dates
-            const preparedData = {
-                ...values,
-                // Convert empty strings to null for optional fields
-                consultantInfo: values.consultantInfo || null,
-                email: values.email || null,
-                partnerFullName: values.partnerFullName || null,
-                partnerCNP: values.partnerCNP || null,
-                partnerRatesDelays: values.partnerRatesDelays || null,
-                partnerRatesValue: values.partnerRatesValue || null,
-                partnerHasJobContract: values.partnerHasJobContract || null,
-                residenceSituation: values.residenceSituation || null,
-                education: values.education || null,
-                motherMaidenName: values.motherMaidenName || null,
-                refinancingDetails: values.refinancingDetails || null,
-                pastProblems: values.pastProblems || null,
-                employerCUI: values.employerCUI || null,
-                employerEmployees: values.employerEmployees || null,
-                workHours: values.workHours || null,
-                mealVouchers: values.mealVouchers || null,
-                commissions: values.commissions || null,
-                bonuses: values.bonuses || null,
-                employerAddress: values.employerAddress || null,
-                employerFoundedDate: values.employerFoundedDate || null,
-                employerActivity: values.employerActivity || null,
-                totalWorkExperience: values.totalWorkExperience || null,
-                employersLast24Months: values.employersLast24Months || null,
-                contactPerson1Name: values.contactPerson1Name || null,
-                contactPerson1Phone: values.contactPerson1Phone || null,
-                contactPerson1Relation: values.contactPerson1Relation || null,
-                contactPerson2Name: values.contactPerson2Name || null,
-                contactPerson2Phone: values.contactPerson2Phone || null,
-                contactPerson2Relation: values.contactPerson2Relation || null,
-            };
-            
-            await addRaport(preparedData);
-            console.log("Raport added successfully!");
-        } catch (error) {
-            console.error("Error adding raport:", error);
-        }
+  useEffect(() => {
+    if (authLoading || !authUser?.id) return;
+
+    const baseline = buildInitialValues(authUser, isAdmin);
+    const draft = loadFisaDraft(authUser.id);
+
+    if (draft?.values) {
+      setCurrentStep(draft.currentStep ?? 0);
+      setMaxStepReached(draft.maxStepReached ?? 0);
+      setInitialFormValues({
+        ...baseline,
+        ...draft.values,
+        todayDate: baseline.todayDate,
+        user: isAdmin ? draft.values.user : baseline.user,
+        userName: isAdmin ? draft.values.userName : baseline.userName,
+      });
+    } else {
+      setCurrentStep(0);
+      setMaxStepReached(0);
+      setInitialFormValues(baseline);
+    }
+  }, [authLoading, authUser, isAdmin]);
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      setShowLeaveModal(true);
+    }
+  }, [blocker.state]);
+
+  useEffect(() => {
+    if (!hasUnsavedDraft) return undefined;
+
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
     };
 
-    const fields = [
-        // Section 1: Consultant & Date
-        {
-            name: "consultant",
-            label: "Consultant",
-            as: "select",
-            options: [
-                { value: '', label: 'Select Consultant' },
-                ...consultants.map(consultant => ({ value: consultant.id, label: consultant.username })),
-            ],
-            selectClassName: "w-full",
-        },
-        {
-            name: "consultantInfo",
-            label: "Consultant Info (Optional)",
-            as: "input",
-            placeholder: "Additional consultant information",
-        },
-        {
-            name: "todayDate",
-            label: "Dată",
-            as: "input",
-            disabled: true,
-            required: true,
-        },
-        
-        // Section 2: Client Source & Basic Information
-        {
-            name: "source",
-            label: "Sursă Client",
-            as: "select",
-            required: true,
-            options: [
-                { value: "", label: "Select Source" },
-                { value: "pliant", label: "Pliant" },
-                { value: "consultant", label: "Consultant" },
-                { value: "facebook", label: "Facebook" },
-                { value: "website", label: "Website" },
-                { value: "friends", label: "Friends" },
-                { value: "other", label: "Other" },
-            ],
-            selectClassName: "w-full",
-        },
-        {
-            name: "clientFullName",
-            label: "Nume și Prenume Client",
-            as: "input",
-            required: true,
-            placeholder: "LINCAN MARIO",
-        },
-        {
-            name: "clientCNP",
-            label: "CNP Client",
-            as: "input",
-            required: true,
-            placeholder: "5060210420135",
-            type: "text",
-        },
-        {
-            name: "phone",
-            label: "Nr. Telefon (Abonament sau Cartelă)",
-            as: "input",
-            required: true,
-            placeholder: "0759848404/ 0759365934",
-        },
-        {
-            name: "email",
-            label: "Adresă de e-mail",
-            as: "input",
-            type: "email",
-            placeholder: "lincamario@YAHOO.COM",
-        },
-        
-        // Section 3: Marital Status & Partner Information
-        {
-            name: "maritalStatus",
-            label: "Stare civilă",
-            as: "select",
-            required: true,
-            options: [
-                { value: "", label: "Select Status" },
-                { value: "necsat", label: "NECSAT" },
-                { value: "casatorit", label: "Căsătorit" },
-                { value: "divortat", label: "Divorțat" },
-                { value: "singur", label: "Singur" },
-            ],
-            selectClassName: "w-full",
-        },
-        {
-            name: "partnerFullName",
-            label: "Nume și Prenume Soț / Soție",
-            as: "input",
-            placeholder: "Full name",
-        },
-        {
-            name: "partnerCNP",
-            label: "CNP Soț / Soție",
-            as: "input",
-            placeholder: "CNP",
-        },
-        {
-            name: "partnerRatesDelays",
-            label: "Soțul / soția au rate / întârzieri",
-            as: "select",
-            options: [
-                { value: "", label: "Select" },
-                { value: "yes", label: "Da" },
-                { value: "no", label: "Nu" },
-            ],
-            selectClassName: "w-full",
-        },
-        {
-            name: "partnerRatesValue",
-            label: "Valoarea rate / întârzieri",
-            as: "input",
-            placeholder: "Value",
-        },
-        {
-            name: "partnerHasJobContract",
-            label: "Soțul / soția angajat cu Contract de muncă",
-            as: "select",
-            options: [
-                { value: "", label: "Select" },
-                { value: "yes", label: "Da" },
-                { value: "no", label: "Nu" },
-            ],
-            selectClassName: "w-full",
-        },
-        
-        // Section 4: Residence & Education
-        {
-            name: "residenceSituation",
-            label: "Situația domiciliului",
-            as: "select",
-            options: [
-                { value: "", label: "Select" },
-                { value: "parintii", label: "Părinții" },
-                { value: "proprietar", label: "Proprietar" },
-                { value: "chirias", label: "Chiriaș" },
-                { value: "other", label: "Altul" },
-            ],
-            selectClassName: "w-full",
-        },
-        {
-            name: "education",
-            label: "Studii absolvite",
-            as: "input",
-            placeholder: "9 CLASE",
-        },
-        {
-            name: "motherMaidenName",
-            label: "Numele mamei înainte de căsătorie",
-            as: "input",
-            placeholder: "BURLAN",
-        },
-        
-        // Section 5: Credit Information
-        {
-            name: "requestedCreditValue",
-            label: "Valoare credit solicitat",
-            as: "input",
-            required: true,
-            placeholder: "MAXIM 60K-80K",
-        },
-        {
-            name: "wantsRefinancing",
-            label: "Clientul dorește refinanțarea creditelor actuale?",
-            as: "select",
-            options: [
-                { value: "", label: "Select" },
-                { value: "yes", label: "Da" },
-                { value: "no", label: "Nu" },
-            ],
-            selectClassName: "w-full",
-        },
-        {
-            name: "refinancingDetails",
-            label: "Detalii refinanțare",
-            as: "textarea",
-            rows: 2,
-            placeholder: "NU, FARA ISTORIC",
-        },
-        {
-            name: "pastProblems",
-            label: "Probleme în trecut",
-            as: "textarea",
-            rows: 2,
-            placeholder: "IN TRECUT PROBLEME LA TELKOM",
-        },
-        
-        // Section 6: Employment Information
-        {
-            name: "profession",
-            label: "Funcția / Profesia (Calificat sau Necalificat)",
-            as: "input",
-            placeholder: "PAZNIC",
-        },
-        {
-            name: "employerName",
-            label: "Nume angajator",
-            as: "input",
-            placeholder: "BGS SECURITY CONTRO SRL",
-        },
-        {
-            name: "employerCUI",
-            label: "CUI Angajator",
-            as: "input",
-            placeholder: "CUI number",
-        },
-        {
-            name: "employerEmployees",
-            label: "Nr. angajați",
-            as: "input",
-            type: "number",
-            placeholder: "Number of employees",
-        },
-        {
-            name: "workHours",
-            label: "Ore de lucru",
-            as: "input",
-            placeholder: "8H / 4H",
-        },
-        {
-            name: "contractType",
-            label: "Durată contract muncă (determinat / nedeterminat)",
-            as: "select",
-            options: [
-                { value: "", label: "Select" },
-                { value: "determinat", label: "Determinat" },
-                { value: "nedeterminat", label: "Nedeterminat" },
-            ],
-            selectClassName: "w-full",
-        },
-        {
-            name: "employmentStartDate",
-            label: "Data angajării ultimul loc de muncă",
-            as: "date",
-            placeholder: "8 OCTOMBRIE 2024",
-        },
-        {
-            name: "netSalary",
-            label: "Salariul net (media pe ultimele 3 luni)",
-            as: "input",
-            placeholder: "3267 NET",
-        },
-        {
-            name: "salaryBank",
-            label: "În ce bancă încasează",
-            as: "input",
-            placeholder: "PE CT PE BCR",
-        },
-        {
-            name: "salaryContinuity",
-            label: "Continuitate în ultimul an",
-            as: "select",
-            options: [
-                { value: "", label: "Select" },
-                { value: "fara-intrerupere", label: "Fără întrerupere mai mare de 1 lună" },
-                { value: "cu-intrerupere", label: "Cu întrerupere" },
-            ],
-            selectClassName: "w-full",
-        },
-        {
-            name: "mealVouchers",
-            label: "Bonuri de masă",
-            as: "input",
-            placeholder: "INCLUSE IN SALARIU",
-        },
-        {
-            name: "commissions",
-            label: "Comisioane",
-            as: "input",
-            placeholder: "Commissions",
-        },
-        {
-            name: "bonuses",
-            label: "Sporuri",
-            as: "input",
-            placeholder: "PANA LA 4000 NET PE BCR",
-        },
-        {
-            name: "employerAddress",
-            label: "Adresă angajator",
-            as: "input",
-            placeholder: "Employer address",
-        },
-        {
-            name: "employerFoundedDate",
-            label: "Data înființării angajator",
-            as: "date",
-        },
-        {
-            name: "employerActivity",
-            label: "Domeniul de activitate angajator",
-            as: "input",
-            placeholder: "Activity domain",
-        },
-        {
-            name: "totalWorkExperience",
-            label: "Vechime totala in campul muncii",
-            as: "input",
-            placeholder: "10 LUNI",
-        },
-        {
-            name: "employersLast24Months",
-            label: "Număr angajatori în ultimele 24 luni",
-            as: "input",
-            type: "number",
-            placeholder: "Number of employers",
-        },
-        
-        // Section 7: Contact Persons
-        {
-            name: "contactPerson1Name",
-            label: "Persoană de contact #1 (nume)",
-            as: "input",
-            placeholder: "BURCEOIU MARIA",
-        },
-        {
-            name: "contactPerson1Phone",
-            label: "Persoană de contact #1 (telefon)",
-            as: "input",
-            placeholder: "Phone number",
-        },
-        {
-            name: "contactPerson1Relation",
-            label: "Persoană de contact #1 (relația cu solicitantul)",
-            as: "input",
-            placeholder: "Relationship",
-        },
-        {
-            name: "contactPerson2Name",
-            label: "Persoană de contact #2 (nume)",
-            as: "input",
-            placeholder: "Name",
-        },
-        {
-            name: "contactPerson2Phone",
-            label: "Persoană de contact #2 (telefon)",
-            as: "input",
-            placeholder: "Phone number",
-        },
-        {
-            name: "contactPerson2Relation",
-            label: "Persoană de contact #2 (relația cu solicitantul)",
-            as: "input",
-            placeholder: "Relationship",
-        },
-        
-        // Status
-        {
-            name: "userStatus",
-            label: "Status",
-            as: "input",
-            disabled: true,
-            inputClass: "bg-slate-700/50 cursor-not-allowed",
-        },
-    ];
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedDraft]);
 
-    
+  useEffect(() => {
+    if (!isAdmin) return undefined;
 
-    return (
-        <div className="animate-fade-in">
-            {/* Page Title & Subtitle */}
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-slate-100 mb-2">New Report</h1>
-                <p className="text-slate-400 text-sm">Create a new client report with complete information</p>
-            </div>
+    const fetchUsers = async () => {
+      try {
+        const data = await getAllUsers();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        toast.error("Could not load users.");
+      }
+    };
 
-            <div className="rounded-xl p-8 border border-slate-700/50 bg-slate-800/50 backdrop-blur-sm shadow-lg">
-                {/* Form Header */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-1 h-8 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-2xl font-bold text-slate-100">Fisa Client</h2>
-                    </div>
-                    <p className="text-slate-400 text-sm ml-4">Complete all required fields to create a new client report</p>
-                </div>
+    fetchUsers();
+  }, [isAdmin]);
 
-                {/* Form */}
-                <FormInput
-                    initialValues={formValues}
-                    onSubmit={onSubmit}
-                    fields={fields}
-                    formCustomClass="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
-                    buttonCustomClass="mt-6"
-                    submitButtonText="Create Report"
-                />        
-            </div>
-        </div>
+  const mergeAuthUserValues = (values) => {
+    if (isAdmin) return values;
+
+    return {
+      ...values,
+      user: authUser?.id || values.user,
+      userName: authUser?.username || authUser?.email?.split("@")[0] || values.userName,
+      todayDate: new Date().toLocaleDateString("ro-RO"),
+    };
+  };
+
+  const validateStep = async (values, stepIndex) => {
+    const stepFields = getFieldsForStep(stepIndex, allFields, steps);
+    if (!stepFields.length) {
+      return {};
+    }
+
+    const stepSchema = buildValidationSchemaForSteps(allFields, [steps[stepIndex]]);
+
+    try {
+      await stepSchema.validate(mergeAuthUserValues(values), { abortEarly: false });
+      return {};
+    } catch (error) {
+      return error.inner.reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.path]: item.message,
+        }),
+        {}
+      );
+    }
+  };
+
+  const touchStepFields = (stepIndex, setTouched) => {
+    const fieldNames = steps[stepIndex]?.fieldNames ?? [];
+    setTouched(
+      fieldNames.reduce(
+        (acc, name) => ({
+          ...acc,
+          [name]: true,
+        }),
+        {}
+      )
     );
+  };
+
+  const handleNext = async (values, setErrors, setTouched) => {
+    const errors = await validateStep(values, currentStep);
+
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      touchStepFields(currentStep, setTouched);
+      toast.error("Please fix the highlighted fields before continuing.");
+      return;
+    }
+
+    const nextStep = currentStep + 1;
+    setCurrentStep(nextStep);
+    setMaxStepReached((prev) => Math.max(prev, nextStep));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleBack = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleStepClick = (stepIndex) => {
+    if (stepIndex <= maxStepReached) {
+      setCurrentStep(stepIndex);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const mergedValues = mergeAuthUserValues(values);
+      const sanitizedValues = sanitizeFormValues(mergedValues, fieldTypeMap);
+      await validationSchema.validate(sanitizedValues, { abortEarly: false });
+      const preparedData = prepareRaportPayload(sanitizedValues);
+      await addRaport(preparedData, { isAdmin });
+      clearFisaDraft(authUser?.id);
+      setHasUnsavedDraft(false);
+      resetForm({ values: buildInitialValues(authUser, isAdmin) });
+      setCurrentStep(0);
+      setMaxStepReached(0);
+      navigate("/home");
+    } catch (error) {
+      if (error.inner) {
+        toast.error("Please complete all required fields before submitting.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancelConfirm = (resetForm) => {
+    clearFisaDraft(authUser?.id);
+    setHasUnsavedDraft(false);
+    resetForm({ values: buildInitialValues(authUser, isAdmin) });
+    setCurrentStep(0);
+    setMaxStepReached(0);
+    setShowCancelModal(false);
+    navigate("/home");
+  };
+
+  const handleCancelClick = () => {
+    if (hasUnsavedDraft) {
+      setShowCancelModal(true);
+      return;
+    }
+    clearFisaDraft(authUser?.id);
+    navigate("/home");
+  };
+
+  const handleStayOnPage = () => {
+    setShowLeaveModal(false);
+    if (blocker.state === "blocked") {
+      blocker.reset();
+    }
+  };
+
+  const handleLeavePage = () => {
+    setShowLeaveModal(false);
+    if (blocker.state === "blocked") {
+      blocker.proceed();
+    }
+  };
+
+  if (authLoading || !initialFormValues) {
+    return (
+      <div className="flex min-h-[calc(100vh-7rem)] items-center justify-center">
+        <div className="dash-spinner" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="fisa-form-page">
+      <div className="fisa-form-card">
+        <div className="fisa-form-header">
+          <h1 className="text-lg font-display font-bold text-gray-900 sm:text-2xl">Fisa Clientului</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Complete all required fields to create a new client report
+          </p>
+
+          {showConsultantMeta && (
+            <FisaConsultantBanner
+              userName={authUser?.username || authUser?.email?.split("@")[0]}
+              date={initialFormValues.todayDate}
+            />
+          )}
+        </div>
+
+        <Formik
+          initialValues={initialFormValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ values, errors, touched, isSubmitting, setErrors, setTouched, resetForm }) => (
+            <>
+              <div className="fisa-form-body">
+                <FisaDraftSync
+                  userId={authUser?.id}
+                  isAdmin={isAdmin}
+                  baseline={baselineValues}
+                  currentStep={currentStep}
+                  maxStepReached={maxStepReached}
+                  onDirtyChange={handleDirtyChange}
+                />
+                <FisaReportStepper
+                  steps={steps}
+                  currentStep={currentStep}
+                  maxStepReached={maxStepReached}
+                  onStepClick={handleStepClick}
+                />
+
+                <div className="mt-4 sm:mt-6">
+                  {!isReviewStep && (
+                    <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-3 text-center sm:mb-5 sm:rounded-xl sm:px-4">
+                      <h3 className="text-sm font-display font-semibold text-gray-900 sm:text-base">
+                        {currentStepConfig?.title}
+                      </h3>
+                      <p className="mt-1 text-xs text-gray-500 sm:text-sm">{currentStepConfig?.description}</p>
+                    </div>
+                  )}
+
+                  {isReviewStep ? (
+                    <ReviewSummary
+                      values={values}
+                      allFields={allFields}
+                      steps={steps}
+                      showConsultantMeta={showConsultantMeta}
+                    />
+                  ) : (
+                    <StepFields
+                      fields={currentStepFields}
+                      touched={touched}
+                      errors={errors}
+                    />
+                  )}
+                </div>
+              </div>
+
+              <Form className="fisa-form-actions">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  text="Cancel"
+                  onClick={handleCancelClick}
+                  className="w-full md:w-auto"
+                />
+
+                <div className="fisa-form-actions__primary">
+                  {currentStep > 0 && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      text="Back"
+                      onClick={handleBack}
+                      className="w-full md:min-w-[110px]"
+                    />
+                  )}
+
+                  {!isLastStep ? (
+                    <Button
+                      type="button"
+                      variant="primary"
+                      text="Continue"
+                      onClick={() => handleNext(values, setErrors, setTouched)}
+                      className="w-full md:min-w-[130px]"
+                    />
+                  ) : (
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      text="Create Report"
+                      loading={isSubmitting}
+                      loadingText="Saving..."
+                      className="w-full md:min-w-[150px]"
+                    />
+                  )}
+                </div>
+              </Form>
+
+              <ConfirmModal
+                isOpen={showCancelModal}
+                onClose={() => setShowCancelModal(false)}
+                onConfirm={() => handleCancelConfirm(resetForm)}
+                title="Discard report?"
+                message="All entered data will be lost. This action cannot be undone."
+                confirmText="Yes, discard"
+                cancelText="No, keep editing"
+                confirmButtonType="delete"
+              />
+
+              <ConfirmModal
+                isOpen={showLeaveModal}
+                onClose={handleStayOnPage}
+                onConfirm={handleLeavePage}
+                title="Leave Fisa Clientului?"
+                message="You have unsaved changes. Your progress will be saved as a draft until you submit or discard the report. Do you want to leave this page?"
+                confirmText="Yes, leave"
+                cancelText="No, stay"
+                confirmButtonType="primary"
+              />
+            </>
+          )}
+        </Formik>
+      </div>
+    </div>
+  );
 };
 
 export default FormUser;

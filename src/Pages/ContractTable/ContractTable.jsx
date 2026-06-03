@@ -1,121 +1,54 @@
-import React from "react";
-import DynamicTable from "../../Components/Table/DynimicTable";
+import React, { useState } from "react";
+import { DataTable, useDataTable, photoColumn, pdfColumn, signatureColumn } from "../../Components/Table";
+import ContractDetailModal from "../../Components/Customer/ContractDetailModal";
 import { FetchContractData } from "../../services/Hooks";
-import Badge from "../../Components/Badge/Badge";
+import { useAuth } from "../../context/AuthContext";
+
+const contractColumns = [
+  { accessorKey: "first_name", header: "First name", size: 100 },
+  { accessorKey: "last_name", header: "Last name", size: 100 },
+  { accessorKey: "phone", header: "Phone", size: 100 },
+  { accessorKey: "email", header: "Email", size: 140 },
+  photoColumn(),
+  pdfColumn(),
+  signatureColumn(),
+  { accessorKey: "created_at_label", header: "Created", size: 100 },
+];
 
 const ContractTable = () => {
   const { contracts, loading, onDelete } = FetchContractData();
+  const { isAdmin } = useAuth();
+  const [detailContract, setDetailContract] = useState(null);
 
-  const columns = [
-    {
-      accessorKey: "firstName",
-      header: "First Name",
-      size: 100,
-      filterable: false,
-    },
-    { accessorKey: "lastName", header: "Last Name", size: 100 },
-    { accessorKey: "phone", header: "Phone", size: 100 },
-    {
-      accessorKey: "photo",
-      header: "Photo",
-      size: 120,
-      Cell: ({ row }) => {
-        const photo = row.original.photo;
-        if (!photo || photo === '' || photo === null || photo === undefined) {
-          return (
-            <Badge variant="error" size="sm">
-              No Photo
-            </Badge>
-          );
-        }
-        return (
-          <a 
-            href={photo} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-block"
-          >
-            <Badge variant="success" size="sm">
-              View Photo
-            </Badge>
-          </a>
-        );
-      },
-    },
-    {
-      accessorKey: "pdfUrl",
-      header: "PDF",
-      size: 120,
-      Cell: ({ row }) => {
-        const pdfUrl = row.original.pdfUrl;
-        if (!pdfUrl || pdfUrl === '' || pdfUrl === null || pdfUrl === undefined) {
-          return (
-            <Badge variant="error" size="sm">
-              No PDF
-            </Badge>
-          );
-        }
-        return (
-          <a 
-            href={pdfUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-block"
-          >
-            <Badge variant="success" size="sm">
-              View PDF
-            </Badge>
-          </a>
-        );
-      },
-    },
-    { accessorKey: "timestamp", header: "Date", size: 100 },
-  ];
-
-  const actions = [
-    {
-      label: "Delete",
-      onClick: (contract) => {
-        console.log("Deleting contract:", contract.id);
-        onDelete(contract.id); 
-      }
-    },
-    {
-      label: "Contact",
-      onClick: (contract) => {
-        console.log("Contacting:", contract.firstName, contract.lastName);
-      },
-    },
-  ];
+  const tableProps = useDataTable({
+    data: contracts,
+    columns: contractColumns,
+    loading,
+    onRowClick: (contract) => setDetailContract(contract),
+    linkTable: "https://obtinecredit.ro/contract",
+    emptyMessage: "No contracts yet",
+  });
 
   return (
-    <div className="animate-fade-in">
-      {/* Page Title & Subtitle */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-100 mb-2">Contracts</h1>
-        <p className="text-slate-400 text-sm">View and manage all contract documents</p>
+    <div className="space-y-6">
+      <div className="dash-page-header">
+        <div>
+          <h1 className="dash-page-title">Contracts</h1>
+          <p className="dash-page-subtitle">
+            {isAdmin ? "obtinecredit.ro/contract" : "Your contract submissions"}
+          </p>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
-            <p className="text-gray-300 font-medium">Loading contracts...</p>
-          </div>
-        </div>
-      ) : (
-        <DynamicTable
-          columns={columns}
-          data={contracts}
-          loading={loading}
-          onDelete={onDelete}
-          actions={actions}
-          title=""
-          linkTable="https://obtinecredit.ro/contract"
-          deleteDialogTitle="Confirm Delete"
-          deleteDialogContent="Are you sure you want to delete this contract?"
-        />
-      )}
+      <ContractDetailModal
+        contract={detailContract}
+        isOpen={!!detailContract}
+        onClose={() => setDetailContract(null)}
+        isAdmin={isAdmin}
+        onDelete={isAdmin ? onDelete : undefined}
+      />
+
+      <DataTable {...tableProps} />
     </div>
   );
 };

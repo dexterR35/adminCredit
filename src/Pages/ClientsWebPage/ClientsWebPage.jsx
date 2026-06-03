@@ -1,195 +1,98 @@
-import React, { useState } from "react";
-import DynamicTable from "../../Components/Table/DynimicTable";
-import { FetchCustomersData } from "../../services/Hooks";
-import Badge from "../../Components/Badge/Badge";
-import EditCustomer from "../../Components/Customer/EditCustomer";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import {
+  DataTable,
+  useDataTable,
+  yesNoColumn,
+  statusBadgeColumn,
+} from "../../Components/Table";
+import { FetchCustomersData, useAssignClient } from "../../services/Hooks";
+import { useAuth } from "../../context/AuthContext";
+import ClientDetailModal from "../../Components/Customer/ClientDetailModal";
+
+const clientColumns = [
+  {
+    accessorKey: "full_name",
+    header: "Name",
+    size: 120,
+    Cell: ({ row }) => (
+      <span className="font-medium capitalize text-gray-900">{row.original.full_name || "—"}</span>
+    ),
+  },
+  { accessorKey: "phone", header: "Phone", size: 100 },
+  { accessorKey: "email", header: "Email", size: 150 },
+  { accessorKey: "referral_source_label", header: "Source", size: 120 },
+  { accessorKey: "path_label", header: "Path", size: 120 },
+  { accessorKey: "outcome_label", header: "Outcome", size: 120 },
+  { accessorKey: "banks", header: "Banks", size: 120 },
+  { accessorKey: "ifn", header: "IFN", size: 120 },
+  { accessorKey: "others", header: "Others", size: 120 },
+  { accessorKey: "employment_start_date", header: "Employment date", size: 110 },
+  yesNoColumn({ accessorKey: "has_banking_history", header: "Bank history" }),
+  yesNoColumn({ accessorKey: "has_negative_bc_report", header: "Negative BC" }),
+  { accessorKey: "submitted_at_label", header: "Submitted", size: 120 },
+  statusBadgeColumn({ accessorKey: "status", header: "Status", size: 90 }),
+];
 
 const ClientsTable = () => {
-    const { customerData, loading, deleteCustomer, updateCustomer } = FetchCustomersData();
-    const [editingCustomer, setEditingCustomer] = useState(null);
-    
-    // Dynamic column configuration with badge support
-    const columns = [
-        {
-            accessorKey: "name",
-            header: "Name",
-            size: 120,
-            Cell: ({ row }) => <span className="capitalize text-white font-medium">{row.original.name}</span>,
-        },
-        { 
-            accessorKey: "phone", 
-            header: "Phone", 
-            size: 100,
-            Cell: ({ row }) => <span className="text-gray-300">{row.original.phone || "—"}</span>,
-        },
-        { 
-            accessorKey: "banks", 
-            header: "Banks", 
-            size: 120,
-            Cell: ({ row }) => <span className="text-gray-300">{row.original.banks || "—"}</span>,
-        },
-        { 
-            accessorKey: "ifn", 
-            header: "IFN", 
-            size: 120,
-            Cell: ({ row }) => <span className="text-gray-300">{row.original.ifn || "—"}</span>,
-        },
-        { 
-            accessorKey: "bankHistory", 
-            header: "Bank History", 
-            size: 120,
-            badge: {
-                getVariant: (value) => {
-                    if (!value) return "default";
-                    const val = String(value).toLowerCase();
-                    // "No bank history" = good (green), "Bank history" = bad (red)
-                    if (val.includes("no bank history")) return "green";
-                    if (val.includes("bank history") && !val.includes("no")) return "red";
-                    return "default";
-                },
-                formatter: (value) => {
-                    if (!value) return "—";
-                    return String(value).charAt(0).toUpperCase() + String(value).slice(1);
-                },
-                size: "sm",
-            },
-        },
-        { 
-            accessorKey: "bankStatus", 
-            header: "Bank Status", 
-            size: 120,
-            badge: {
-                getVariant: (value) => {
-                    if (!value) return "default";
-                    const val = String(value).toLowerCase();
-                    // "No raport status" = good (green), "Negativ Raport" = bad (red)
-                    if (val.includes("no raport status")) return "green";
-                    if (val.includes("negativ raport")) return "red";
-                    return "default";
-                },
-                formatter: (value) => {
-                    if (!value) return "—";
-                    return String(value).charAt(0).toUpperCase() + String(value).slice(1);
-                },
-                size: "sm",
-            },
-        },
-        { 
-            accessorKey: "others", 
-            header: "Others", 
-            size: 120,
-            Cell: ({ row }) => <span className="text-gray-300">{row.original.others || "—"}</span>,
-        },
-        { 
-            accessorKey: "selectedDate", 
-            header: "Job Date", 
-            size: 100,
-            Cell: ({ row }) => <span className="text-gray-300">{row.original.selectedDate || "—"}</span>,
-        },
-        { 
-            accessorKey: "email", 
-            header: "Email", 
-            size: 150,
-            Cell: ({ row }) => <span className="text-gray-300">{row.original.email || "—"}</span>,
-        },
-        { 
-            accessorKey: "timestamp", 
-            header: "Date", 
-            size: 120,
-            Cell: ({ row }) => <span className="text-gray-300">{row.original.timestamp || "—"}</span>,
-        },
-        { 
-            accessorKey: "status", 
-            header: "Status", 
-            size: 100,
-            badge: {
-                variantMap: {
-                    "active": "green",
-                    "inactive": "red",
-                    "pending": "warning",
-                    "new": "info",
-                    "completed": "green",
-                    "cancelled": "red",
-                },
-                getVariant: (value) => {
-                    if (!value) return "default";
-                    const val = String(value).toLowerCase();
-                    if (val === "active" || val === "completed" || val === "approved") return "green";
-                    if (val === "inactive" || val === "cancelled" || val === "rejected") return "red";
-                    if (val === "pending") return "warning";
-                    if (val === "new") return "info";
-                    return "default";
-                },
-                formatter: (value) => value ? String(value).charAt(0).toUpperCase() + String(value).slice(1) : "—",
-            },
-        },
-    ];
+  const { customerData, loading, deleteCustomer, updateCustomer } = FetchCustomersData();
+  const { isAdmin } = useAuth();
+  const { consultants, loadConsultants, assignClient } = useAssignClient();
+  const [detailClient, setDetailClient] = useState(null);
+  const [assignLoading, setAssignLoading] = useState(false);
 
-    const actions = [
-        {
-            label: "Edit",
-            onClick: (client) => {
-                setEditingCustomer(client);
-            },
-        },
-        {
-            label: "Delete",
-            onClick: (client) => {
-                console.log("Deleting client:", client.id);
-                deleteCustomer(client.id);
-            },
-        },
-        {
-            label: "Contact",
-            onClick: (client) => {
-                console.log("Contacting:", client.name);
-                handleContactClients(client);
-            },
-        },
-    ];
-    const handleContactClients = (client) => {
-        alert(`Contacting ${client.name} at ${client.phone}`);
-        window.open(`tel:${client.phone}`);
-      };
-    return (
-        <div className="animate-fade-in">
-            {/* Page Title & Subtitle */}
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-slate-100 mb-2">Web Clients</h1>
-                <p className="text-slate-400 text-sm">Manage and view all your web clients</p>
-            </div>
+  useEffect(() => {
+    if (isAdmin) loadConsultants();
+  }, [isAdmin, loadConsultants]);
 
-            <EditCustomer
-                customer={editingCustomer}
-                isOpen={!!editingCustomer}
-                onClose={() => setEditingCustomer(null)}
-                onUpdate={() => {
-                    setEditingCustomer(null);
-                }}
-                updateCustomer={updateCustomer}
-            />
-            {loading ? (
-                <div className="flex items-center justify-center h-64">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="w-12 h-12 border-4 border-indigo-700 border-t-indigo-500 rounded-full animate-spin"></div>
-                        <p className="text-gray-300 font-medium">Loading clients...</p>
-                    </div>
-                </div>
-            ) : (
-                <DynamicTable
-                    columns={columns}
-                    data={customerData}
-                    onDelete={deleteCustomer}
-                    actions={actions}
-                    title=""
-                    linkTable="https://obtinecredit.ro"
-                    deleteDialogTitle="Confirm Delete"
-                    deleteDialogContent="Are you sure you want to delete this client?"
-                    handleContact={handleContactClients}
-                />
-            )}
+  const handleAssign = async (client, consultantId) => {
+    setAssignLoading(true);
+    try {
+      await assignClient(client.id, consultantId);
+      setDetailClient((prev) =>
+        prev?.id === client.id ? { ...prev, assigned_user_id: consultantId } : prev
+      );
+    } catch (error) {
+      toast.error(error.message || "Failed to assign client.");
+    } finally {
+      setAssignLoading(false);
+    }
+  };
+
+  const tableProps = useDataTable({
+    data: customerData,
+    columns: clientColumns,
+    loading,
+    onRowClick: (client) => setDetailClient(client),
+    linkTable: "https://obtinecredit.ro/formular",
+    emptyMessage: "No web clients yet",
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="dash-page-header">
+        <div>
+          <h1 className="dash-page-title">Web Clients</h1>
+          <p className="dash-page-subtitle">obtinecredit.ro/formular</p>
         </div>
-    );
+      </div>
+
+      <ClientDetailModal
+        client={detailClient}
+        isOpen={!!detailClient}
+        onClose={() => setDetailClient(null)}
+        isAdmin={isAdmin}
+        consultants={consultants}
+        updateCustomer={updateCustomer}
+        onClientUpdated={setDetailClient}
+        onDelete={isAdmin ? deleteCustomer : undefined}
+        onAssign={isAdmin ? handleAssign : undefined}
+        assignLoading={assignLoading}
+      />
+
+      <DataTable {...tableProps} />
+    </div>
+  );
 };
 
 export default ClientsTable;

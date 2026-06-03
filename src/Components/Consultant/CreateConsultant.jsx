@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { AddConsultant } from '../../services/Hooks';
 import FormInput from '../Form/FormInput';
+import { useTrackLoading } from '../LoadingProgress';
 
 
-const CreateConsultant = () => {
+const CreateConsultant = ({ onSuccess }) => {
     const initialValues = {
         email: '',
         password: '',
@@ -14,6 +15,8 @@ const CreateConsultant = () => {
 
     const [errors, setErrors] = useState({}); // State for validation errors
     const [isLoading, setIsLoading] = useState(false); // State for loading indicator
+
+    useTrackLoading(isLoading);
 
     const onSubmit = async (values) => {
         setIsLoading(true); // Set loading state
@@ -29,11 +32,12 @@ const CreateConsultant = () => {
                 throw new Error("Passwords do not match");
             }
             // Pass the password directly to the AddConsultant function
-            await AddConsultant(values.email, values.password, values.username, values.role);
-            console.log('Consultant added successfully!');
+            await AddConsultant(values.email, values.password, values.username);
+            onSuccess?.();
         } catch (error) {
             console.error("Error adding consultant:", error);
-            setErrors({ ...errors, general: error.message }); 
+            setErrors((prev) => ({ ...prev, general: error.message }));
+            throw error;
         } finally {
             setIsLoading(false); // Reset loading state
         }
@@ -79,22 +83,14 @@ const CreateConsultant = () => {
     ];
 
     return (
-        <div className="animate-fade-in">
-            {/* Page Title & Subtitle */}
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-slate-100 mb-2">Create Consultant</h1>
-                <p className="text-slate-400 text-sm">Add a new consultant to the system</p>
-            </div>
-
-            {isLoading && <p className="text-slate-300">Loading...</p>}
-            {errors.general && <p className="text-red-400 mb-4">{errors.general}</p>}
+        <div>
+            {errors.general && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{errors.general}</p>}
             <FormInput
                 initialValues={initialValues}
                 onSubmit={onSubmit}
                 fields={fields}
-                formCustomClass="test"
                 submitButtonText="salveaza"
-                isLoading={isLoading} // Pass loading state to FormInput
+                showSuccessToast={false}
             />
         </div>
     );
