@@ -467,16 +467,20 @@
   }
 
   .dash-loading-progress__bar {
-    @apply absolute top-0 h-full bg-primary-600;
+    @apply absolute top-0 h-full;
+    width: 45%;
+    border-radius: 0 100px 100px 0;
+    background: linear-gradient(90deg, var(--color-primary-600) 0%, var(--color-primary-400) 100%);
+    box-shadow: 0 0 10px var(--color-primary-400), 0 0 4px var(--color-primary-300);
+    animation: loadingProgressSlide 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   .dash-loading-progress__bar--primary {
-    animation: loadingProgressPrimary 2s ease-in-out infinite;
+    animation-delay: 0s;
   }
 
   .dash-loading-progress__bar--secondary {
-    @apply bg-primary-400;
-    animation: loadingProgressSecondary 2s ease-in-out infinite;
+    display: none;
   }
 
   .fisa-form-page {
@@ -551,33 +555,12 @@
     to { transform: translateY(0); opacity: 1; }
   }
 
-  @keyframes loadingProgressPrimary {
+  @keyframes loadingProgressSlide {
     0% {
-      left: -35%;
-      width: 35%;
-    }
-    60% {
-      left: 100%;
-      width: 100%;
+      left: -45%;
     }
     100% {
-      left: 100%;
-      width: 35%;
-    }
-  }
-
-  @keyframes loadingProgressSecondary {
-    0% {
-      left: -200%;
-      width: 100%;
-    }
-    60% {
-      left: 107%;
-      width: 10%;
-    }
-    100% {
-      left: 107%;
-      width: 10%;
+      left: 110%;
     }
   }
 }

@@ -8,8 +8,7 @@ const LoadingProgressBar = ({ active = false }) => (
     aria-busy={active}
     aria-label="Loading"
   >
-    <div className="dash-loading-progress__bar dash-loading-progress__bar--primary" />
-    <div className="dash-loading-progress__bar dash-loading-progress__bar--secondary" />
+    <div className="dash-loading-progress__bar" />
   </div>
 );
 
