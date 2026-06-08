@@ -82,57 +82,6 @@ export const colors = {
     muted: "#9ca3af",
   },
 
-  button: {
-    submit: {
-      tailwind: "bg-primary-600 border-primary-600 text-white hover:bg-primary-700 hover:border-primary-700",
-    },
-    default: {
-      tailwind: "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400",
-    },
-    delete: {
-      tailwind: "bg-red-600 border-red-600 text-white hover:bg-red-700 hover:border-red-700",
-    },
-    modal: {
-      tailwind: "bg-primary-600 border-primary-600 text-white hover:bg-primary-700 hover:border-primary-700 text-sm",
-    },
-    logOut: {
-      tailwind: "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-    },
-    logIn: {
-      tailwind: "bg-primary-600 border-primary-600 text-white hover:bg-primary-700",
-    },
-    success: {
-      tailwind: "bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700",
-    },
-    error: {
-      tailwind: "bg-red-600 border-red-600 text-white hover:bg-red-700",
-    },
-    edit: {
-      tailwind: "bg-amber-500 border-amber-500 text-white hover:bg-amber-600",
-    },
-    info: {
-      tailwind: "bg-blue-600 border-blue-600 text-white hover:bg-blue-700",
-    },
-    disabled: {
-      tailwind: "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed opacity-60",
-    },
-  },
-
-};
-
-/** @deprecated Use buttonClassName from Components/Buttons/buttonStyles */
-export const getButtonClasses = (type) => colors.button[type]?.tailwind || colors.button.default.tailwind;
-/** @deprecated Use badgeClassName from Components/Badge/badgeStyles */
-export const getBadgeClasses = (variant) => {
-  const map = {
-    primary: "badge--accent",
-    secondary: "badge--slate",
-    danger: "badge--error",
-    info: "badge--info",
-    default: "badge--default",
-    edit: "badge--warning",
-  };
-  return map[variant] || map.default;
 };
 
 export default colors;

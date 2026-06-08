@@ -59,8 +59,6 @@ export const DetailModalShell = ({
     description={description}
     size="2xl"
     footer={footer}
-    closeOnOverlay={false}
-    closeOnEscape={false}
   >
     <div className="space-y-6">{children}</div>
   </Modal>

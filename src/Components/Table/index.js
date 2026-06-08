@@ -5,7 +5,7 @@ export {
   createDeleteAction,
   createEditAction,
   createAssignAction,
-  getActionButtonType,
+  getActionVariant,
 } from "./tableActions";
 export {
   photoColumn,

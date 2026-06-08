@@ -8,7 +8,7 @@ import { openTelLink } from "../../utils/phone";
 export const createContactAction = (phoneKey = "phone") => ({
   id: "contact",
   label: "Contact",
-  buttonType: "info",
+  variant: "info",
   onClick: (row) => {
     openTelLink(row?.[phoneKey]);
   },
@@ -17,7 +17,7 @@ export const createContactAction = (phoneKey = "phone") => ({
 export const createDeleteAction = (onDelete, options = {}) => ({
   id: "delete",
   label: "Delete",
-  buttonType: "delete",
+  variant: "danger",
   requiresConfirm: true,
   onClick: (row) => onDelete(row.id),
   ...options,
@@ -26,14 +26,14 @@ export const createDeleteAction = (onDelete, options = {}) => ({
 export const createEditAction = (onEdit) => ({
   id: "edit",
   label: "Edit",
-  buttonType: "edit",
+  variant: "warning",
   onClick: onEdit,
 });
 
 export const createAssignAction = (onAssign) => ({
   id: "assign",
   label: "Assign",
-  buttonType: "default",
+  variant: "secondary",
   onClick: onAssign,
 });
 
@@ -57,17 +57,17 @@ export const createNormalActions = ({
   return actions;
 };
 
-export const getActionButtonType = (action) => {
-  if (action.buttonType) return action.buttonType;
+export const getActionVariant = (action) => {
+  if (action.variant) return action.variant;
 
   switch (action.id || action.label?.toLowerCase()) {
     case "delete":
-      return "delete";
+      return "danger";
     case "edit":
-      return "edit";
+      return "warning";
     case "contact":
       return "info";
     default:
-      return "default";
+      return "secondary";
   }
 };

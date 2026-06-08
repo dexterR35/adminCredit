@@ -1,13 +1,11 @@
 import PropTypes from "prop-types";
 import { Button as UiButton } from "../uiCheck";
 import { useTrackLoading } from "../LoadingProgress";
-import { resolveButtonVariant } from "./buttonStyles";
 
 const Button = ({
   children,
   text,
-  variant,
-  buttonType,
+  variant = "secondary",
   size = "md",
   type = "button",
   disabled = false,
@@ -22,7 +20,7 @@ const Button = ({
 }) => {
   const content = children ?? text;
   const isDisabled = disabled || loading;
-  const resolvedIcon = icon ?? (buttonType === "logOut" ? "IoLogout" : null);
+  const resolvedVariant = variant === "error" ? "danger" : variant;
 
   useTrackLoading(loading);
 
@@ -31,11 +29,11 @@ const Button = ({
       type={type}
       disabled={isDisabled}
       onClick={onClick}
-      variant={resolveButtonVariant(variant, buttonType)}
+      variant={resolvedVariant}
       size={size}
       loading={loading}
       loadingText={loadingText}
-      icon={resolvedIcon}
+      icon={icon}
       iconPosition={iconPosition}
       className={className}
       fullWidth={fullWidth}
@@ -64,7 +62,6 @@ Button.propTypes = {
     "gray",
     "link",
   ]),
-  buttonType: PropTypes.string,
   size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
   type: PropTypes.oneOf(["button", "submit", "reset"]),
   disabled: PropTypes.bool,

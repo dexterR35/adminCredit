@@ -17,8 +17,7 @@ const DueRemindersModal = ({
     title="Due reminders"
     description="All due reminders in one place. Extend or complete each one."
     size="2xl"
-    hideFooter
-    closeOnOverlay
+    cancelText="Close"
   >
     <RemindersTableView
       reminders={reminders}

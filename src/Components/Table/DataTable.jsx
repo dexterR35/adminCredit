@@ -12,7 +12,7 @@ import { ConfirmModal, DeleteConfirmModal, getTableDeleteConfirm } from "../Moda
 import { SearchInput, Select, inputClassName } from "../Inputs";
 import { Button } from "../Buttons";
 import { TableBadge } from "./tableBadges";
-import { getActionButtonType } from "./tableActions";
+import { getActionVariant } from "./tableActions";
 import { sanitizeUrlForHref } from "../../utils/sanitize";
 import { useTrackLoading } from "../LoadingProgress";
 import ExportColumnsModal from "./ExportColumnsModal";
@@ -247,7 +247,7 @@ const DataTable = ({
               <Button
                 key={action.id || action.label}
                 text={action.label}
-                buttonType={getActionButtonType(action)}
+                variant={getActionVariant(action)}
                 size="sm"
                 onClick={() => handleActionClick(action)}
               />
