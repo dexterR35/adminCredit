@@ -12,6 +12,10 @@ import { FetchCustomersData, useAssignClient } from "../../services/Hooks";
 import { useAuth } from "../../context/AuthContext";
 import ClientDetailModal from "../../Components/Customer/ClientDetailModal";
 import { PageTitle } from "../../Components/uiCheck";
+import { fetchWebClientById } from "../../services/customers";
+import { useClientModalRoute } from "../../hooks/useClientModalRoute";
+import { useUrlOpenedEntity } from "../../hooks/useUrlOpenedEntity";
+import { CLIENT_MODAL_PARAMS } from "../../utils/clientModalRoute";
 
 const clientColumns = [
   {
@@ -41,8 +45,24 @@ const ClientsTable = () => {
   const { customerData, loading, deleteCustomer, updateCustomer } = FetchCustomersData();
   const { isAdmin } = useAuth();
   const { assignableUsers, loadAssignableUsers, assignClient } = useAssignClient();
-  const [detailClient, setDetailClient] = useState(null);
   const [assignLoading, setAssignLoading] = useState(false);
+  const {
+    webClientId,
+    openWebClient,
+    closeClientModals,
+  } = useClientModalRoute({
+    webClientParam: CLIENT_MODAL_PARAMS.CUSTOMERS_CLIENT,
+    includeFisa: false,
+  });
+
+  const {
+    entity: detailClient,
+    setEntity: setDetailClient,
+    loading: detailLoading,
+  } = useUrlOpenedEntity({
+    id: webClientId,
+    fetchById: fetchWebClientById,
+  });
 
   useEffect(() => {
     if (isAdmin) loadAssignableUsers();
@@ -65,8 +85,8 @@ const ClientsTable = () => {
   const tableProps = useDataTable({
     data: customerData,
     columns: clientColumns,
-    loading,
-    onRowClick: (client) => setDetailClient(client),
+    loading: loading || detailLoading,
+    onRowClick: (client) => openWebClient(client.id),
     linkTable: "https://obtinecredit.ro/formular",
     emptyMessage: "No web clients yet",
     exportColumns: webClientExportColumns,
@@ -80,7 +100,10 @@ const ClientsTable = () => {
       <ClientDetailModal
         client={detailClient}
         isOpen={!!detailClient}
-        onClose={() => setDetailClient(null)}
+        onClose={() => {
+          closeClientModals();
+          setDetailClient(null);
+        }}
         isAdmin={isAdmin}
         users={assignableUsers}
         updateCustomer={updateCustomer}

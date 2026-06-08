@@ -10,11 +10,33 @@ import {
   sanitizeUrl,
 } from "../utils/sanitize";
 import { assertRomanianMobilePhone } from "../utils/phone";
-import { isFisaReportStatus, normalizeFisaStatus } from "./fisaReportStatus";
+import {
+  formatFollowUpDateTime,
+  isFollowUpDue,
+} from "../utils/followUpDates";
+import { isFisaReportStatus, isInProgressClientStatus, normalizeFisaStatus } from "./fisaReportStatus";
 import { getFisaReportAttachmentMeta } from "../utils/fisaReportDocuments";
+
+const pickActiveFollowUp = (followUps = []) =>
+  followUps
+    .filter((item) => !item.dismissed_at)
+    .sort(
+      (a, b) => new Date(b.follow_up_at).getTime() - new Date(a.follow_up_at).getTime(),
+    )[0] || null;
+
+export const formatRequestedCredit = (value) => {
+  if (value === null || value === undefined || value === "") return "";
+  const amount = Number(value);
+  if (Number.isNaN(amount)) return String(value).trim();
+  return new Intl.NumberFormat("en-GB").format(amount);
+};
 
 export const mapFisaReportRow = (row) => {
   const attachmentMeta = getFisaReportAttachmentMeta(row);
+  const status = normalizeFisaStatus(row.user_status);
+  const activeFollowUp = pickActiveFollowUp(row.client_follow_ups);
+  const showReminder = isInProgressClientStatus(status) && activeFollowUp;
+  const requestedCredit = row.form_data?.requestedCreditValue ?? "";
 
   return {
     id: row.id,
@@ -28,7 +50,14 @@ export const mapFisaReportRow = (row) => {
     photo_url: attachmentMeta.imageUrl,
     has_image_document: attachmentMeta.hasImage,
     has_pdf_document: attachmentMeta.hasPdf,
-    user_status: normalizeFisaStatus(row.user_status),
+    user_status: status,
+    requested_credit: requestedCredit,
+    requested_credit_label: formatRequestedCredit(requestedCredit),
+    follow_up_at: showReminder ? activeFollowUp.follow_up_at : null,
+    follow_up_at_label: showReminder
+      ? formatFollowUpDateTime(activeFollowUp.follow_up_at)
+      : "",
+    follow_up_due: showReminder ? isFollowUpDue(activeFollowUp.follow_up_at) : false,
     form_data: row.form_data || {},
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -53,6 +82,11 @@ const FISA_LIST_COLUMNS = `
   fisa_report_attachments (
     content_type,
     original_name
+  ),
+  client_follow_ups (
+    follow_up_at,
+    note,
+    dismissed_at
   )
 `;
 

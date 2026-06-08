@@ -89,14 +89,24 @@ export const fisaReportExportColumns = [
     exportValue: (row) => normalizeFisaStatus(row.user_status),
   },
   {
-    key: "consultant",
-    header: "Consultant",
-    exportValue: (row) => row.form_data?.userName || "",
+    key: "follow_up_at_label",
+    header: "Reminder",
+    exportValue: (row) => row.follow_up_at_label || "",
   },
   {
     key: "requested_credit",
     header: "Credit requested",
-    exportValue: (row) => row.form_data?.requestedCreditValue ?? "",
+    exportValue: (row) => (
+      row.requested_credit_label
+      || row.requested_credit
+      || row.form_data?.requestedCreditValue
+      || ""
+    ),
+  },
+  {
+    key: "consultant",
+    header: "Consultant",
+    exportValue: (row) => row.form_data?.userName || "",
   },
   { key: "photo_url", header: "Photo URL" },
   { key: "pdf_url", header: "PDF URL" },

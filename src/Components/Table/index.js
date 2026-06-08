@@ -18,6 +18,8 @@ export {
   dataBadgeColumn,
   statusBadgeColumn,
   fisaStatusBadgeColumn,
+  fisaReminderColumn,
+  requestedCreditColumn,
 } from "./tableColumns";
 export { TableBadge, DataBadge, LinkDataBadge, PhoneDataBadge } from "./tableBadges";
 export {

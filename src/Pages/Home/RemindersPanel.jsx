@@ -9,6 +9,8 @@ import ClientDetailModal from "../../Components/Customer/ClientDetailModal";
 import FisaReportDetailModal from "../../Components/Customer/FisaReportDetailModal";
 import { fetchWebClientById } from "../../services/customers";
 import { fetchFisaReportById } from "../../services/fisaReports";
+import { useClientModalRoute } from "../../hooks/useClientModalRoute";
+import { useUrlOpenedEntity } from "../../hooks/useUrlOpenedEntity";
 
 const REMINDER_VIEW_OPTIONS = [
   { id: "table", label: "Table", icon: HiOutlineTableCells },
@@ -24,27 +26,36 @@ const RemindersPanel = ({ loading: externalLoading = false }) => {
     postpone,
   } = useClientRemindersContext();
 
+  const {
+    webClientId,
+    fisaReportId,
+    openWebClient,
+    openFisaReport,
+    closeClientModals,
+  } = useClientModalRoute();
+
+  const { entity: webClient, setEntity: setWebClient, loading: webClientLoading } = useUrlOpenedEntity({
+    id: webClientId,
+    fetchById: fetchWebClientById,
+  });
+
+  const { entity: fisaReport, setEntity: setFisaReport, loading: fisaReportLoading } = useUrlOpenedEntity({
+    id: fisaReportId,
+    fetchById: fetchFisaReportById,
+  });
+
   const [viewMode, setViewMode] = useState("table");
-  const [webClient, setWebClient] = useState(null);
-  const [fisaReport, setFisaReport] = useState(null);
-  const [opening, setOpening] = useState(false);
 
-  const isBusy = loading || externalLoading || opening;
+  const isBusy = loading || externalLoading || webClientLoading || fisaReportLoading;
 
-  const handleOpenClient = async (reminder) => {
-    setOpening(true);
-    try {
-      if (reminder.source === "web_client" && reminder.credit_application_id) {
-        const row = await fetchWebClientById(reminder.credit_application_id);
-        setWebClient(row);
-      } else if (reminder.fisa_report_id) {
-        const row = await fetchFisaReportById(reminder.fisa_report_id);
-        setFisaReport(row);
-      }
-    } catch (error) {
-      console.error("Error opening client from reminder:", error);
-    } finally {
-      setOpening(false);
+  const handleOpenClient = (reminder) => {
+    if (reminder.source === "web_client" && reminder.credit_application_id) {
+      openWebClient(reminder.credit_application_id, { tab: "reminders" });
+      return;
+    }
+
+    if (reminder.fisa_report_id) {
+      openFisaReport(reminder.fisa_report_id, { tab: "reminders" });
     }
   };
 
@@ -56,6 +67,16 @@ const RemindersPanel = ({ loading: externalLoading = false }) => {
   const handlePostpone = async (id, followUpAt) => {
     await postpone(id, followUpAt);
     await refresh({ silent: true });
+  };
+
+  const handleCloseWebClient = () => {
+    closeClientModals();
+    setWebClient(null);
+  };
+
+  const handleCloseFisaReport = () => {
+    closeClientModals();
+    setFisaReport(null);
   };
 
   return (
@@ -92,15 +113,21 @@ const RemindersPanel = ({ loading: externalLoading = false }) => {
       <ClientDetailModal
         client={webClient}
         isOpen={Boolean(webClient)}
-        onClose={() => setWebClient(null)}
-        onClientUpdated={() => refresh({ silent: true })}
+        onClose={handleCloseWebClient}
+        onClientUpdated={(updated) => {
+          setWebClient(updated);
+          refresh({ silent: true });
+        }}
       />
 
       <FisaReportDetailModal
         report={fisaReport}
         isOpen={Boolean(fisaReport)}
-        onClose={() => setFisaReport(null)}
-        onReportUpdated={() => refresh({ silent: true })}
+        onClose={handleCloseFisaReport}
+        onReportUpdated={(updated) => {
+          setFisaReport(updated);
+          refresh({ silent: true });
+        }}
       />
     </>
   );

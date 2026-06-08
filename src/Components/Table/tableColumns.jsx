@@ -205,6 +205,55 @@ export const dataBadgeColumn = ({
   },
 });
 
+/** Active follow-up reminder for In Progress fisa records */
+export const fisaReminderColumn = ({
+  accessorKey = "follow_up_at_label",
+  header = "Reminder",
+  size = 150,
+  emptyLabel = "—",
+} = {}) => ({
+  accessorKey,
+  header,
+  size,
+  exportValue: (row) => row[accessorKey] || "",
+  Cell: ({ row }) => {
+    const label = row.original[accessorKey];
+    if (!label) {
+      return <span className="text-sm text-gray-400">{emptyLabel}</span>;
+    }
+
+    return (
+      <TableBadge
+        variant={row.original.follow_up_due ? "danger" : "info"}
+        size="sm"
+      >
+        {label}
+      </TableBadge>
+    );
+  },
+});
+
+/** Requested credit amount from fisa form_data */
+export const requestedCreditColumn = ({
+  accessorKey = "requested_credit_label",
+  header = "Credit requested",
+  size = 120,
+  emptyLabel = "—",
+} = {}) => ({
+  accessorKey,
+  header,
+  size,
+  exportValue: (row) => row.requested_credit ?? row[accessorKey] ?? "",
+  Cell: ({ row }) => {
+    const value = row.original[accessorKey];
+    if (!value) {
+      return <span className="text-sm text-gray-400">{emptyLabel}</span>;
+    }
+
+    return <span className="whitespace-nowrap text-sm text-gray-900">{value}</span>;
+  },
+});
+
 /** Fisa report status: In Progress / Approved / Denied */
 export const fisaStatusBadgeColumn = ({
   accessorKey = "user_status",

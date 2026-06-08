@@ -10,6 +10,7 @@ import NewRaportTable from "./HomeTable";
 import RemindersPanel from "./RemindersPanel";
 import { useHomePageData } from '../../services/Hooks';
 import { useTrackLoading } from '../../Components/LoadingProgress';
+import { CLIENT_MODAL_PARAMS } from '../../utils/clientModalRoute';
 
 const DASHBOARD_TABS = [
   { id: 'records', label: 'Client records' },
@@ -21,9 +22,10 @@ const HomePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAdmin } = useAuth();
   const { dueCount, refresh: refreshReminders } = useClientRemindersContext();
-  const tabParam = searchParams.get('tab');
+  const tabParam = searchParams.get(CLIENT_MODAL_PARAMS.TAB);
+  const webClientParam = searchParams.get(CLIENT_MODAL_PARAMS.WEB_CLIENT);
   const [activeTab, setActiveTab] = useState(
-    tabParam === 'reminders' ? 'reminders' : 'records'
+    tabParam === 'reminders' || webClientParam ? 'reminders' : 'records'
   );
 
   const {
@@ -42,20 +44,35 @@ const HomePage = () => {
   useTrackLoading(loading);
 
   useEffect(() => {
-    if (tabParam === 'reminders') {
+    if (tabParam === 'reminders' || webClientParam) {
       setActiveTab('reminders');
       refreshReminders({ silent: true });
+      return;
     }
-  }, [tabParam, refreshReminders]);
+
+    setActiveTab('records');
+  }, [tabParam, webClientParam, refreshReminders]);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
+
     if (tabId === 'reminders') {
-      setSearchParams({ tab: 'reminders' });
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set(CLIENT_MODAL_PARAMS.TAB, 'reminders');
+        next.delete(CLIENT_MODAL_PARAMS.FISA);
+        return next;
+      });
       refreshReminders({ silent: true });
-    } else {
-      setSearchParams({});
+      return;
     }
+
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete(CLIENT_MODAL_PARAMS.TAB);
+      next.delete(CLIENT_MODAL_PARAMS.WEB_CLIENT);
+      return next;
+    });
   };
 
   const cardData = [
