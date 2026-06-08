@@ -8,5 +8,5 @@ export function openTelLink(phone) {
   const dial = safe.replace(/\s/g, "");
   if (!dial) return;
 
-  window.open(`tel:${encodeURIComponent(dial)}`);
+  window.location.href = `tel:${encodeURIComponent(dial)}`;
 }

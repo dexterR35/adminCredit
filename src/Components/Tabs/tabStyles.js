@@ -1,13 +1,13 @@
-/** Tab button states — built on dash-btn / Button, not pill-shaped */
+/** Tab button states built on the uiCheck Button. */
 
 export const tabBadgeClassName = ({ isActive, isCompleted }) => {
   if (isActive) {
-    return "flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-primary-600 text-[11px] font-bold text-white";
+    return "tab-index tab-index--active";
   }
   if (isCompleted) {
-    return "flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-primary-100 text-[11px] font-bold text-primary-700";
+    return "tab-index tab-index--completed";
   }
-  return "flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[11px] font-bold text-gray-500";
+  return "tab-index";
 };
 
 export const tabButtonClassName = ({ isActive, isCompleted, isReachable }) => {

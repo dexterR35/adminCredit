@@ -11,26 +11,50 @@ import {
   sanitizeUrl,
 } from "../utils/sanitize";
 import { isFisaReportStatus, normalizeFisaStatus } from "./fisaReportStatus";
+import { getFisaReportAttachmentMeta } from "../utils/fisaReportDocuments";
 
-export const mapFisaReportRow = (row) => ({
-  id: row.id,
-  user_id: row.user_id,
-  client_full_name: row.client_full_name || "",
-  client_cnp: row.client_cnp || "",
-  phone: row.phone || "",
-  email: row.email || "",
-  today_date: row.today_date || "",
-  pdf_url: row.pdf_url || "",
-  photo_url: row.photo_url || "",
-  user_status: normalizeFisaStatus(row.user_status),
-  form_data: row.form_data || {},
-  created_at: row.created_at,
-  updated_at: row.updated_at,
-  created_at_label: FormatTimestamp(row.created_at),
-});
+export const mapFisaReportRow = (row) => {
+  const attachmentMeta = getFisaReportAttachmentMeta(row);
 
-const FISA_LIST_COLUMNS =
-  "id, user_id, client_full_name, client_cnp, phone, email, today_date, pdf_url, photo_url, user_status, form_data, created_at, updated_at";
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    client_full_name: row.client_full_name || "",
+    client_cnp: row.client_cnp || "",
+    phone: row.phone || "",
+    email: row.email || "",
+    today_date: row.today_date || "",
+    pdf_url: attachmentMeta.pdfUrl,
+    photo_url: attachmentMeta.imageUrl,
+    has_image_document: attachmentMeta.hasImage,
+    has_pdf_document: attachmentMeta.hasPdf,
+    user_status: normalizeFisaStatus(row.user_status),
+    form_data: row.form_data || {},
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    created_at_label: FormatTimestamp(row.created_at),
+  };
+};
+
+const FISA_LIST_COLUMNS = `
+  id,
+  user_id,
+  client_full_name,
+  client_cnp,
+  phone,
+  email,
+  today_date,
+  pdf_url,
+  photo_url,
+  user_status,
+  form_data,
+  created_at,
+  updated_at,
+  fisa_report_attachments (
+    content_type,
+    original_name
+  )
+`;
 
 const FISA_DETAIL_COLUMNS = `${FISA_LIST_COLUMNS}, form_data`;
 

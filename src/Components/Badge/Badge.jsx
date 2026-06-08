@@ -1,6 +1,5 @@
-import React from "react";
 import PropTypes from "prop-types";
-import { badgeClassName, BADGE_VARIANTS_LIST } from "./badgeStyles";
+import { Badge as UiBadge, BADGE_VARIANT_KEYS } from "../uiCheck";
 
 const Badge = ({
   children,
@@ -11,17 +10,21 @@ const Badge = ({
   as: Component = "span",
   ...rest
 }) => (
-  <Component
-    className={badgeClassName({ variant, size, interactive, className })}
+  <UiBadge
+    as={Component}
+    variant={variant}
+    size={size}
+    interactive={interactive}
+    className={className}
     {...rest}
   >
     {children}
-  </Component>
+  </UiBadge>
 );
 
 Badge.propTypes = {
   children: PropTypes.node.isRequired,
-  variant: PropTypes.oneOf(BADGE_VARIANTS_LIST),
+  variant: PropTypes.oneOf(BADGE_VARIANT_KEYS),
   size: PropTypes.oneOf(["sm", "md", "lg"]),
   interactive: PropTypes.bool,
   className: PropTypes.string,

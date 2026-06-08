@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import IconR from "../utils/_Icon";
-import { buttonClassName } from "./buttonStyles";
+import { Button as UiButton } from "../uiCheck";
 import { useTrackLoading } from "../LoadingProgress";
+import { resolveButtonVariant } from "./buttonStyles";
 
 const Button = ({
   children,
@@ -24,45 +23,32 @@ const Button = ({
   const content = children ?? text;
   const isDisabled = disabled || loading;
   const resolvedIcon = icon ?? (buttonType === "logOut" ? "IoLogout" : null);
-  const isPlainText =
-    typeof content === "string" || typeof content === "number";
 
   useTrackLoading(loading);
 
   return (
-    <button
+    <UiButton
       type={type}
       disabled={isDisabled}
       onClick={onClick}
-      className={buttonClassName({
-        variant,
-        legacyButtonType: buttonType,
-        size,
-        disabled: isDisabled,
-        className: `${fullWidth ? "w-full" : ""} ${className}`.trim(),
-      })}
+      variant={resolveButtonVariant(variant, buttonType)}
+      size={size}
+      loading={loading}
+      loadingText={loadingText}
+      icon={resolvedIcon}
+      iconPosition={iconPosition}
+      className={className}
+      fullWidth={fullWidth}
       {...rest}
     >
-      {!loading && resolvedIcon && iconPosition === "left" && (
-        <IconR icon={resolvedIcon} />
-      )}
-      {content != null && content !== "" && (
-        isPlainText ? (
-          <span>{loading ? loadingText : content}</span>
-        ) : (
-          loading ? loadingText : content
-        )
-      )}
-      {!loading && resolvedIcon && iconPosition === "right" && (
-        <IconR icon={resolvedIcon} />
-      )}
-    </button>
+      {content}
+    </UiButton>
   );
 };
 
 Button.propTypes = {
   children: PropTypes.node,
-  text: PropTypes.string,
+  text: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   variant: PropTypes.oneOf([
     "primary",
     "secondary",
@@ -73,14 +59,18 @@ Button.propTypes = {
     "info",
     "edit",
     "error",
+    "outline",
+    "dangerMuted",
+    "gray",
+    "link",
   ]),
   buttonType: PropTypes.string,
-  size: PropTypes.oneOf(["sm", "md", "lg"]),
+  size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
   type: PropTypes.oneOf(["button", "submit", "reset"]),
   disabled: PropTypes.bool,
   loading: PropTypes.bool,
   loadingText: PropTypes.string,
-  icon: PropTypes.string,
+  icon: PropTypes.oneOfType([PropTypes.string, PropTypes.elementType, PropTypes.node]),
   iconPosition: PropTypes.oneOf(["left", "right"]),
   onClick: PropTypes.func,
   className: PropTypes.string,

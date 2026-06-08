@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   DataTable,
@@ -11,6 +11,7 @@ import {
 import { FetchCustomersData, useAssignClient } from "../../services/Hooks";
 import { useAuth } from "../../context/AuthContext";
 import ClientDetailModal from "../../Components/Customer/ClientDetailModal";
+import { PageTitle } from "../../Components/uiCheck";
 
 const clientColumns = [
   {
@@ -74,12 +75,7 @@ const ClientsTable = () => {
 
   return (
     <div className="space-y-6">
-      <div className="dash-page-header">
-        <div>
-          <h1 className="dash-page-title">Web Clients</h1>
-          <p className="dash-page-subtitle">obtinecredit.ro/formular</p>
-        </div>
-      </div>
+      <PageTitle subtitle="obtinecredit.ro/formular">Web Clients</PageTitle>
 
       <ClientDetailModal
         client={detailClient}

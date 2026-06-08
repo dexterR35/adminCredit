@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { FormField as UiFormField } from "../uiCheck";
 
 const FormField = ({
   label,
@@ -9,17 +10,16 @@ const FormField = ({
   children,
   className = "",
 }) => (
-  <div className={`flex flex-col gap-1.5 ${className}`}>
-    {label && (
-      <label htmlFor={htmlFor} className="text-sm font-medium text-gray-700">
-        {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
-      </label>
-    )}
+  <UiFormField
+    label={label}
+    htmlFor={htmlFor}
+    required={required}
+    error={error}
+    hint={hint}
+    className={className}
+  >
     {children}
-    {error && <p className="text-xs text-red-600">{error}</p>}
-    {hint && !error && <p className="text-xs text-gray-500">{hint}</p>}
-  </div>
+  </UiFormField>
 );
 
 FormField.propTypes = {

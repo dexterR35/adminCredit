@@ -1,19 +1,20 @@
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import NavBar from "./Header/NavBar";
 import AsideMenu from "./Aside/AsideMenu";
 
-const MainLayout = ({ children }) => {
+const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const closeSidebar = () => setSidebarOpen(false);
   const toggleSidebar = () => setSidebarOpen((open) => !open);
 
   return (
-    <div className="dash-shell">
+    <div className="app-shell">
       {sidebarOpen && (
         <button
           type="button"
-          className="dash-sidebar-backdrop"
+          className="app-sidebar-backdrop"
           onClick={closeSidebar}
           aria-label="Close navigation menu"
         />
@@ -21,12 +22,14 @@ const MainLayout = ({ children }) => {
 
       <AsideMenu isOpen={sidebarOpen} onClose={closeSidebar} />
 
-      <div className="dash-main">
-        <header className="dash-header">
+      <div className="app-main">
+        <header className="app-header">
           <NavBar onMenuToggle={toggleSidebar} />
         </header>
 
-        <main className="dash-content animate-fade-in">{children}</main>
+        <main className="app-content animate-fade-in">
+          <Outlet />
+        </main>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 
 const Tabs = ({ children, ariaLabel = "Tabs", className = "" }) => (
-  <nav aria-label={ariaLabel} className={`-mx-1 overflow-x-auto px-1 pb-1 ${className}`.trim()}>
-    <ol className="flex min-w-max gap-2" role="tablist">
+  <nav aria-label={ariaLabel} className={`tabs-nav ${className}`.trim()}>
+    <ol className="tabs-list" role="tablist">
       {children}
     </ol>
   </nav>

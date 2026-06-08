@@ -125,12 +125,12 @@ export const getButtonClasses = (type) => colors.button[type]?.tailwind || color
 /** @deprecated Use badgeClassName from Components/Badge/badgeStyles */
 export const getBadgeClasses = (variant) => {
   const map = {
-    primary: "dash-badge-primary",
-    secondary: "dash-badge-secondary",
-    danger: "dash-badge-danger",
-    info: "dash-badge-info",
-    default: "dash-badge-default",
-    edit: "dash-badge-edit",
+    primary: "badge--accent",
+    secondary: "badge--slate",
+    danger: "badge--error",
+    info: "badge--info",
+    default: "badge--default",
+    edit: "badge--warning",
   };
   return map[variant] || map.default;
 };

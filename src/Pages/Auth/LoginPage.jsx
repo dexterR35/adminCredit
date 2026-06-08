@@ -97,7 +97,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="dash-btn dash-btn-primary w-full py-3 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn btn-primary w-full py-3 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>

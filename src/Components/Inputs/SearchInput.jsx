@@ -15,7 +15,7 @@ const SearchInput = ({
   });
 
   return (
-    <div className={`dash-search ${className}`}>
+    <div className={`search-input ${className}`}>
       <input
         type="text"
         value={value ?? ""}

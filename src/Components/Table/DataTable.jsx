@@ -255,9 +255,9 @@ const DataTable = ({
           </div>
         )}
 
-        <div className="dash-table-wrap">
+        <div className="data-table-wrap">
           <div className="overflow-x-auto">
-            <table className="dash-table">
+            <table className="data-table">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
@@ -288,7 +288,7 @@ const DataTable = ({
                       {loading ? (
                         <div className="py-12" aria-hidden />
                       ) : (
-                        <div className="dash-empty">
+                        <div className="empty-state">
                           <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                           </svg>
@@ -306,7 +306,7 @@ const DataTable = ({
                         else if (selectable) row.toggleSelected();
                       }}
                       className={[
-                        row.getIsSelected() ? "dash-table-row--selected" : "",
+                        row.getIsSelected() ? "data-table-row--selected" : "",
                         rowClickable || selectable ? "cursor-pointer" : "",
                         rowClickable ? "hover:bg-gray-50/80" : "",
                       ]
@@ -325,7 +325,7 @@ const DataTable = ({
             </table>
           </div>
 
-          <div className="dash-table-footer">
+          <div className="data-table-footer">
             <div className="flex items-center gap-2">
               {["<<", "<", ">", ">>"].map((label, i) => {
                 const handlers = [
@@ -341,7 +341,7 @@ const DataTable = ({
                     type="button"
                     onClick={handlers[i]}
                     disabled={disabled}
-                    className="dash-btn dash-btn-secondary px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="btn btn-secondary btn-sm disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {label}
                   </button>

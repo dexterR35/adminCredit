@@ -32,7 +32,8 @@ public_html/
 - Admin login: `https://obtinecredit.ro/admin/login`
 
 ## Important Notes
-- All routes are relative to `/admin` base path
-- The `.htaccess` file handles all routing for client-side navigation
+- The app auto-detects `/admin` as its router base when opened under that path.
+- Vite builds asset URLs as relative paths, so the copied `dist/` folder works from `/admin/`.
+- The `.htaccess` file is copied from `public/.htaccess` during build and handles client-side routing.
 - Make sure mod_rewrite is enabled on your Apache server
 

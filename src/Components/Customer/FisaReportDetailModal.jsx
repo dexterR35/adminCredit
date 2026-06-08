@@ -11,11 +11,18 @@ import {
   DetailModalShell,
   DetailModalFooter,
   DetailStatusSelect,
-  DetailDocumentsSection,
+  DetailAttachmentsSection,
   useDetailRefresh,
   useDetailEditMode,
   useDetailDelete,
 } from "./detailModal";
+import {
+  deleteFisaReportAttachment,
+  fetchFisaReportAttachments,
+  uploadFisaReportAttachment,
+} from "../../services/fisaReportAttachments";
+import { validateClientAttachmentFile } from "../../utils/fileUpload";
+import { mergeFisaReportDocuments } from "../../utils/fisaReportDocuments";
 
 const FisaReportDetailModal = ({
   report,
@@ -28,6 +35,9 @@ const FisaReportDetailModal = ({
   const { isEditing, startEdit, cancelEdit } = useDetailEditMode(isOpen);
   const [statusValue, setStatusValue] = useState("Pending");
   const [saving, setSaving] = useState(false);
+  const [attachments, setAttachments] = useState([]);
+  const [attachmentsLoading, setAttachmentsLoading] = useState(false);
+  const [attachmentUploading, setAttachmentUploading] = useState(false);
 
   const { row, setDisplayRow } = useDetailRefresh({
     isOpen,
@@ -40,6 +50,36 @@ const FisaReportDetailModal = ({
     if (!isOpen || !row?.user_status) return;
     setStatusValue(normalizeFisaStatus(row.user_status));
   }, [isOpen, row?.id, row?.user_status]);
+
+  useEffect(() => {
+    if (!isOpen || !row?.id) {
+      setAttachments([]);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const loadAttachments = async () => {
+      setAttachmentsLoading(true);
+      try {
+        const rows = await fetchFisaReportAttachments(row.id);
+        if (!cancelled) setAttachments(rows);
+      } catch (error) {
+        console.error("Error loading fisa report attachments:", error);
+        if (!cancelled) {
+          setAttachments([]);
+          toast.error(error.message || "Could not load documents.");
+        }
+      } finally {
+        if (!cancelled) setAttachmentsLoading(false);
+      }
+    };
+
+    loadAttachments();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, row?.id]);
 
   const {
     confirmDelete,
@@ -71,6 +111,45 @@ const FisaReportDetailModal = ({
     cancelEdit();
   };
 
+  const handleAttachmentUpload = async (file) => {
+    if (!row?.id || !canEdit || !isEditing) return;
+
+    try {
+      await validateClientAttachmentFile(file);
+    } catch (error) {
+      toast.error(error.message || "Invalid file.");
+      return;
+    }
+
+    setAttachmentUploading(true);
+    try {
+      const uploaded = await uploadFisaReportAttachment(row.id, file);
+      setAttachments((prev) => [uploaded, ...prev]);
+      toast.success("Document uploaded.");
+    } catch (error) {
+      console.error("Error uploading fisa report attachment:", error);
+      toast.error(error.message || "Could not upload document.");
+    } finally {
+      setAttachmentUploading(false);
+    }
+  };
+
+  const handleAttachmentRemove = async (attachment) => {
+    if (!canEdit || !isEditing) return;
+
+    setAttachmentUploading(true);
+    try {
+      await deleteFisaReportAttachment(attachment);
+      setAttachments((prev) => prev.filter((item) => item.id !== attachment.id));
+      toast.success("Document removed.");
+    } catch (error) {
+      console.error("Error deleting fisa report attachment:", error);
+      toast.error(error.message || "Could not remove document.");
+    } finally {
+      setAttachmentUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!canEdit) return;
 
@@ -95,22 +174,7 @@ const FisaReportDetailModal = ({
     }
   };
 
-  const documents = [
-    {
-      key: "photo",
-      url: row.photo_url || form.photoUrl,
-      viewLabel: "View photo",
-      missingLabel: "No photo",
-      preset: "photo",
-    },
-    {
-      key: "pdf",
-      url: row.pdf_url || form.pdfUrl,
-      viewLabel: "View PDF",
-      missingLabel: "No PDF",
-      preset: "pdf",
-    },
-  ];
+  const documents = mergeFisaReportDocuments(row, attachments);
 
   return (
     <>
@@ -159,7 +223,14 @@ const FisaReportDetailModal = ({
           <DetailField label="Created">{row.created_at_label}</DetailField>
         </div>
 
-        <DetailDocumentsSection items={documents} />
+        <DetailAttachmentsSection
+          attachments={documents}
+          isEditing={isEditing && canEdit}
+          disabled={saving || attachmentsLoading}
+          uploading={attachmentUploading}
+          onUpload={canEdit ? handleAttachmentUpload : undefined}
+          onRemove={canEdit ? handleAttachmentRemove : undefined}
+        />
       </DetailModalShell>
 
       <DeleteConfirmModal

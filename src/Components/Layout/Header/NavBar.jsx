@@ -63,11 +63,11 @@ const NavBar = ({ onMenuToggle }) => {
   };
 
   return (
-    <div className="dash-header-inner">
-      <div className="dash-header-start">
+    <div className="app-header-inner">
+      <div className="app-header-start">
         <button
           type="button"
-          className="dash-mobile-menu-btn lg:hidden"
+          className="app-mobile-menu-btn lg:hidden"
           onClick={onMenuToggle}
           aria-label="Open navigation menu"
         >
@@ -77,16 +77,16 @@ const NavBar = ({ onMenuToggle }) => {
         <PageBreadcrumb crumbs={crumbs} />
       </div>
 
-      <div className="dash-header-end" ref={menuRef}>
+      <div className="app-header-end" ref={menuRef}>
         <button
           type="button"
-          className="dash-header-user-btn"
+          className="app-user-btn"
           onClick={() => setMenuOpen((open) => !open)}
           aria-expanded={menuOpen}
           aria-haspopup="true"
           aria-label="Account menu"
         >
-          <span className="dash-user-avatar">{initials}</span>
+          <span className="app-user-avatar">{initials}</span>
           <span className="hidden min-w-0 md:block">
             <span className="block truncate text-sm font-semibold capitalize text-gray-900">
               {displayName}
@@ -101,12 +101,12 @@ const NavBar = ({ onMenuToggle }) => {
 
         {menuOpen && (
           <div
-            className="dash-header-user-menu"
+            className="app-user-menu"
             role="menu"
           >
             <div className="border-b border-gray-100 px-4 py-3">
               <div className="flex items-center gap-3">
-                <span className="dash-user-avatar dash-user-avatar--lg">{initials}</span>
+                <span className="app-user-avatar app-user-avatar--lg">{initials}</span>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold capitalize text-gray-900">
                     {displayName}

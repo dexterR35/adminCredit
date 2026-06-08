@@ -18,17 +18,14 @@ const TabProgress = ({
           <span className="font-semibold tabular-nums text-primary-600">{progress}%</span>
         </div>
         <div
-          className="h-2 overflow-hidden rounded-sm bg-gray-100"
+          className="progress-bar"
           role="progressbar"
           aria-valuenow={progress}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label="Progress"
         >
-          <div
-            className="h-full rounded-sm bg-linear-to-r from-primary-500 to-primary-600 transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="progress-bar__fill" style={{ width: `${progress}%` }} />
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   DataTable,
   useDataTable,
@@ -11,6 +11,7 @@ import {
 import ContractDetailModal from "../../Components/Customer/ContractDetailModal";
 import { FetchContractData } from "../../services/Hooks";
 import { useAuth } from "../../context/AuthContext";
+import { PageTitle } from "../../Components/uiCheck";
 
 const contractColumns = [
   { accessorKey: "first_name", header: "First name", size: 100 },
@@ -41,12 +42,7 @@ const ContractTable = () => {
 
   return (
     <div className="space-y-6">
-      <div className="dash-page-header">
-        <div>
-          <h1 className="dash-page-title">Contracts</h1>
-          <p className="dash-page-subtitle">obtinecredit.ro/contract</p>
-        </div>
-      </div>
+      <PageTitle subtitle="obtinecredit.ro/contract">Contracts</PageTitle>
 
       <ContractDetailModal
         contract={detailContract}

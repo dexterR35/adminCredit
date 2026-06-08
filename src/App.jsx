@@ -4,6 +4,7 @@ import {
   Outlet,
   RouterProvider,
 } from "react-router-dom";
+import PropTypes from "prop-types";
 import HomePage from "./Pages/Home/HomePage";
 import MainLayout from "./Components/Layout/Layout";
 import ContractTable from "./Pages/ContractTable/ContractTable";
@@ -15,32 +16,38 @@ import { LoadingProgressProvider } from "./context/LoadingProgressContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ErrorBoundary } from "./Components/ErrorBoundary";
+import { getRouterBasename } from "./utils/router";
 
 const LoadingScreen = () => (
   <div className="flex h-screen items-center justify-center bg-gray-50">
     <div className="flex flex-col items-center gap-4">
-      <div className="dash-spinner" />
+      <div className="loading-spinner" />
       <p className="text-sm font-medium text-gray-500">Loading...</p>
     </div>
   </div>
 );
 
 const RootRedirect = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
   return user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />;
 };
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedLayout = () => {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
-  return <MainLayout>{children}</MainLayout>;
+  return <MainLayout />;
 };
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
   return user ? <Navigate to="/home" replace /> : children;
+};
+
+PublicRoute.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 const AppShell = () => (
@@ -53,6 +60,8 @@ const AppShell = () => (
     </AuthProvider>
   </ErrorBoundary>
 );
+
+const routerBasename = getRouterBasename();
 
 const router = createBrowserRouter(
   [
@@ -69,42 +78,20 @@ const router = createBrowserRouter(
           ),
         },
         {
-          path: "/home",
-          element: (
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: "/customers",
-          element: (
-            <ProtectedRoute>
-              <ClientsWebPage />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: "/contract",
-          element: (
-            <ProtectedRoute>
-              <ContractTable />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: "/newraport",
-          element: (
-            <ProtectedRoute>
-              <FormUser />
-            </ProtectedRoute>
-          ),
+          element: <ProtectedLayout />,
+          children: [
+            { path: "/home", element: <HomePage /> },
+            { path: "/customers", element: <ClientsWebPage /> },
+            { path: "/contract", element: <ContractTable /> },
+            { path: "/newraport", element: <FormUser /> },
+          ],
         },
         { path: "*", element: <Navigate to="/home" replace /> },
       ],
     },
   ],
   {
+    ...(routerBasename ? { basename: routerBasename } : {}),
     future: {
       v7_startTransition: true,
       v7_relativeSplatPath: true,

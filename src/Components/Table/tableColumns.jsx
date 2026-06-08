@@ -58,6 +58,64 @@ export const pdfColumn = (options = {}) =>
     ...options,
   });
 
+const createFisaDocumentColumn = ({
+  header,
+  urlKey,
+  flagKey,
+  viewLabel,
+  missingLabel,
+  preset,
+  size = 120,
+}) => ({
+  accessorKey: urlKey,
+  header,
+  size,
+  exportValue: (row) => row[urlKey] || (row[flagKey] ? "attached" : ""),
+  Cell: ({ row }) => {
+    const data = row.original;
+    const url = data[urlKey];
+
+    if (url) {
+      return (
+        <LinkDataBadge
+          url={url}
+          viewLabel={viewLabel}
+          missingLabel={missingLabel}
+          {...LINK_BADGE_PRESETS[preset]}
+        />
+      );
+    }
+
+    if (data[flagKey]) {
+      return <TableBadge variant="info">{viewLabel.replace(/^View /, "")}</TableBadge>;
+    }
+
+    return <TableBadge variant="default">{missingLabel}</TableBadge>;
+  },
+});
+
+export const fisaPhotoColumn = (options = {}) =>
+  createFisaDocumentColumn({
+    header: "Photo",
+    urlKey: "photo_url",
+    flagKey: "has_image_document",
+    viewLabel: "View photo",
+    missingLabel: "No photo",
+    preset: "photo",
+    ...options,
+  });
+
+export const fisaPdfColumn = (options = {}) =>
+  createFisaDocumentColumn({
+    header: "PDF",
+    urlKey: "pdf_url",
+    flagKey: "has_pdf_document",
+    viewLabel: "View PDF",
+    missingLabel: "No PDF",
+    preset: "pdf",
+    ...options,
+  });
+
 export const signatureColumn = (options = {}) =>
   createLinkBadgeColumn({
     accessorKey: "signature_url",

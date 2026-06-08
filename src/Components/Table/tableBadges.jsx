@@ -8,7 +8,7 @@ import {
 import { sanitizeUrlForHref } from "../../utils/sanitize";
 import { openTelLink } from "../../utils/phone";
 
-const TABLE_BADGE_CLASS = "dash-table-badge";
+const TABLE_BADGE_CLASS = "data-badge";
 
 /** Reusable table cell badge */
 export const TableBadge = ({ variant = "default", children, className = "" }) => (
@@ -67,6 +67,7 @@ export const LinkDataBadge = ({
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex cursor-pointer"
+      onClick={(event) => event.stopPropagation()}
     >
       <Badge
         variant={resolveBadgeVariant(viewVariant)}
@@ -100,7 +101,10 @@ export const PhoneDataBadge = ({
       size="sm"
       interactive
       className={TABLE_BADGE_CLASS}
-      onClick={() => openTelLink(value)}
+      onClick={(event) => {
+        event.stopPropagation();
+        openTelLink(value);
+      }}
     >
       {value}
     </Badge>

@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 
 const PERIODS = [
@@ -9,13 +8,13 @@ const PERIODS = [
 ];
 
 const PeriodFilter = ({ value, onChange, className = "" }) => (
-  <div className={`dash-period-group ${className}`} role="group" aria-label="Time period">
+  <div className={`period-filter ${className}`} role="group" aria-label="Time period">
     {PERIODS.map((period) => (
       <button
         key={period.id}
         type="button"
         onClick={() => onChange(period.id)}
-        className={`dash-period-btn ${value === period.id ? "dash-period-btn--active" : ""}`}
+        className={`period-filter__button ${value === period.id ? "period-filter__button--active" : ""}`}
       >
         {period.label}
       </button>

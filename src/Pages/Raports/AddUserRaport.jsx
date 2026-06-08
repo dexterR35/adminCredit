@@ -371,15 +371,15 @@ const FormUser = () => {
   if (authLoading || !initialFormValues) {
     return (
       <div className="flex min-h-[calc(100vh-7rem)] items-center justify-center">
-        <div className="dash-spinner" />
+        <div className="loading-spinner" />
       </div>
     );
   }
 
   return (
-    <div className="fisa-form-page">
-      <div className="fisa-form-card">
-        <div className="fisa-form-header">
+    <div className="report-form-page">
+      <div className="report-form-card">
+        <div className="report-form-header">
           <h1 className="text-lg font-display font-bold text-gray-900 sm:text-2xl">Client Record</h1>
           <p className="mt-1 text-sm text-gray-500">
             Complete all required fields to create a new client report
@@ -404,7 +404,7 @@ const FormUser = () => {
 
             return (
             <>
-              <div className="fisa-form-body">
+              <div className="report-form-body">
                 <FisaDraftSync
                   userId={authUser?.id}
                   isAdmin={isAdmin}
@@ -460,7 +460,7 @@ const FormUser = () => {
                 </div>
               </div>
 
-              <Form className="fisa-form-actions">
+              <Form className="report-form-actions">
                 <Button
                   type="button"
                   variant="ghost"
@@ -469,7 +469,7 @@ const FormUser = () => {
                   className="w-full md:w-auto"
                 />
 
-                <div className="fisa-form-actions__primary">
+                <div className="report-form-actions__primary">
                   {currentStep > 0 && (
                     <Button
                       type="button"

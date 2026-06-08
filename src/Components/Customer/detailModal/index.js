@@ -10,3 +10,5 @@ export {
   DetailStatusSelect,
   DetailDocumentsSection,
 } from "./DetailModalParts";
+
+export { default as DetailAttachmentsSection } from "./DetailAttachmentsSection";

@@ -3,7 +3,7 @@ import { HiOutlineChevronRight } from "react-icons/hi2";
 import PropTypes from "prop-types";
 
 const PageBreadcrumb = ({ crumbs }) => (
-  <nav className="dash-breadcrumb" aria-label="Breadcrumb">
+  <nav className="app-breadcrumb" aria-label="Breadcrumb">
     <ol className="flex min-w-0 flex-wrap items-center gap-1">
       {crumbs.map((crumb, index) => {
         const isLast = index === crumbs.length - 1;

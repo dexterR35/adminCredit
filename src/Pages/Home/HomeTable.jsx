@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import {
   DataTable,
   useDataTable,
-  photoColumn,
-  pdfColumn,
+  fisaPhotoColumn,
+  fisaPdfColumn,
   phoneColumn,
   fisaStatusBadgeColumn,
   fisaReportExportColumns,
@@ -17,8 +17,8 @@ const reportColumns = [
   phoneColumn(),
   { accessorKey: "client_cnp", header: "CNP" },
   fisaStatusBadgeColumn({ header: "Status" }),
-  photoColumn(),
-  pdfColumn(),
+  fisaPhotoColumn(),
+  fisaPdfColumn(),
   { accessorKey: "created_at_label", header: "Created" },
 ];
 

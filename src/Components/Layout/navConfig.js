@@ -4,6 +4,7 @@ import {
   HiOutlineHome,
   HiOutlineUserGroup,
 } from "react-icons/hi2";
+import { stripRouterBasename } from "../../utils/router";
 
 export const APP_NAME = "Obtine Credit";
 
@@ -36,7 +37,7 @@ export const NAV_ITEMS = [
 ];
 
 export const getNavItemByPath = (pathname) =>
-  NAV_ITEMS.find((item) => item.path === pathname) ?? null;
+  NAV_ITEMS.find((item) => item.path === stripRouterBasename(pathname)) ?? null;
 
 /** Breadcrumb trail for the top header */
 export const getBreadcrumbs = (pathname) => {

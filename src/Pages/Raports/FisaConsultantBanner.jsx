@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 const FisaConsultantBanner = ({ userName, date }) => (
   <div className="mt-4 flex flex-col gap-3 rounded-xl border border-primary-100 bg-primary-50/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
     <div className="flex items-center gap-3">
-      <div className="dash-user-avatar">{userName?.charAt(0)?.toUpperCase() || "?"}</div>
+      <div className="app-user-avatar">{userName?.charAt(0)?.toUpperCase() || "?"}</div>
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-wide text-primary-600">
           Consultant

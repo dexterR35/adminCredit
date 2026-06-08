@@ -2,6 +2,7 @@ import { INITIAL_VALUES } from "./fisaReportFormConfig";
 
 const DRAFT_PREFIX = "fisa_report_draft_";
 const DRAFT_IGNORE = new Set(["userStatus", "todayDate"]);
+const DRAFT_TTL_MS = 12 * 60 * 60 * 1000;
 
 const normalize = (value) =>
   value === null || value === undefined ? "" : String(value).trim();
@@ -18,28 +19,46 @@ export const hasFisaDraftData = (values, baseline) => {
   });
 };
 
-const getDraftStorage = () => {
+const getSessionDraftStorage = () => {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+};
+
+const getLegacyDraftStorage = () => {
   try {
     return window.localStorage;
   } catch {
-    return window.sessionStorage;
+    return null;
   }
+};
+
+const removeDraft = (userId) => {
+  if (!userId) return;
+  const key = getFisaDraftStorageKey(userId);
+  getSessionDraftStorage()?.removeItem(key);
+  getLegacyDraftStorage()?.removeItem(key);
 };
 
 export const loadFisaDraft = (userId) => {
   if (!userId) return null;
 
   try {
-    const storage = getDraftStorage();
+    const storage = getSessionDraftStorage();
+    if (!storage) return null;
+
     const key = getFisaDraftStorageKey(userId);
     let raw = storage.getItem(key);
 
-    // Migrate older session-only drafts.
+    // Migrate older persistent drafts, then remove the localStorage copy.
     if (!raw) {
-      raw = window.sessionStorage.getItem(key);
+      const legacyStorage = getLegacyDraftStorage();
+      raw = legacyStorage?.getItem(key);
       if (raw) {
         storage.setItem(key, raw);
-        window.sessionStorage.removeItem(key);
+        legacyStorage?.removeItem(key);
       }
     }
 
@@ -47,6 +66,10 @@ export const loadFisaDraft = (userId) => {
 
     const parsed = JSON.parse(raw);
     if (parsed?.userId !== userId) return null;
+    if (Number.isFinite(parsed.savedAt) && Date.now() - parsed.savedAt > DRAFT_TTL_MS) {
+      removeDraft(userId);
+      return null;
+    }
 
     return parsed;
   } catch {
@@ -58,7 +81,10 @@ export const saveFisaDraft = (userId, { values, currentStep, maxStepReached, isA
   if (!userId || !values) return;
 
   try {
-    getDraftStorage().setItem(
+    const storage = getSessionDraftStorage();
+    if (!storage) return;
+
+    storage.setItem(
       getFisaDraftStorageKey(userId),
       JSON.stringify({
         userId,
@@ -75,8 +101,5 @@ export const saveFisaDraft = (userId, { values, currentStep, maxStepReached, isA
 };
 
 export const clearFisaDraft = (userId) => {
-  if (!userId) return;
-  const key = getFisaDraftStorageKey(userId);
-  getDraftStorage().removeItem(key);
-  window.sessionStorage.removeItem(key);
+  removeDraft(userId);
 };

@@ -95,7 +95,6 @@ const ClientDetailModal = ({
   const [saving, setSaving] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [statusValue, setStatusValue] = useState("Pending");
-
   const canEditFields = Boolean(updateCustomer);
   const canDelete = isAdmin && Boolean(onDelete);
   const canAssign = isAdmin && Boolean(onAssign);

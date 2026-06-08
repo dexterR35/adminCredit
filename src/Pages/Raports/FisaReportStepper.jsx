@@ -15,7 +15,7 @@ const FisaReportStepper = ({
       total={steps.length}
       label={`Step ${currentStep + 1} of ${steps.length}${currentTitle ? ` · ${currentTitle}` : ""}`}
     >
-      <div className="fisa-stepper-tabs">
+      <div className="report-stepper-tabs">
         <Tabs ariaLabel="Form steps">
           {steps.map((step, index) => {
             const isActive = index === currentStep;

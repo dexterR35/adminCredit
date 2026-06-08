@@ -33,6 +33,7 @@ alter table public.credit_applications
 
 alter table public.contracts
   add column if not exists user_id uuid references auth.users(id),
+  add column if not exists storage_paths jsonb not null default '{}'::jsonb,
   add column if not exists updated_at timestamptz default now();
 
 create table if not exists public.fisa_reports (
@@ -60,24 +61,77 @@ create table if not exists public.client_assignments (
   unique (credit_application_id)
 );
 
+create table if not exists public.fisa_report_attachments (
+  id uuid primary key default gen_random_uuid(),
+  fisa_report_id uuid not null references public.fisa_reports(id) on delete cascade,
+  original_name text not null,
+  storage_path text not null unique,
+  content_type text not null,
+  file_size bigint not null check (file_size > 0 and file_size <= 20971520),
+  uploaded_by uuid references auth.users(id) on delete set null default auth.uid(),
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_fisa_reports_user_id on public.fisa_reports(user_id);
 create index if not exists idx_fisa_reports_created_at on public.fisa_reports(created_at desc);
 create index if not exists idx_contracts_user_id on public.contracts(user_id);
 create index if not exists idx_contracts_created_at on public.contracts(created_at desc);
 create index if not exists idx_credit_applications_created_at on public.credit_applications(created_at desc);
 create index if not exists idx_credit_applications_assigned_user_id on public.credit_applications(assigned_user_id);
+create index if not exists idx_fisa_report_attachments_report_id
+  on public.fisa_report_attachments (fisa_report_id, created_at desc);
+
+create or replace function public.can_access_fisa_report(report_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.fisa_reports fr
+    where fr.id = report_id
+      and (fr.user_id = auth.uid() or public.is_admin())
+  );
+$$;
+
+create or replace function public.can_access_fisa_doc_path(object_name text)
+returns boolean
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  report_id uuid;
+begin
+  report_id := (regexp_match(
+    object_name,
+    '^fisa-docs/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/'
+  ))[1]::uuid;
+
+  return public.can_access_fisa_report(report_id);
+exception
+  when others then
+    return false;
+end;
+$$;
 
 alter table public.profiles enable row level security;
 alter table public.credit_applications enable row level security;
 alter table public.contracts enable row level security;
 alter table public.fisa_reports enable row level security;
 alter table public.client_assignments enable row level security;
+alter table public.fisa_report_attachments enable row level security;
 
 grant select, insert, update, delete on public.profiles to authenticated;
 grant select, insert, update, delete on public.credit_applications to authenticated;
 grant select, insert, update, delete on public.contracts to authenticated;
 grant select, insert, update, delete on public.fisa_reports to authenticated;
 grant select, insert, update, delete on public.client_assignments to authenticated;
+grant select, insert, delete on public.fisa_report_attachments to authenticated;
+grant insert on public.contracts to anon;
 
 drop policy if exists "profiles read own or admin" on public.profiles;
 create policy "profiles read own or admin"
@@ -91,9 +145,16 @@ create policy "profiles update own or admin"
   with check (id = auth.uid() or public.is_admin());
 
 drop policy if exists "profiles insert admin" on public.profiles;
-create policy "profiles insert admin"
+drop policy if exists "profiles insert own consultant or admin" on public.profiles;
+create policy "profiles insert own consultant or admin"
   on public.profiles for insert to authenticated
-  with check (public.is_admin() or id = auth.uid());
+  with check (
+    public.is_admin()
+    or (
+      id = auth.uid()
+      and role = 'consultant'
+    )
+  );
 
 drop policy if exists "web clients read all authenticated" on public.credit_applications;
 drop policy if exists "web clients read scoped" on public.credit_applications;
@@ -125,6 +186,35 @@ create policy "web clients delete admin"
   on public.credit_applications for delete to authenticated
   using (public.is_admin());
 
+drop policy if exists "fisa attachments read scoped" on public.fisa_report_attachments;
+create policy "fisa attachments read scoped"
+  on public.fisa_report_attachments for select to authenticated
+  using (public.can_access_fisa_report(fisa_report_id));
+
+drop policy if exists "fisa attachments insert scoped" on public.fisa_report_attachments;
+create policy "fisa attachments insert scoped"
+  on public.fisa_report_attachments for insert to authenticated
+  with check (
+    public.can_access_fisa_report(fisa_report_id)
+    and uploaded_by = auth.uid()
+    and storage_path ~ (
+      '^fisa-docs/'
+      || fisa_report_id::text
+      || '/'
+      || id::text
+      || '[.](webp|png|jpg|jpeg|pdf|docx)$'
+    )
+  );
+
+drop policy if exists "fisa attachments delete scoped" on public.fisa_report_attachments;
+create policy "fisa attachments delete scoped"
+  on public.fisa_report_attachments for delete to authenticated
+  using (
+    public.is_admin()
+    or uploaded_by = auth.uid()
+    or public.can_access_fisa_report(fisa_report_id)
+  );
+
 drop policy if exists "institutions read authenticated" on public.credit_application_institutions;
 drop policy if exists "institutions read scoped" on public.credit_application_institutions;
 create policy "institutions read scoped"
@@ -154,6 +244,40 @@ drop policy if exists "contracts delete admin" on public.contracts;
 create policy "contracts delete admin"
   on public.contracts for delete to authenticated
   using (public.is_admin());
+
+drop policy if exists "Allow public contract submissions" on public.contracts;
+create policy "Allow public contract submissions"
+  on public.contracts for insert to anon
+  with check (
+    user_id is null
+    and btrim(first_name) <> ''
+    and btrim(last_name) <> ''
+    and btrim(phone) <> ''
+    and btrim(email) <> ''
+    and pdf_url like 'https://%'
+    and photo_url like 'https://%'
+    and signature_url like 'https://%'
+    and storage_paths ? 'pdf'
+    and storage_paths ? 'photo'
+    and storage_paths ? 'signature'
+  );
+
+drop policy if exists "Allow authenticated contract submissions" on public.contracts;
+create policy "Allow authenticated contract submissions"
+  on public.contracts for insert to authenticated
+  with check (
+    (user_id is null or user_id = auth.uid())
+    and btrim(first_name) <> ''
+    and btrim(last_name) <> ''
+    and btrim(phone) <> ''
+    and btrim(email) <> ''
+    and pdf_url like 'https://%'
+    and photo_url like 'https://%'
+    and signature_url like 'https://%'
+    and storage_paths ? 'pdf'
+    and storage_paths ? 'photo'
+    and storage_paths ? 'signature'
+  );
 
 drop policy if exists "fisa read own or admin" on public.fisa_reports;
 create policy "fisa read own or admin"
@@ -242,6 +366,28 @@ drop trigger if exists protect_profile_role_trigger on public.profiles;
 create trigger protect_profile_role_trigger
   before update on public.profiles
   for each row execute function public.protect_profile_role();
+
+create or replace function public.protect_credit_application_assignment()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin()
+    and new.assigned_user_id is distinct from old.assigned_user_id then
+    new.assigned_user_id := old.assigned_user_id;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists protect_credit_application_assignment_trigger
+  on public.credit_applications;
+create trigger protect_credit_application_assignment_trigger
+  before update on public.credit_applications
+  for each row execute function public.protect_credit_application_assignment();
 
 alter publication supabase_realtime add table public.fisa_reports;
 alter publication supabase_realtime add table public.credit_applications;

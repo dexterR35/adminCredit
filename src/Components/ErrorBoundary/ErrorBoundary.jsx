@@ -65,14 +65,14 @@ class ErrorBoundary extends Component {
               <button
                 type="button"
                 onClick={this.handleRetry}
-                className="dash-btn dash-btn-primary px-4 py-2"
+                className="btn btn-primary px-4 py-2"
               >
                 Try again
               </button>
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="dash-btn dash-btn-secondary px-4 py-2"
+                className="btn btn-secondary px-4 py-2"
               >
                 Reload page
               </button>

@@ -10,6 +10,8 @@ export {
 export {
   photoColumn,
   pdfColumn,
+  fisaPhotoColumn,
+  fisaPdfColumn,
   signatureColumn,
   phoneColumn,
   yesNoColumn,

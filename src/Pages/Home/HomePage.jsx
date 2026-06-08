@@ -1,12 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { HiOutlinePlus } from 'react-icons/hi2';
 import { useAuth } from '../../context/AuthContext';
-import CardSmall from '../../Components/CardSmall/_CardSmall';
+import { Button } from '../../Components/Buttons';
+import { Card, CardBody, CardHeader, PageTitle, SummaryCard } from '../../Components/uiCheck';
 import PeriodFilter from '../../Components/Layout/PeriodFilter';
 import NewRaportTable from "./HomeTable";
 import { useHomePageData } from '../../services/Hooks';
 import { useTrackLoading } from '../../Components/LoadingProgress';
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const [period, setPeriod] = useState('month');
   const {
@@ -57,40 +61,54 @@ const HomePage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="dash-page-header">
-        <div>
-          <h1 className="dash-page-title">Dashboard</h1>
-          <p className="dash-page-subtitle">
-            {isAdmin ? 'Admin overview of all activity.' : 'Your assigned work overview.'}
-          </p>
-        </div>
-        <PeriodFilter value={period} onChange={setPeriod} />
-      </div>
+      <PageTitle
+        subtitle={isAdmin ? 'Admin overview of all activity.' : 'Your assigned work overview.'}
+        actions={(
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              text="Create Report"
+              icon={HiOutlinePlus}
+              onClick={() => navigate('/newraport')}
+            />
+            <PeriodFilter value={period} onChange={setPeriod} />
+          </div>
+        )}
+      >
+        Dashboard
+      </PageTitle>
 
       <section>
-        <div className="dash-stat-grid">
+        <div className="summary-grid">
           {cardData.map((card) => (
-            <CardSmall key={card._one} {...card} loading={loading} />
+            <SummaryCard
+              key={card._one}
+              label={card._one}
+              value={card._two}
+              detail={card._three}
+              icon={card.icon}
+              tone={card.accent}
+              loading={loading}
+            />
           ))}
         </div>
       </section>
 
-      <section className="dash-card">
-        <div className="dash-card-header">
-          <div>
-            <h2 className="text-lg font-display font-semibold text-gray-900">Client Records</h2>
-            <p className="text-sm text-gray-500">
-              {isAdmin ? "All consultant reports" : "Your reports only"}
-            </p>
-          </div>
-        </div>
+      <Card>
+        <CardHeader
+          title="Client Records"
+          subtitle={isAdmin ? "All consultant reports" : "Your reports only"}
+        />
+        <CardBody>
         <NewRaportTable
           period={period}
           raports={raports}
           loading={loading || fisaLoading}
           onDelete={onDeleteReport}
         />
-      </section>
+        </CardBody>
+      </Card>
     </div>
   );
 };
