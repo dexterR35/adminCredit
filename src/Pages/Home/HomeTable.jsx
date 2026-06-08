@@ -23,7 +23,6 @@ const reportColumns = [
 ];
 
 const NewRaportTable = ({
-  period: _period,
   raports = [],
   loading = false,
   onDelete,
@@ -59,7 +58,6 @@ const NewRaportTable = ({
 };
 
 NewRaportTable.propTypes = {
-  period: PropTypes.string,
   raports: PropTypes.arrayOf(PropTypes.object),
   loading: PropTypes.bool,
   onDelete: PropTypes.func,

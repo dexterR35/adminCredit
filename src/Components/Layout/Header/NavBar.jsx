@@ -10,10 +10,13 @@ import { useAuth } from "../../../context/AuthContext";
 import { Logout } from "../../../services/Hooks";
 import { getBreadcrumbs } from "../navConfig";
 import PageBreadcrumb from "./PageBreadcrumb";
+import ReminderBell from "../../Reminders/ReminderBell";
+import { useClientRemindersContext } from "../../../context/ClientRemindersContext";
 import PropTypes from "prop-types";
 
 const NavBar = ({ onMenuToggle }) => {
   const { isAdmin, user } = useAuth();
+  const { reminders, dueCount, refresh, openDueModal } = useClientRemindersContext();
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -78,6 +81,13 @@ const NavBar = ({ onMenuToggle }) => {
       </div>
 
       <div className="app-header-end" ref={menuRef}>
+        <ReminderBell
+          reminders={reminders}
+          dueCount={dueCount}
+          onRefresh={refresh}
+          onOpenDueModal={openDueModal}
+        />
+
         <button
           type="button"
           className="app-user-btn"

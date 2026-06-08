@@ -13,8 +13,18 @@ import {
   REFERRAL_LABELS,
   updateWebClientStatus,
 } from "../../services/customers";
-import { normalizeFisaStatus } from "../../services/fisaReportStatus";
+import { saveFollowUpFromDraft } from "../../services/clientFollowUps";
+import { isInProgressClientStatus, normalizeFisaStatus } from "../../services/fisaReportStatus";
+import { useClientRemindersContext } from "../../context/ClientRemindersContext";
+import {
+  createEmptyFollowUpDraft,
+  hasFollowUpDraftContent,
+} from "../../utils/followUpDates";
 import { sanitizeFormValues } from "../../utils/sanitize";
+import {
+  ROMANIAN_MOBILE_PHONE_PLACEHOLDER,
+  validateRomanianMobilePhone,
+} from "../../utils/phone";
 import DetailField from "../Modal/DetailField";
 import { DeleteConfirmModal } from "../Modal";
 import { PhoneDataBadge } from "../Table/tableBadges";
@@ -25,6 +35,7 @@ import {
   useDetailRefresh,
   useDetailEditMode,
   useDetailDelete,
+  DetailFollowUpSection,
 } from "./detailModal";
 
 const referralOptions = optionsFromEntries(REFERRAL_LABELS);
@@ -94,12 +105,15 @@ const ClientDetailModal = ({
   const [editValues, setEditValues] = useState(emptyFormValues);
   const [saving, setSaving] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
-  const [statusValue, setStatusValue] = useState("Pending");
+  const [statusValue, setStatusValue] = useState("In Progress");
+  const [followUpDraft, setFollowUpDraft] = useState(createEmptyFollowUpDraft);
+  const [phoneError, setPhoneError] = useState("");
   const canEditFields = Boolean(updateCustomer);
   const canDelete = isAdmin && Boolean(onDelete);
   const canAssign = isAdmin && Boolean(onAssign);
   const canOpenEditMode = canEditFields || canAssign;
   const fieldsDisabled = !isEditing || !canEditFields;
+  const { refresh: refreshReminders } = useClientRemindersContext();
 
   const { row, setDisplayRow } = useDetailRefresh({
     isOpen,
@@ -133,10 +147,20 @@ const ClientDetailModal = ({
   const fieldValues = isEditing ? editValues : valuesFromRow(row);
   const assignedUser = users.find((user) => user.id === row.assigned_user_id);
   const displayStatus = normalizeFisaStatus(row.status);
+  const activeStatus = isEditing ? statusValue : displayStatus;
+  const showFollowUps = isInProgressClientStatus(activeStatus);
   const title = fieldValues.full_name || row.full_name || "Client details";
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === "phone") {
+      setPhoneError("");
+      setEditValues((prev) => ({
+        ...prev,
+        phone: value.replace(/\D/g, "").slice(0, 10),
+      }));
+      return;
+    }
     setEditValues((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -147,6 +171,8 @@ const ClientDetailModal = ({
     setEditValues(valuesFromRow(row));
     setStatusValue(displayStatus);
     setSelectedUserId(row.assigned_user_id || "");
+    setFollowUpDraft(createEmptyFollowUpDraft());
+    setPhoneError("");
     startEdit();
   };
 
@@ -154,6 +180,8 @@ const ClientDetailModal = ({
     setEditValues(valuesFromRow(row));
     setStatusValue(displayStatus);
     setSelectedUserId(row.assigned_user_id || "");
+    setFollowUpDraft(createEmptyFollowUpDraft());
+    setPhoneError("");
     cancelEdit();
   };
 
@@ -171,19 +199,41 @@ const ClientDetailModal = ({
     setSaving(true);
     try {
       if (canEditFields) {
-        const sanitized = sanitizeFormValues(editValues, {
-          full_name: "text",
-          phone: "phone",
-          email: "email",
-          referral_source: "text",
-          employment_start_date: "date",
-        });
+        const phoneCheck = validateRomanianMobilePhone(editValues.phone, { required: true });
+        if (!phoneCheck.valid) {
+          setPhoneError(phoneCheck.error);
+          toast.error(phoneCheck.error);
+          return;
+        }
+
+        const sanitized = sanitizeFormValues(
+          { ...editValues, phone: phoneCheck.value },
+          {
+            full_name: "text",
+            phone: "phone",
+            email: "email",
+            referral_source: "text",
+            employment_start_date: "date",
+          },
+        );
         await updateCustomer(row.id, sanitized);
       }
 
       const nextStatus = normalizeFisaStatus(statusValue);
       if (nextStatus !== displayStatus) {
         await updateWebClientStatus(row.id, nextStatus);
+      }
+
+      if (
+        isInProgressClientStatus(nextStatus)
+        && hasFollowUpDraftContent(followUpDraft)
+      ) {
+        await saveFollowUpFromDraft({
+          creditApplicationId: row.id,
+          draft: followUpDraft,
+        });
+        setFollowUpDraft(createEmptyFollowUpDraft());
+        refreshReminders({ silent: true });
       }
 
       const refreshed = await fetchWebClientById(row.id);
@@ -280,9 +330,16 @@ const ClientDetailModal = ({
               label="Phone"
               name="phone"
               type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
               value={fieldValues.phone}
               onChange={handleChange}
               disabled={fieldsDisabled}
+              required
+              placeholder={ROMANIAN_MOBILE_PHONE_PLACEHOLDER}
+              hint="10 digits starting with 07"
+              error={phoneError}
+              maxLength={10}
             />
           ) : (
             <DetailField label="Phone">
@@ -350,6 +407,18 @@ const ClientDetailModal = ({
           <DetailField label="Assigned to">
             {assignedUser.username} ({assignedUser.email})
           </DetailField>
+        )}
+
+        {showFollowUps && (
+          <DetailFollowUpSection
+            creditApplicationId={row.id}
+            clientName={title}
+            isEditing={isEditing}
+            disabled={saving}
+            draft={followUpDraft}
+            onDraftChange={setFollowUpDraft}
+            onRemindersChanged={() => refreshReminders({ silent: true })}
+          />
         )}
 
       </DetailModalShell>

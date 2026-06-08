@@ -9,6 +9,7 @@ import { Button } from "../../Components/Buttons";
 import FormField from "../../Components/Inputs/FormField";
 import FormikControl from "../../Components/Inputs/FormikControl";
 import ConfirmModal from "../../Components/Modal/ConfirmModal";
+import { formatRoDate } from "../../utils/date";
 import { buildFieldTypeMap, sanitizeFormValues } from "../../utils/sanitize";
 import FisaReportStepper from "./FisaReportStepper";
 import FisaConsultantBanner from "./FisaConsultantBanner";
@@ -231,7 +232,7 @@ const FormUser = () => {
       ...values,
       user: authUser?.id || values.user,
       userName: authUser?.username || authUser?.email?.split("@")[0] || values.userName,
-      todayDate: new Date().toLocaleDateString("en-GB"),
+      todayDate: formatRoDate(),
     };
   };
 
@@ -445,7 +446,7 @@ const FormUser = () => {
                           errors={errors}
                         />
                         <p className="text-xs text-gray-500">
-                          Pending while the case is still open. Choose Approved when the client is
+                          In Progress while the case is still open. Choose Approved when the client is
                           fully resolved, or Denied when the client cannot be resolved.
                         </p>
                       </div>

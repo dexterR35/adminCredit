@@ -6,10 +6,10 @@ import {
   sanitizeCnp,
   sanitizeDeepStrings,
   sanitizeEmail,
-  sanitizePhone,
   sanitizeText,
   sanitizeUrl,
 } from "../utils/sanitize";
+import { assertRomanianMobilePhone } from "../utils/phone";
 import { isFisaReportStatus, normalizeFisaStatus } from "./fisaReportStatus";
 import { getFisaReportAttachmentMeta } from "../utils/fisaReportDocuments";
 
@@ -105,12 +105,12 @@ export const addFisaReport = async (formData, userId, options = {}) => {
     form_data: safeForm,
     client_full_name: sanitizeText(safeForm.clientFullName, { maxLength: 120, trim: true }),
     client_cnp: sanitizeCnp(safeForm.clientCNP),
-    phone: sanitizePhone(safeForm.phone),
+    phone: assertRomanianMobilePhone(safeForm.phone),
     email: safeForm.email ? sanitizeEmail(safeForm.email) : null,
     today_date: sanitizeText(safeForm.todayDate, { maxLength: 20, trim: true }),
     pdf_url: sanitizeUrl(safeForm.pdfUrl),
     photo_url: sanitizeUrl(safeForm.photoUrl),
-    user_status: normalizeFisaStatus(safeForm.userStatus || "Pending"),
+    user_status: normalizeFisaStatus(safeForm.userStatus || "In Progress"),
   };
 
   const { data, error } = await supabase.from("fisa_reports").insert(payload).select("id").single();

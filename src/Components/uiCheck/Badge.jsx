@@ -51,7 +51,9 @@ export const statusBadgeVariant = (status) => {
   const value = String(status || "").toLowerCase();
   if (["approved", "approve", "completed"].includes(value)) return "success";
   if (["denied", "deny", "rejected", "cancelled"].includes(value)) return "danger";
-  if (["pending", "new"].includes(value)) return "edit";
+  if (["pending", "new", "in progress", "in_progress", "inprogress"].includes(value)) {
+    return "info";
+  }
   return "default";
 };
 

@@ -5,13 +5,20 @@ import DetailField from "../Modal/DetailField";
 import { DeleteConfirmModal } from "../Modal";
 import { PhoneDataBadge } from "../Table/tableBadges";
 import { fetchFisaReportById, updateFisaReportStatus } from "../../services/fisaReports";
-import { normalizeFisaStatus } from "../../services/fisaReportStatus";
+import { saveFollowUpFromDraft } from "../../services/clientFollowUps";
+import { isInProgressClientStatus, normalizeFisaStatus } from "../../services/fisaReportStatus";
+import { useClientRemindersContext } from "../../context/ClientRemindersContext";
+import {
+  createEmptyFollowUpDraft,
+  hasFollowUpDraftContent,
+} from "../../utils/followUpDates";
 import { useAuth } from "../../context/AuthContext";
 import {
   DetailModalShell,
   DetailModalFooter,
   DetailStatusSelect,
   DetailAttachmentsSection,
+  DetailFollowUpSection,
   useDetailRefresh,
   useDetailEditMode,
   useDetailDelete,
@@ -32,12 +39,14 @@ const FisaReportDetailModal = ({
   onReportUpdated,
 }) => {
   const { user, isAdmin } = useAuth();
+  const { refresh: refreshReminders } = useClientRemindersContext();
   const { isEditing, startEdit, cancelEdit } = useDetailEditMode(isOpen);
-  const [statusValue, setStatusValue] = useState("Pending");
+  const [statusValue, setStatusValue] = useState("In Progress");
   const [saving, setSaving] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [attachmentsLoading, setAttachmentsLoading] = useState(false);
   const [attachmentUploading, setAttachmentUploading] = useState(false);
+  const [followUpDraft, setFollowUpDraft] = useState(createEmptyFollowUpDraft);
 
   const { row, setDisplayRow } = useDetailRefresh({
     isOpen,
@@ -98,16 +107,20 @@ const FisaReportDetailModal = ({
   const form = row.form_data || {};
   const title = row.client_full_name || form.clientFullName || "Client record";
   const displayStatus = normalizeFisaStatus(row.user_status);
+  const activeStatus = isEditing ? statusValue : displayStatus;
+  const showFollowUps = isInProgressClientStatus(activeStatus);
   const canEdit = isAdmin || row.user_id === user?.id;
   const canDelete = canEdit && Boolean(onDelete);
 
   const handleStartEdit = () => {
     setStatusValue(displayStatus);
+    setFollowUpDraft(createEmptyFollowUpDraft());
     startEdit();
   };
 
   const handleCancelEdit = () => {
     setStatusValue(displayStatus);
+    setFollowUpDraft(createEmptyFollowUpDraft());
     cancelEdit();
   };
 
@@ -154,21 +167,38 @@ const FisaReportDetailModal = ({
     if (!canEdit) return;
 
     const nextStatus = normalizeFisaStatus(statusValue);
-    if (nextStatus === displayStatus) {
+    const statusChanged = nextStatus !== displayStatus;
+    const shouldSaveReminder =
+      isInProgressClientStatus(nextStatus)
+      && hasFollowUpDraftContent(followUpDraft);
+
+    if (!statusChanged && !shouldSaveReminder) {
       cancelEdit();
       return;
     }
 
     setSaving(true);
     try {
-      const updated = await updateFisaReportStatus(row.id, nextStatus);
-      setDisplayRow(updated);
-      setStatusValue(normalizeFisaStatus(updated.user_status));
-      onReportUpdated?.(updated);
+      if (statusChanged) {
+        const updated = await updateFisaReportStatus(row.id, nextStatus);
+        setDisplayRow(updated);
+        setStatusValue(normalizeFisaStatus(updated.user_status));
+        onReportUpdated?.(updated);
+      }
+
+      if (shouldSaveReminder) {
+        await saveFollowUpFromDraft({
+          fisaReportId: row.id,
+          draft: followUpDraft,
+        });
+        setFollowUpDraft(createEmptyFollowUpDraft());
+        refreshReminders({ silent: true });
+      }
+
       cancelEdit();
-      toast.success("Status updated.");
+      toast.success("Changes saved.");
     } catch (error) {
-      toast.error(error.message || "Could not update status.");
+      toast.error(error.message || "Could not save changes.");
     } finally {
       setSaving(false);
     }
@@ -231,6 +261,18 @@ const FisaReportDetailModal = ({
           onUpload={canEdit ? handleAttachmentUpload : undefined}
           onRemove={canEdit ? handleAttachmentRemove : undefined}
         />
+
+        {showFollowUps && (
+          <DetailFollowUpSection
+            fisaReportId={row.id}
+            clientName={title}
+            isEditing={isEditing}
+            disabled={saving}
+            draft={followUpDraft}
+            onDraftChange={setFollowUpDraft}
+            onRemindersChanged={() => refreshReminders({ silent: true })}
+          />
+        )}
       </DetailModalShell>
 
       <DeleteConfirmModal

@@ -1,4 +1,5 @@
 import * as Yup from "yup";
+import { formatRoDate } from "../../utils/date";
 import { FISA_STATUS_SUBMIT_OPTIONS } from "../../services/fisaReportStatus";
 import {
   buildFieldSchema,
@@ -9,7 +10,7 @@ export const INITIAL_VALUES = {
   user: "",
   userName: "",
   userInfo: "",
-  todayDate: new Date().toLocaleDateString("en-GB"),
+  todayDate: formatRoDate(),
   source: "",
   clientFullName: "",
   clientCNP: "",
@@ -46,7 +47,7 @@ export const INITIAL_VALUES = {
   employerActivity: "",
   totalWorkExperience: "",
   employersLast24Months: "",
-  userStatus: "Pending",
+  userStatus: "In Progress",
 };
 
 export const STEPS = [
@@ -126,7 +127,7 @@ export const getStepsForRole = (isAdmin) =>
   isAdmin ? STEPS : STEPS.filter((step) => step.id !== USER_STEP_ID);
 
 export const buildInitialValues = (authUser, isAdmin) => {
-  const todayDate = new Date().toLocaleDateString("en-GB");
+  const todayDate = formatRoDate();
 
   if (isAdmin) {
     return { ...INITIAL_VALUES, todayDate };
@@ -218,7 +219,7 @@ export const buildFisaReportFields = (users = []) => [
     label: "Phone number (subscription or prepaid)",
     as: "input",
     required: true,
-    placeholder: "0759848404",
+    placeholder: "0765965155",
   },
   {
     name: "email",

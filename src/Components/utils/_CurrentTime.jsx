@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { APP_DATE_LOCALE } from "../../utils/date";
 
 const CurrentDateTimeComp = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -8,16 +9,17 @@ const CurrentDateTimeComp = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const currentDate = currentTime.toLocaleDateString('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+  const currentDate = currentTime.toLocaleDateString(APP_DATE_LOCALE, {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 
-  const formattedTime = currentTime.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
+  const formattedTime = currentTime.toLocaleTimeString(APP_DATE_LOCALE, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   });
 
   return (

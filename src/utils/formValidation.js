@@ -2,13 +2,17 @@ import * as Yup from "yup";
 import {
   sanitizeText,
   sanitizeEmail,
-  sanitizePhone,
   sanitizeCnp,
   sanitizeUsername,
   sanitizePassword,
   containsDangerousContent,
   MAX_LENGTHS,
 } from "./sanitize";
+import {
+  ROMANIAN_MOBILE_PHONE_MESSAGE,
+  ROMANIAN_MOBILE_PHONE_PATTERN,
+  normalizeRomanianMobilePhone,
+} from "./phone";
 
 const NO_XSS_MESSAGE = "Invalid or unsafe characters detected";
 
@@ -28,8 +32,10 @@ export const yupSafeEmail = () =>
 
 export const yupSafePhone = () =>
   Yup.string()
-    .transform((value) => sanitizePhone(value))
-    .matches(/^[\d\s/+\-()]*$/, "Invalid phone number format")
+    .transform((value) => normalizeRomanianMobilePhone(value))
+    .test("romanian-mobile", ROMANIAN_MOBILE_PHONE_MESSAGE, (value) => (
+      !value || ROMANIAN_MOBILE_PHONE_PATTERN.test(value)
+    ))
     .concat(yupNoDangerousContent());
 
 export const yupSafeCnp = () =>

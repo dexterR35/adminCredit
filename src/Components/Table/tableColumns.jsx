@@ -205,12 +205,12 @@ export const dataBadgeColumn = ({
   },
 });
 
-/** Fisa report status: Pending / Approved / Denied */
+/** Fisa report status: In Progress / Approved / Denied */
 export const fisaStatusBadgeColumn = ({
   accessorKey = "user_status",
   header = "Status",
   size = 100,
-  emptyLabel = "Pending",
+  emptyLabel = "In Progress",
 }) => ({
   accessorKey,
   header,

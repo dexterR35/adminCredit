@@ -12,3 +12,4 @@ export {
 } from "./DetailModalParts";
 
 export { default as DetailAttachmentsSection } from "./DetailAttachmentsSection";
+export { default as DetailFollowUpSection } from "./DetailFollowUpSection";

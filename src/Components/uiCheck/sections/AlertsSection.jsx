@@ -8,7 +8,7 @@ export default function AlertsSection() {
     <UiCheckSection
       id="alerts"
       title="Alerts & banners"
-      description="Inline feedback blocks from index.css — not separate components."
+      description="Inline feedback blocks from index.css - not separate components."
       sources={section?.sources}
     >
       <DemoCard title="Task form alerts" subtitle=".task-form__alert · .task-form__alert--error">

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { ClientRemindersProvider } from "../../context/ClientRemindersContext";
 import NavBar from "./Header/NavBar";
 import AsideMenu from "./Aside/AsideMenu";
 
@@ -10,6 +11,7 @@ const MainLayout = () => {
   const toggleSidebar = () => setSidebarOpen((open) => !open);
 
   return (
+    <ClientRemindersProvider>
     <div className="app-shell">
       {sidebarOpen && (
         <button
@@ -32,6 +34,7 @@ const MainLayout = () => {
         </main>
       </div>
     </div>
+    </ClientRemindersProvider>
   );
 };
 

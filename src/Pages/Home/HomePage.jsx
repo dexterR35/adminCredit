@@ -1,18 +1,31 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { HiOutlinePlus } from 'react-icons/hi2';
 import { useAuth } from '../../context/AuthContext';
+import { useClientRemindersContext } from '../../context/ClientRemindersContext';
 import { Button } from '../../Components/Buttons';
 import { Card, CardBody, CardHeader, PageTitle, SummaryCard } from '../../Components/uiCheck';
-import PeriodFilter from '../../Components/Layout/PeriodFilter';
+import { Tab } from '../../Components/Tabs';
 import NewRaportTable from "./HomeTable";
+import RemindersPanel from "./RemindersPanel";
 import { useHomePageData } from '../../services/Hooks';
 import { useTrackLoading } from '../../Components/LoadingProgress';
 
+const DASHBOARD_TABS = [
+  { id: 'records', label: 'Client records' },
+  { id: 'reminders', label: 'Reminders' },
+];
+
 const HomePage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isAdmin } = useAuth();
-  const [period, setPeriod] = useState('month');
+  const { dueCount, refresh: refreshReminders } = useClientRemindersContext();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(
+    tabParam === 'reminders' ? 'reminders' : 'records'
+  );
+
   const {
     loading,
     raports,
@@ -24,9 +37,26 @@ const HomePage = () => {
     lastContractName,
     fisaTotal,
     lastReportName,
-  } = useHomePageData(period);
+  } = useHomePageData('all');
 
   useTrackLoading(loading);
+
+  useEffect(() => {
+    if (tabParam === 'reminders') {
+      setActiveTab('reminders');
+      refreshReminders({ silent: true });
+    }
+  }, [tabParam, refreshReminders]);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    if (tabId === 'reminders') {
+      setSearchParams({ tab: 'reminders' });
+      refreshReminders({ silent: true });
+    } else {
+      setSearchParams({});
+    }
+  };
 
   const cardData = [
     {
@@ -59,6 +89,8 @@ const HomePage = () => {
     },
   ];
 
+  const isRecordsTab = activeTab === 'records';
+
   return (
     <div className="space-y-6">
       <PageTitle
@@ -72,7 +104,6 @@ const HomePage = () => {
               icon={HiOutlinePlus}
               onClick={() => navigate('/newraport')}
             />
-            <PeriodFilter value={period} onChange={setPeriod} />
           </div>
         )}
       >
@@ -97,16 +128,37 @@ const HomePage = () => {
 
       <Card>
         <CardHeader
-          title="Client Records"
-          subtitle={isAdmin ? "All consultant reports" : "Your reports only"}
+          title={isRecordsTab ? 'Client records' : 'Reminders'}
+          subtitle={
+            isRecordsTab
+              ? (isAdmin ? 'All consultant records' : 'Your records only')
+              : `Active reminders — In Progress${dueCount ? ` · ${dueCount} due` : ''}`
+          }
+          actions={(
+            <div className="flex flex-wrap gap-2">
+              {DASHBOARD_TABS.map((tab, index) => (
+                <Tab
+                  key={tab.id}
+                  label={tab.label}
+                  index={index}
+                  isActive={activeTab === tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  showIndex={false}
+                />
+              ))}
+            </div>
+          )}
         />
         <CardBody>
-        <NewRaportTable
-          period={period}
-          raports={raports}
-          loading={loading || fisaLoading}
-          onDelete={onDeleteReport}
-        />
+          {isRecordsTab ? (
+            <NewRaportTable
+              raports={raports}
+              loading={loading || fisaLoading}
+              onDelete={onDeleteReport}
+            />
+          ) : (
+            <RemindersPanel loading={loading} />
+          )}
         </CardBody>
       </Card>
     </div>

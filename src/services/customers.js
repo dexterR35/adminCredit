@@ -3,9 +3,9 @@ import { FormatTimestamp } from "../utils/date";
 import {
   sanitizeEmail,
   sanitizeFormValues,
-  sanitizePhone,
   sanitizeText,
 } from "../utils/sanitize";
+import { assertRomanianMobilePhone } from "../utils/phone";
 import { isFisaReportStatus, normalizeFisaStatus } from "./fisaReportStatus";
 
 export const REFERRAL_LABELS = {
@@ -136,7 +136,7 @@ export const updateWebClient = async (id, values) => {
     .from("credit_applications")
     .update({
       full_name: sanitizeText(sanitized.full_name, { maxLength: 120, trim: true }),
-      phone: sanitizePhone(sanitized.phone),
+      phone: assertRomanianMobilePhone(sanitized.phone),
       email: sanitized.email ? sanitizeEmail(sanitized.email) : null,
       referral_source: sanitizeText(sanitized.referral_source, { maxLength: 60, trim: true }) || null,
       employment_start_date: sanitized.employment_start_date || null,

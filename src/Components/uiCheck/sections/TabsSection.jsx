@@ -17,10 +17,10 @@ export default function TabsSection() {
     <UiCheckSection
       id="tabs"
       title="Tabs"
-      description="Google-style underline tabs — accent bottom border when selected. Used in ContextBar and LookupManager."
+      description="Google-style underline tabs - accent bottom border when selected. Used in ContextBar and LookupManager."
       sources={section?.sources}
     >
-      <DemoCard title="Tabs component" subtitle="Google-style underline tabs — accent bottom border when selected">
+      <DemoCard title="Tabs component" subtitle="Google-style underline tabs - accent bottom border when selected">
         <Tabs value={tab} onChange={setTab} options={TAB_OPTIONS} />
         <p className="mt-4 text-sm text-ink-tertiary">
           Production: <code className="text-xs">ContextBar.jsx</code> (Dashboard, Management, Analytics rows),{' '}
