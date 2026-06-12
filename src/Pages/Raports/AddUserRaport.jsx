@@ -6,10 +6,10 @@ import { toast } from "react-toastify";
 import { getAllUsers, addRaport } from "../../services/Hooks";
 import { updateFisaReportData } from "../../services/fisaReports";
 import { useAuth } from "../../context/AuthContext";
-import { Button } from "../../Components/Buttons";
 import FormField from "../../Components/Inputs/FormField";
 import FormikControl from "../../Components/Inputs/FormikControl";
 import ConfirmModal from "../../Components/Modal/ConfirmModal";
+import { Button } from "../../Components/Buttons";
 import { formatRoDate } from "../../utils/date";
 import { buildFieldTypeMap, sanitizeFormValues } from "../../utils/sanitize";
 import FisaReportStepper from "./FisaReportStepper";
@@ -486,8 +486,8 @@ const FormUser = () => {
 
               <Form className="report-form-actions">
                 <Button
+                  variant="outline"
                   type="button"
-                  variant="ghost"
                   text="Cancel"
                   onClick={handleCancelClick}
                   className="w-full md:w-auto"
@@ -496,8 +496,8 @@ const FormUser = () => {
                 <div className="report-form-actions__primary">
                   {currentStep > 0 && (
                     <Button
+                      variant="outline"
                       type="button"
-                      variant="secondary"
                       text="Back"
                       onClick={handleBack}
                       className="w-full md:min-w-[110px]"
@@ -506,16 +506,16 @@ const FormUser = () => {
 
                   {!isLastStep ? (
                     <Button
-                      type="button"
                       variant="primary"
+                      type="button"
                       text="Continue"
                       onClick={() => handleNext(values, setErrors, setTouched)}
                       className="w-full md:min-w-[130px]"
                     />
                   ) : (
                     <Button
-                      type="submit"
                       variant="primary"
+                      type="submit"
                       text="Create Report"
                       loading={isSubmitting}
                       loadingText="Saving..."

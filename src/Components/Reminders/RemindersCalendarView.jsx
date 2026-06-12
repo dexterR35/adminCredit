@@ -59,24 +59,24 @@ const RemindersCalendarView = ({
       <div className="reminders-calendar__toolbar">
         <div className="reminders-calendar__nav">
           <Button
+            variant="outline"
             type="button"
-            variant="secondary"
             size="sm"
             icon={HiOutlineChevronLeft}
             onClick={goPrev}
             aria-label="Previous month"
           />
           <Button
+            variant="outline"
             type="button"
-            variant="secondary"
             size="sm"
             icon={HiOutlineChevronRight}
             onClick={goNext}
             aria-label="Next month"
           />
           <Button
+            variant="outline"
             type="button"
-            variant="secondary"
             size="sm"
             text="Today"
             onClick={goToday}
@@ -177,8 +177,8 @@ const RemindersCalendarView = ({
                 {isFollowUpDue(selectedReminder.follow_up_at) ? "Due" : "Scheduled"}
               </Badge>
               <Button
-                type="button"
                 variant="primary"
+                type="button"
                 size="sm"
                 text="Open client"
                 onClick={() => onOpenClient?.(selectedReminder)}

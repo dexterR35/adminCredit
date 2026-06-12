@@ -78,6 +78,7 @@ const FisaReportPreviewModal = ({
   onSave,
   onClose,
   alreadyPersisted = false,
+  readOnly = false,
 }) => {
   const [draft, setDraft] = useState(values || {});
   const [saving, setSaving] = useState(false);
@@ -139,14 +140,17 @@ const FisaReportPreviewModal = ({
   };
 
   const downloadValues = savedValues || draft;
-  const canDownload = Boolean(savedValues);
-  const canSave = isDirty && !saving;
+  const canDownload = Boolean(savedValues) || readOnly;
+  const canSave = !readOnly && isDirty && !saving;
+  const fieldsDisabled = saving || readOnly;
 
-  const footerHint = canSave
-    ? "Review the report, then save your changes."
-    : canDownload
-      ? "Saved version is ready to download."
-      : "Save before downloading.";
+  const footerHint = readOnly
+    ? "View-only — download the saved report if needed."
+    : canSave
+      ? "Review the report, then save your changes."
+      : canDownload
+        ? "Saved version is ready to download."
+        : "Save before downloading.";
 
   return (
     <Modal
@@ -162,7 +166,7 @@ const FisaReportPreviewModal = ({
           </div>
           <div className="flex flex-wrap justify-end gap-2">
             <Button
-              variant="secondary"
+              variant="outline"
               text="Download"
               type="button"
               disabled={!canDownload || saving}
@@ -173,17 +177,19 @@ const FisaReportPreviewModal = ({
                 })
               }
             />
+            {!readOnly && (
+              <Button
+                variant="primary"
+                text="Save"
+                type="button"
+                loading={saving}
+                loadingText="Saving..."
+                disabled={!canSave}
+                onClick={handleSave}
+              />
+            )}
             <Button
-              variant="primary"
-              text="Save"
-              type="button"
-              loading={saving}
-              loadingText="Saving..."
-              disabled={!canSave}
-              onClick={handleSave}
-            />
-            <Button
-              variant="secondary"
+              variant="outline"
               text="Close"
               type="button"
               disabled={saving}
@@ -200,7 +206,7 @@ const FisaReportPreviewModal = ({
             field={field}
             value={draft[field.name]}
             onChange={handleChange}
-            disabled={saving}
+            disabled={fieldsDisabled}
           />
         ))}
       </div>
@@ -216,9 +222,10 @@ FisaReportPreviewModal.propTypes = {
   fields: PropTypes.arrayOf(PropTypes.object).isRequired,
   fieldTypeMap: PropTypes.object.isRequired,
   validationSchema: PropTypes.object,
-  onSave: PropTypes.func.isRequired,
+  onSave: PropTypes.func,
   onClose: PropTypes.func.isRequired,
   alreadyPersisted: PropTypes.bool,
+  readOnly: PropTypes.bool,
 };
 
 export default FisaReportPreviewModal;

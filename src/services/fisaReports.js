@@ -53,6 +53,7 @@ export const mapFisaReportRow = (row) => {
     has_image_document: attachmentMeta.hasImage,
     has_pdf_document: attachmentMeta.hasPdf,
     user_status: status,
+    consultant_name: row.form_data?.userName || "",
     requested_credit: requestedCredit,
     requested_credit_label: formatRequestedCredit(requestedCredit),
     follow_up_at: showReminder ? activeFollowUp.follow_up_at : null,

@@ -1013,6 +1013,10 @@
     background: #f8fafc;
   }
 
+  .data-table-row--clickable {
+    cursor: pointer;
+  }
+
   .data-table-row--selected {
     background: #eef2ff;
   }

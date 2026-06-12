@@ -100,17 +100,26 @@ const ClientDetailModal = ({
   onAssign,
   onClientUpdated,
   assignLoading = false,
+  readOnly = false,
+  refreshOnOpen = true,
 }) => {
   const { isEditing, startEdit, cancelEdit } = useDetailEditMode(isOpen);
+
+  useEffect(() => {
+    if (isOpen && readOnly && isEditing) {
+      cancelEdit();
+    }
+  }, [isOpen, readOnly, isEditing, cancelEdit]);
+
   const [editValues, setEditValues] = useState(emptyFormValues);
   const [saving, setSaving] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [statusValue, setStatusValue] = useState("In Progress");
   const [followUpDraft, setFollowUpDraft] = useState(createEmptyFollowUpDraft);
   const [phoneError, setPhoneError] = useState("");
-  const canEditFields = Boolean(updateCustomer);
-  const canDelete = isAdmin && Boolean(onDelete);
-  const canAssign = isAdmin && Boolean(onAssign);
+  const canEditFields = !readOnly && Boolean(updateCustomer);
+  const canDelete = !readOnly && isAdmin && Boolean(onDelete);
+  const canAssign = !readOnly && isAdmin && Boolean(onAssign);
   const canOpenEditMode = canEditFields || canAssign;
   const fieldsDisabled = !isEditing || !canEditFields;
   const { refresh: refreshReminders } = useClientRemindersContext();
@@ -120,6 +129,7 @@ const ClientDetailModal = ({
     item: client,
     fetchById: fetchWebClientById,
     errorMessage: "Could not refresh client details.",
+    refreshOnOpen,
   });
 
   useEffect(() => {
@@ -260,7 +270,11 @@ const ClientDetailModal = ({
         isOpen={isOpen}
         onClose={onClose}
         title={title}
-        description="Web form submission — review details and actions below."
+        description={
+          readOnly
+            ? "View-only web client — full details without editing."
+            : "Web form submission — review details and actions below."
+        }
         status={displayStatus}
         showStatus
         isEditing={isEditing}
@@ -445,6 +459,8 @@ ClientDetailModal.propTypes = {
   onAssign: PropTypes.func,
   onClientUpdated: PropTypes.func,
   assignLoading: PropTypes.bool,
+  readOnly: PropTypes.bool,
+  refreshOnOpen: PropTypes.bool,
 };
 
 export default ClientDetailModal;

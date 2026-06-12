@@ -43,16 +43,16 @@ const ReminderListItem = ({ item, isEditing, onDismiss, onDelete, disabled }) =>
       {isEditing && (
         <div className="flex shrink-0 gap-2">
           <Button
+            variant="primary"
             type="button"
-            variant="secondary"
             size="sm"
             text="Complete"
             onClick={() => onDismiss(item.id)}
             disabled={disabled}
           />
           <Button
+            variant="outline"
             type="button"
-            variant="ghost"
             size="sm"
             text="Delete"
             onClick={() => onDelete(item.id)}

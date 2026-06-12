@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import {
   DataTable,
@@ -6,6 +7,7 @@ import {
   fisaPdfColumn,
   phoneColumn,
   fisaStatusBadgeColumn,
+  consultantColumn,
   fisaReminderColumn,
   requestedCreditColumn,
   fisaReportExportColumns,
@@ -15,27 +17,34 @@ import { fetchFisaReportById } from "../../services/fisaReports";
 import { useClientModalRoute } from "../../hooks/useClientModalRoute";
 import { useUrlOpenedEntity } from "../../hooks/useUrlOpenedEntity";
 
-const reportColumns = [
-  { accessorKey: "client_full_name", header: "Client" },
-  { accessorKey: "today_date", header: "Date" },
-  phoneColumn(),
-  { accessorKey: "client_cnp", header: "CNP" },
-  fisaStatusBadgeColumn({ header: "Status" }),
-  fisaReminderColumn(),
-  requestedCreditColumn(),
-  fisaPhotoColumn(),
-  fisaPdfColumn(),
-  { accessorKey: "created_at_label", header: "Created" },
-];
-
 const NewRaportTable = ({
   raports = [],
   loading = false,
   onDelete,
 }) => {
+  const [detailReadOnly, setDetailReadOnly] = useState(false);
   const { fisaReportId, openFisaReport, closeClientModals } = useClientModalRoute({
     includeWebClient: false,
   });
+
+  const reportColumns = useMemo(() => [
+    { accessorKey: "client_full_name", header: "Client" },
+    { accessorKey: "today_date", header: "Date" },
+    phoneColumn(),
+    { accessorKey: "client_cnp", header: "CNP" },
+    fisaStatusBadgeColumn({ header: "Status" }),
+    consultantColumn(),
+    fisaReminderColumn({
+      onReminderClick: (report) => {
+        setDetailReadOnly(true);
+        openFisaReport(report.id, { tab: "records" });
+      },
+    }),
+    requestedCreditColumn(),
+    fisaPhotoColumn(),
+    fisaPdfColumn(),
+    { accessorKey: "created_at_label", header: "Created" },
+  ], [openFisaReport]);
 
   const {
     entity: detailReport,
@@ -54,7 +63,10 @@ const NewRaportTable = ({
     data: raports,
     columns: reportColumns,
     loading: loading || detailLoading,
-    onRowClick: (report) => openFisaReport(report.id, { tab: "records" }),
+    onRowClick: (report) => {
+      setDetailReadOnly(false);
+      openFisaReport(report.id, { tab: "records" });
+    },
     emptyMessage: "No client records yet",
     exportColumns: fisaReportExportColumns,
     exportFileName: "client-records",
@@ -63,6 +75,7 @@ const NewRaportTable = ({
   const handleClose = () => {
     closeClientModals();
     setDetailReport(null);
+    setDetailReadOnly(false);
   };
 
   return (
@@ -73,6 +86,7 @@ const NewRaportTable = ({
         onClose={handleClose}
         onDelete={onDelete}
         onReportUpdated={handleReportUpdated}
+        readOnly={detailReadOnly}
       />
       <DataTable {...tableProps} />
     </>

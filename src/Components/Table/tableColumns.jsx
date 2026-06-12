@@ -206,12 +206,34 @@ export const dataBadgeColumn = ({
   },
 });
 
+/** Consultant name from fisa report form_data */
+export const consultantColumn = ({
+  accessorKey = "consultant_name",
+  header = "Consultant",
+  size = 130,
+  emptyLabel = "—",
+} = {}) => ({
+  accessorKey,
+  header,
+  size,
+  exportValue: (row) => row[accessorKey] || row.form_data?.userName || "",
+  Cell: ({ row }) => {
+    const value = row.original[accessorKey] || row.original.form_data?.userName;
+    if (!value) {
+      return <span className="text-sm text-gray-400">{emptyLabel}</span>;
+    }
+
+    return <span className="whitespace-nowrap text-sm text-gray-900">{value}</span>;
+  },
+});
+
 /** Active follow-up reminder for In Progress fisa records */
 export const fisaReminderColumn = ({
   accessorKey = "follow_up_at_label",
   header = "Reminder",
   size = 150,
   emptyLabel = "—",
+  onReminderClick,
 } = {}) => ({
   accessorKey,
   header,
@@ -223,13 +245,31 @@ export const fisaReminderColumn = ({
       return <span className="text-sm text-gray-400">{emptyLabel}</span>;
     }
 
-    return (
+    const badge = (
       <TableBadge
         variant={row.original.follow_up_due ? "danger" : "info"}
         size="sm"
       >
         {label}
       </TableBadge>
+    );
+
+    if (!onReminderClick) {
+      return badge;
+    }
+
+    return (
+      <button
+        type="button"
+        className="inline-flex rounded-md transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        onClick={(event) => {
+          event.stopPropagation();
+          onReminderClick(row.original);
+        }}
+        title="View client record details"
+      >
+        {badge}
+      </button>
     );
   },
 });

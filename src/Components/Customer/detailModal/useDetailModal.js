@@ -8,6 +8,7 @@ export const useDetailRefresh = ({
   fetchById,
   errorMessage = "Could not refresh details.",
   onOpen,
+  refreshOnOpen = true,
 }) => {
   const [displayRow, setDisplayRow] = useState(null);
 
@@ -18,6 +19,8 @@ export const useDetailRefresh = ({
     if (!item?.id) return undefined;
 
     setDisplayRow(item);
+
+    if (!refreshOnOpen) return undefined;
 
     let cancelled = false;
 
@@ -37,7 +40,7 @@ export const useDetailRefresh = ({
     return () => {
       cancelled = true;
     };
-  }, [item, isOpen, fetchById, errorMessage, onOpen]);
+  }, [item, isOpen, fetchById, errorMessage, onOpen, refreshOnOpen]);
 
   if (!item) return { row: null, setDisplayRow };
 

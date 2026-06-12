@@ -24,7 +24,7 @@ export const ModalFooter = ({
 }) => (
   <div className={cx("modal-actions", align === "left" && "modal-actions--left")}>
     {!hideCancel && onCancel && (
-      <Button variant="secondary" size="sm" onClick={onCancel} type="button">
+      <Button variant="outline" size="sm" onClick={onCancel} type="button">
         {cancelText}
       </Button>
     )}

@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import {
   HiOutlineCalendarDays,
   HiOutlineCurrencyEuro,
+  HiOutlineDocumentText,
   HiOutlinePencilSquare,
   HiOutlineUserCircle,
 } from "react-icons/hi2";
@@ -74,6 +75,8 @@ const FisaReportDetailModal = ({
   onClose,
   onDelete,
   onReportUpdated,
+  readOnly = false,
+  refreshOnOpen = true,
 }) => {
   const { user, isAdmin } = useAuth();
   const { refresh: refreshReminders } = useClientRemindersContext();
@@ -94,6 +97,7 @@ const FisaReportDetailModal = ({
     item: report,
     fetchById: fetchFisaReportById,
     errorMessage: "Could not refresh report details.",
+    refreshOnOpen,
   });
 
   useEffect(() => {
@@ -101,6 +105,12 @@ const FisaReportDetailModal = ({
     setStatusValue(normalizeFisaStatus(row.user_status));
     setSelectedUserId(row.user_id || "");
   }, [isOpen, row?.id, row?.user_status, row?.user_id]);
+
+  useEffect(() => {
+    if (isOpen && readOnly && isEditing) {
+      cancelEdit();
+    }
+  }, [isOpen, readOnly, isEditing, cancelEdit]);
 
   useEffect(() => {
     if (!isOpen || !isAdmin) return undefined;
@@ -124,7 +134,7 @@ const FisaReportDetailModal = ({
   }, [isOpen, isAdmin]);
 
   useEffect(() => {
-    if (!isOpen || !row?.id) {
+    if (!refreshOnOpen || !isOpen || !row?.id) {
       setAttachments([]);
       return undefined;
     }
@@ -151,7 +161,7 @@ const FisaReportDetailModal = ({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, row?.id]);
+  }, [isOpen, row?.id, refreshOnOpen]);
 
   const {
     confirmDelete,
@@ -182,9 +192,9 @@ const FisaReportDetailModal = ({
   const displayStatus = normalizeFisaStatus(row.user_status);
   const activeStatus = isEditing ? statusValue : displayStatus;
   const showFollowUps = isInProgressClientStatus(activeStatus);
-  const canEdit = isAdmin || row.user_id === user?.id;
+  const canEdit = !readOnly && (isAdmin || row.user_id === user?.id);
   const canDelete = canEdit && Boolean(onDelete);
-  const canAssign = isAdmin;
+  const canAssign = !readOnly && isAdmin;
   const assignedUser = users.find((item) => item.id === row.user_id);
 
   const handleStartEdit = () => {
@@ -330,7 +340,14 @@ const FisaReportDetailModal = ({
   const clientPhone = row.phone || form.phone;
   const clientEmail = row.email || form.email;
   const reportDate = row.today_date || form.todayDate || "—";
-  const consultantName = form.userName || "—";
+  const reportAuthor = form.userName || "";
+  const consultantName = assignedUser?.username || reportAuthor || "—";
+  const consultantEmail = assignedUser?.email || "";
+  const showReportAuthor = Boolean(
+    reportAuthor
+    && assignedUser?.username
+    && reportAuthor !== assignedUser.username
+  );
   const creditRequested = formatCreditValue(form.requestedCreditValue);
 
   return (
@@ -340,9 +357,11 @@ const FisaReportDetailModal = ({
         onClose={onClose}
         title={title}
         description={
-          isEditing
-            ? "Update status, report fields, documents, or reminders."
-            : "Client overview, report details, and available actions."
+          readOnly
+            ? "View-only client record — full details without editing."
+            : isEditing
+              ? "Update status, report fields, documents, or reminders."
+              : "Client overview, report details, and available actions."
         }
         status={displayStatus}
         showStatus
@@ -374,13 +393,15 @@ const FisaReportDetailModal = ({
               ) : null}
             </div>
 
-            {!isEditing && assignedUser ? (
+            {!isEditing && consultantName !== "—" ? (
               <div className="rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-sm text-gray-700 lg:max-w-xs">
                 <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                  Assigned consultant
+                  Consultant
                 </p>
-                <p className="mt-1 font-medium text-gray-900">{assignedUser.username}</p>
-                <p className="truncate text-xs text-gray-500">{assignedUser.email}</p>
+                <p className="mt-1 font-medium text-gray-900">{consultantName}</p>
+                {consultantEmail ? (
+                  <p className="truncate text-xs text-gray-500">{consultantEmail}</p>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -402,6 +423,18 @@ const FisaReportDetailModal = ({
               <Badge variant="default" size="sm">No email</Badge>
             )}
           </div>
+
+          {readOnly && (
+            <div className="mt-4 flex justify-end">
+              <Button
+                variant="outline"
+                text="View report fields"
+                type="button"
+                icon={<HiOutlineDocumentText className="h-4 w-4" aria-hidden />}
+                onClick={() => setPreviewOpen(true)}
+              />
+            </div>
+          )}
         </div>
 
         {isEditing && (
@@ -420,7 +453,7 @@ const FisaReportDetailModal = ({
                 disabled={saving}
               />
               <Button
-                variant="info"
+                variant="primary"
                 text="Edit report fields"
                 type="button"
                 disabled={saving}
@@ -437,12 +470,14 @@ const FisaReportDetailModal = ({
           description="Key details from the saved fisa report."
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <DetailField label="Consultant">
-              <span className="inline-flex items-center gap-2">
-                <HiOutlineUserCircle className="h-4 w-4 shrink-0 text-gray-400" aria-hidden />
-                {consultantName}
-              </span>
-            </DetailField>
+            {showReportAuthor ? (
+              <DetailField label="Report author">
+                <span className="inline-flex items-center gap-2">
+                  <HiOutlineUserCircle className="h-4 w-4 shrink-0 text-gray-400" aria-hidden />
+                  {reportAuthor}
+                </span>
+              </DetailField>
+            ) : null}
             <DetailField label="Report date">
               <span className="inline-flex items-center gap-2">
                 <HiOutlineCalendarDays className="h-4 w-4 shrink-0 text-gray-400" aria-hidden />
@@ -529,15 +564,20 @@ const FisaReportDetailModal = ({
 
       <FisaReportPreviewModal
         isOpen={previewOpen}
-        title="Preview fisa report"
-        description="Review and correct all report fields before saving."
+        title={readOnly ? "View fisa report" : "Preview fisa report"}
+        description={
+          readOnly
+            ? "All report fields — view only."
+            : "Review and correct all report fields before saving."
+        }
         values={buildPreviewValues()}
         fields={previewFields}
         fieldTypeMap={previewFieldTypeMap}
         validationSchema={previewValidationSchema}
-        onSave={handlePreviewSave}
+        onSave={readOnly ? undefined : handlePreviewSave}
         onClose={() => setPreviewOpen(false)}
         alreadyPersisted
+        readOnly={readOnly}
       />
     </>
   );
@@ -549,6 +589,8 @@ FisaReportDetailModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
   onReportUpdated: PropTypes.func,
+  readOnly: PropTypes.bool,
+  refreshOnOpen: PropTypes.bool,
 };
 
 export default FisaReportDetailModal;

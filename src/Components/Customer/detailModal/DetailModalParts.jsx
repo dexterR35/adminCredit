@@ -100,7 +100,7 @@ export const DetailModalFooter = ({
       {isEditing ? (
         <>
           <Button
-            variant="secondary"
+            variant="outline"
             text="Cancel"
             type="button"
             onClick={onCancelEdit}
@@ -120,9 +120,9 @@ export const DetailModalFooter = ({
       ) : (
         <>
           {canEdit && onStartEdit && (
-            <Button variant="edit" text="Edit" type="button" onClick={onStartEdit} />
+            <Button variant="primary" text="Edit" type="button" onClick={onStartEdit} />
           )}
-          <Button variant="secondary" text="Close" type="button" onClick={onClose} />
+          <Button variant="outline" text="Close" type="button" onClick={onClose} />
         </>
       )}
     </div>

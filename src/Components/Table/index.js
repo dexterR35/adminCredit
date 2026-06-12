@@ -18,6 +18,7 @@ export {
   dataBadgeColumn,
   statusBadgeColumn,
   fisaStatusBadgeColumn,
+  consultantColumn,
   fisaReminderColumn,
   requestedCreditColumn,
 } from "./tableColumns";

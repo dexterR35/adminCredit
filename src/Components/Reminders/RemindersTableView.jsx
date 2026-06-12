@@ -12,8 +12,6 @@ import {
   isFollowUpDue,
 } from "../../utils/followUpDates";
 
-const shortId = (id) => (id ? String(id).slice(0, 8) : "—");
-
 const RemindersTableView = ({
   reminders = [],
   loading = false,
@@ -27,7 +25,8 @@ const RemindersTableView = ({
   const [extendTime, setExtendTime] = useState(getDefaultFollowUpTime());
   const [actionLoading, setActionLoading] = useState(null);
 
-  const startExtend = (reminder) => {
+  const startExtend = (event, reminder) => {
+    event.stopPropagation();
     setExtendingId(reminder.id);
     setExtendDate(getTodayFollowUpDate());
     setExtendTime(getDefaultFollowUpTime());
@@ -52,7 +51,8 @@ const RemindersTableView = ({
     }
   };
 
-  const handleFinish = async (id) => {
+  const handleFinish = async (event, id) => {
+    event.stopPropagation();
     setActionLoading(id);
     try {
       await onFinish?.(id);
@@ -65,6 +65,14 @@ const RemindersTableView = ({
     }
   };
 
+  const handleRowClick = (reminder) => {
+    onOpenClient?.(reminder);
+  };
+
+  const stopRowClick = (event) => {
+    event.stopPropagation();
+  };
+
   if (loading) {
     return <p className="text-sm text-gray-500">Loading reminders...</p>;
   }
@@ -75,10 +83,9 @@ const RemindersTableView = ({
 
   return (
     <div className="data-table-wrap overflow-x-auto">
-      <table className="data-table w-full min-w-[44rem]">
+      <table className="data-table w-full min-w-[40rem]">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Client</th>
             <th>Date / Time</th>
             <th>Note</th>
@@ -93,16 +100,13 @@ const RemindersTableView = ({
             const busy = actionLoading === reminder.id;
 
             return (
-              <tr key={reminder.id}>
-                <td className="font-mono text-xs text-gray-500">{shortId(reminder.id)}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="text-left font-medium text-primary-700 hover:underline"
-                    onClick={() => onOpenClient?.(reminder)}
-                  >
-                    {reminder.client_name}
-                  </button>
+              <tr
+                key={reminder.id}
+                className="data-table-row--clickable cursor-pointer"
+                onClick={() => handleRowClick(reminder)}
+              >
+                <td className="font-medium text-gray-900">
+                  {reminder.client_name}
                 </td>
                 <td className="whitespace-nowrap text-sm">
                   {reminder.follow_up_at_label || formatFollowUpDateTime(reminder.follow_up_at)}
@@ -115,7 +119,7 @@ const RemindersTableView = ({
                     {due ? "Due" : "Scheduled"}
                   </Badge>
                 </td>
-                <td>
+                <td onClick={stopRowClick}>
                   {isExtending ? (
                     <div className="flex min-w-[16rem] flex-col gap-3">
                       <DateTimeFieldGroup
@@ -132,16 +136,16 @@ const RemindersTableView = ({
                       />
                       <div className="flex flex-wrap justify-end gap-2">
                         <Button
+                          variant="outline"
                           type="button"
-                          variant="secondary"
                           size="sm"
                           text="Cancel"
                           onClick={() => setExtendingId(null)}
                           disabled={busy}
                         />
                         <Button
-                          type="button"
                           variant="primary"
+                          type="button"
                           size="sm"
                           text="Save"
                           onClick={() => handlePostpone(reminder.id)}
@@ -154,19 +158,19 @@ const RemindersTableView = ({
                   ) : (
                     <div className="flex flex-wrap justify-end gap-2">
                       <Button
+                        variant="outline"
                         type="button"
-                        variant="secondary"
                         size="sm"
                         text="Extend"
-                        onClick={() => startExtend(reminder)}
+                        onClick={(event) => startExtend(event, reminder)}
                         disabled={busy}
                       />
                       <Button
-                        type="button"
                         variant="primary"
+                        type="button"
                         size="sm"
                         text="Complete"
-                        onClick={() => handleFinish(reminder.id)}
+                        onClick={(event) => handleFinish(event, reminder.id)}
                         disabled={busy}
                         loading={busy}
                         loadingText="..."

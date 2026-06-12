@@ -46,7 +46,7 @@ const DetailAttachmentsSection = ({
               disabled={disabled || uploading}
             />
             <Button
-              variant="secondary"
+              variant="outline"
               type="button"
               text="Add document"
               icon={<HiOutlineArrowUpTray className="h-4 w-4" aria-hidden />}

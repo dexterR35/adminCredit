@@ -104,9 +104,9 @@ export const fisaReportExportColumns = [
     ),
   },
   {
-    key: "consultant",
+    key: "consultant_name",
     header: "Consultant",
-    exportValue: (row) => row.form_data?.userName || "",
+    exportValue: (row) => row.consultant_name || row.form_data?.userName || "",
   },
   { key: "photo_url", header: "Photo URL" },
   { key: "pdf_url", header: "PDF URL" },

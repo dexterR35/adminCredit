@@ -108,8 +108,8 @@ const ReminderBell = ({
 
           <div className="border-t border-gray-100 p-3">
             <Button
+              variant="outline"
               type="button"
-              variant="secondary"
               size="sm"
               text="View all reminders"
               onClick={goToRemindersTab}
@@ -117,8 +117,8 @@ const ReminderBell = ({
             />
             {dueCount > 0 && (
               <Button
-                type="button"
                 variant="primary"
+                type="button"
                 size="sm"
                 text="Open due reminders"
                 onClick={() => {
