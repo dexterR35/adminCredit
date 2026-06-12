@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import PropTypes from 'prop-types'
 import { UI_CHECK_GROUPS, UI_CHECK_SECTIONS } from './config.js'
 import { cx } from './utils.js'
 
@@ -127,4 +128,17 @@ export default function UiCheckShell({
       <div className="ui-check-main min-w-0 space-y-20">{children}</div>
     </div>
   )
+}
+
+const sectionShape = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  group: PropTypes.string,
+})
+
+UiCheckShell.propTypes = {
+  children: PropTypes.node.isRequired,
+  sections: PropTypes.arrayOf(sectionShape),
+  groups: PropTypes.arrayOf(PropTypes.string),
+  navAriaLabel: PropTypes.string,
 }

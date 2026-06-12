@@ -5,7 +5,12 @@
 
 const HTML_TAG_RE = /<[^>]*>/g;
 const SCRIPT_BLOCK_RE = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
-const CONTROL_CHARS_RE = /[\u0000-\u001F\u007F-\u009F]/g;
+const SCRIPT_BLOCK_TEST_RE = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/i;
+
+const isControlChar = (char) => {
+  const code = char.charCodeAt(0);
+  return (code >= 0 && code <= 31) || (code >= 127 && code <= 159);
+};
 
 const DANGEROUS_PATTERNS = [
   /javascript:/i,
@@ -43,7 +48,7 @@ export function stripHtml(value) {
 
 export function stripControlChars(value) {
   if (typeof value !== "string") return value;
-  return value.replace(CONTROL_CHARS_RE, "");
+  return Array.from(value).filter((char) => !isControlChar(char)).join("");
 }
 
 export function trimValue(value) {
@@ -53,7 +58,7 @@ export function trimValue(value) {
 
 export function containsDangerousContent(value) {
   if (typeof value !== "string" || !value) return false;
-  if (SCRIPT_BLOCK_RE.test(value)) return true;
+  if (SCRIPT_BLOCK_TEST_RE.test(value)) return true;
   return DANGEROUS_PATTERNS.some((pattern) => pattern.test(value));
 }
 
@@ -83,7 +88,7 @@ export function sanitizePhone(value) {
 
 export function sanitizePassword(value) {
   if (typeof value !== "string") return "";
-  return stripControlChars(value).trim();
+  return stripControlChars(value);
 }
 
 export function sanitizeSearch(value) {

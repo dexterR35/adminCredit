@@ -7,6 +7,8 @@ import {
 } from "../utils/sanitize";
 import { assertRomanianMobilePhone } from "../utils/phone";
 import { isFisaReportStatus, normalizeFisaStatus } from "./fisaReportStatus";
+import { AUTH_SCOPES } from "../utils/authSecurity";
+import { assertSessionScope } from "./auth";
 
 export const REFERRAL_LABELS = {
   facebook: "Facebook",
@@ -124,6 +126,7 @@ export const fetchWebClientById = async (id) => {
 };
 
 export const updateWebClient = async (id, values) => {
+  await assertSessionScope(AUTH_SCOPES.CLIENTS_WRITE);
   const sanitized = sanitizeFormValues(values, {
     full_name: "text",
     phone: "phone",
@@ -150,6 +153,7 @@ export const updateWebClient = async (id, values) => {
 };
 
 export const updateWebClientStatus = async (id, status) => {
+  await assertSessionScope(AUTH_SCOPES.CLIENTS_WRITE);
   const normalized = normalizeFisaStatus(status);
   if (!isFisaReportStatus(normalized)) {
     throw new Error("Invalid client status.");
@@ -168,11 +172,13 @@ export const updateWebClientStatus = async (id, status) => {
 };
 
 export const deleteWebClient = async (id) => {
+  await assertSessionScope(AUTH_SCOPES.CLIENTS_WRITE);
   const { error } = await supabase.from("credit_applications").delete().eq("id", id);
   if (error) throw error;
 };
 
 export const assignWebClientToUser = async (creditApplicationId, assignedUserId, assignedBy) => {
+  await assertSessionScope(AUTH_SCOPES.USERS_ASSIGN);
   const { error: assignmentError } = await supabase.from("client_assignments").upsert(
     {
       credit_application_id: creditApplicationId,

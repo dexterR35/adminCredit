@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import PropTypes from "prop-types";
 import {
   useReactTable,
   getCoreRowModel,
@@ -150,6 +151,7 @@ const DataTable = ({
   );
   const filteredRows = table.getFilteredRowModel().rows.map((row) => row.original);
   const showExport = enableExport && resolvedExportColumns.length > 0;
+  const pageCount = Math.max(table.getPageCount(), 1);
 
   const handleExport = (selectedKeys) => {
     setExporting(true);
@@ -332,7 +334,7 @@ const DataTable = ({
                   () => table.setPageIndex(0),
                   () => table.previousPage(),
                   () => table.nextPage(),
-                  () => table.setPageIndex(table.getPageCount() - 1),
+                  () => table.setPageIndex(pageCount - 1),
                 ];
                 const disabled = i < 2 ? !table.getCanPreviousPage() : !table.getCanNextPage();
                 return (
@@ -351,7 +353,7 @@ const DataTable = ({
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-500">
                 Page <strong className="text-gray-900">{table.getState().pagination.pageIndex + 1}</strong> of{" "}
-                <strong className="text-gray-900">{table.getPageCount()}</strong>
+                <strong className="text-gray-900">{pageCount}</strong>
               </span>
               <Select
                 value={table.getState().pagination.pageSize}
@@ -397,6 +399,46 @@ const DataTable = ({
       />
     </>
   );
+};
+
+const tableColumnShape = PropTypes.shape({
+  accessorKey: PropTypes.string.isRequired,
+  header: PropTypes.oneOfType([PropTypes.string, PropTypes.node, PropTypes.func]).isRequired,
+  size: PropTypes.number,
+  badge: PropTypes.object,
+  Cell: PropTypes.func,
+  exportable: PropTypes.bool,
+  exportHeader: PropTypes.string,
+  exportValue: PropTypes.func,
+});
+
+const tableActionShape = PropTypes.shape({
+  id: PropTypes.string,
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
+  requiresConfirm: PropTypes.bool,
+  confirmTitle: PropTypes.string,
+  confirmMessage: PropTypes.node,
+  confirmText: PropTypes.string,
+  cancelText: PropTypes.string,
+  confirmButtonType: PropTypes.string,
+});
+
+DataTable.propTypes = {
+  columns: PropTypes.arrayOf(tableColumnShape).isRequired,
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  loading: PropTypes.bool,
+  actions: PropTypes.arrayOf(tableActionShape),
+  title: PropTypes.string,
+  linkTable: PropTypes.string,
+  searchPlaceholder: PropTypes.string,
+  emptyMessage: PropTypes.string,
+  enableRowSelection: PropTypes.bool,
+  onRowClick: PropTypes.func,
+  pageSize: PropTypes.number,
+  enableExport: PropTypes.bool,
+  exportColumns: PropTypes.arrayOf(PropTypes.object),
+  exportFileName: PropTypes.string,
 };
 
 export default DataTable;

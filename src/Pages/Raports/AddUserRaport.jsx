@@ -4,6 +4,7 @@ import { Formik, Form, Field } from "formik";
 import { useBlocker, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getAllUsers, addRaport } from "../../services/Hooks";
+import { updateFisaReportData } from "../../services/fisaReports";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../../Components/Buttons";
 import FormField from "../../Components/Inputs/FormField";
@@ -14,6 +15,7 @@ import { buildFieldTypeMap, sanitizeFormValues } from "../../utils/sanitize";
 import FisaReportStepper from "./FisaReportStepper";
 import FisaConsultantBanner from "./FisaConsultantBanner";
 import FisaDraftSync from "./FisaDraftSync";
+import FisaReportPreviewModal from "./FisaReportPreviewModal";
 import { clearFisaDraft, loadFisaDraft } from "./fisaReportDraft";
 import {
   buildFisaReportFields,
@@ -133,6 +135,8 @@ const FormUser = () => {
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [hasUnsavedDraft, setHasUnsavedDraft] = useState(false);
   const [initialFormValues, setInitialFormValues] = useState(null);
+  const [previewValues, setPreviewValues] = useState(null);
+  const [savedReportId, setSavedReportId] = useState(null);
   const formActionsRef = useRef({ resetForm: null });
 
   const steps = useMemo(() => getStepsForRole(isAdmin), [isAdmin]);
@@ -311,13 +315,9 @@ const FormUser = () => {
       const sanitizedValues = sanitizeFormValues(mergedValues, fieldTypeMap);
       await validationSchema.validate(sanitizedValues, { abortEarly: false });
       const preparedData = prepareRaportPayload(sanitizedValues);
-      await addRaport(preparedData, { isAdmin });
-      clearFisaDraft(authUser?.id);
-      setHasUnsavedDraft(false);
-      resetForm({ values: buildInitialValues(authUser, isAdmin) });
-      setCurrentStep(0);
-      setMaxStepReached(0);
-      navigate("/home");
+      setPreviewValues(preparedData);
+      setSavedReportId(null);
+      formActionsRef.current.resetForm = resetForm;
     } catch (error) {
       if (error.code === "rate_limited") {
         toast.error(error.message);
@@ -326,6 +326,29 @@ const FormUser = () => {
       }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handlePreviewSave = async (values) => {
+    const preparedData = prepareRaportPayload(values);
+    if (savedReportId) {
+      await updateFisaReportData(savedReportId, preparedData, { isAdmin });
+    } else {
+      const id = await addRaport(preparedData, { isAdmin });
+      setSavedReportId(id);
+    }
+    clearFisaDraft(authUser?.id);
+    setHasUnsavedDraft(false);
+    formActionsRef.current.resetForm?.({ values: buildInitialValues(authUser, isAdmin) });
+    setCurrentStep(0);
+    setMaxStepReached(0);
+    return preparedData;
+  };
+
+  const handlePreviewClose = () => {
+    setPreviewValues(null);
+    if (savedReportId) {
+      navigate("/home");
     }
   };
 
@@ -522,6 +545,18 @@ const FormUser = () => {
                 confirmText="Yes, leave"
                 cancelText="No, stay"
                 confirmButtonType="primary"
+              />
+
+              <FisaReportPreviewModal
+                isOpen={Boolean(previewValues)}
+                title="Preview fisa report"
+                description="Review and correct all report fields before saving."
+                values={previewValues || {}}
+                fields={allFields}
+                fieldTypeMap={fieldTypeMap}
+                validationSchema={validationSchema}
+                onSave={handlePreviewSave}
+                onClose={handlePreviewClose}
               />
             </>
             );

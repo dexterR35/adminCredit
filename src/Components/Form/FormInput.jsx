@@ -1,4 +1,5 @@
 import { Formik, Form, Field } from "formik";
+import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "../Buttons";
@@ -134,6 +135,34 @@ const FormInput = ({
       </div>
     </div>
   );
+};
+
+const formFieldShape = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  label: PropTypes.node,
+  required: PropTypes.bool,
+  type: PropTypes.string,
+  placeholder: PropTypes.string,
+  details: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    label: PropTypes.node,
+    required: PropTypes.bool,
+    type: PropTypes.string,
+    placeholder: PropTypes.string,
+  }),
+});
+
+FormInput.propTypes = {
+  initialValues: PropTypes.object.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  fields: PropTypes.arrayOf(formFieldShape).isRequired,
+  formCustomClass: PropTypes.string,
+  submitButtonText: PropTypes.string,
+  buttonCustomClass: PropTypes.string,
+  showSubmitButton: PropTypes.bool,
+  showSuccessToast: PropTypes.bool,
+  onSubmitSuccess: PropTypes.func,
+  onSubmitError: PropTypes.func,
 };
 
 export default FormInput;

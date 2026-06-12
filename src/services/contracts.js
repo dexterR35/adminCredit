@@ -1,5 +1,7 @@
 import { supabase } from "../supabase/client";
 import { FormatTimestamp } from "../utils/date";
+import { AUTH_SCOPES } from "../utils/authSecurity";
+import { assertSessionScope } from "./auth";
 
 export const mapContractRow = (row) => ({
   id: row.id,
@@ -44,6 +46,7 @@ export const fetchContractById = async (id) => {
 };
 
 export const deleteContract = async (id) => {
+  await assertSessionScope(AUTH_SCOPES.CONTRACTS_DELETE);
   const { error } = await supabase.from("contracts").delete().eq("id", id);
   if (error) throw error;
 };

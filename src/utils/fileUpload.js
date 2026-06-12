@@ -13,7 +13,16 @@ const EXTENSION_MIME = {
   docx: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
 };
 
-const DANGEROUS_NAME_RE = /[\\/<>:"|?*\u0000]/;
+const DANGEROUS_FILENAME_CHARS = new Set(['\\', '/', '<', '>', ':', '"', '|', '?', '*']);
+
+const hasDangerousFileNameChar = (value) => {
+  for (const char of value) {
+    if (DANGEROUS_FILENAME_CHARS.has(char) || char.charCodeAt(0) === 0) {
+      return true;
+    }
+  }
+  return false;
+};
 
 const readFileHeader = (file, length = 12) =>
   new Promise((resolve, reject) => {
@@ -51,7 +60,7 @@ export const getClientAttachmentExtension = (filename) => {
   if (typeof filename !== "string" || !filename.trim()) return null;
 
   const baseName = filename.split(/[/\\]/).pop()?.trim() || "";
-  if (!baseName || DANGEROUS_NAME_RE.test(baseName)) return null;
+  if (!baseName || hasDangerousFileNameChar(baseName)) return null;
 
   const parts = baseName.toLowerCase().split(".");
   if (parts.length < 2) return null;

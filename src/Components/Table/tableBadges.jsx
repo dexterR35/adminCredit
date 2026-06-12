@@ -1,7 +1,7 @@
+import PropTypes from "prop-types";
 import Badge from "../Badge/Badge";
 import {
   yesNoBadgeVariant,
-  presenceBadgeVariant,
   PHONE_BADGE_PRESET,
   resolveBadgeVariant,
 } from "../Badge/badgeStyles";
@@ -114,4 +114,31 @@ export const PhoneDataBadge = ({
 export const formatCellValue = (value) => {
   if (value === null || value === undefined || value === "") return null;
   return value;
+};
+
+TableBadge.propTypes = {
+  variant: PropTypes.string,
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
+DataBadge.propTypes = {
+  positive: PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.number]),
+  yesLabel: PropTypes.string,
+  noLabel: PropTypes.string,
+  emptyLabel: PropTypes.string,
+};
+
+LinkDataBadge.propTypes = {
+  url: PropTypes.string,
+  viewLabel: PropTypes.string.isRequired,
+  missingLabel: PropTypes.string.isRequired,
+  viewVariant: PropTypes.string,
+  missingVariant: PropTypes.string,
+};
+
+PhoneDataBadge.propTypes = {
+  phone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  emptyLabel: PropTypes.string,
+  variant: PropTypes.string,
 };

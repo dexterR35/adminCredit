@@ -1,10 +1,6 @@
-import * as Yup from "yup";
 import { formatRoDate } from "../../utils/date";
 import { FISA_STATUS_SUBMIT_OPTIONS } from "../../services/fisaReportStatus";
-import {
-  buildFieldSchema,
-  buildValidationSchemaFromFields,
-} from "../../utils/formValidation";
+import { buildValidationSchemaFromFields } from "../../utils/formValidation";
 
 export const INITIAL_VALUES = {
   user: "",

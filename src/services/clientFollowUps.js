@@ -6,6 +6,8 @@ import {
   validateFollowUpDraft,
 } from "../utils/followUpDates";
 import { isInProgressClientStatus, normalizeFisaStatus } from "./fisaReportStatus";
+import { AUTH_SCOPES } from "../utils/authSecurity";
+import { assertSessionScope } from "./auth";
 
 const mapFollowUpRow = (row) => ({
   id: row.id,
@@ -118,6 +120,7 @@ export const createClientFollowUp = async ({
   followUpAt,
   note = "",
 }) => {
+  await assertSessionScope(AUTH_SCOPES.CLIENTS_WRITE);
   if (!followUpAt) {
     throw new Error("Follow-up date and time are required.");
   }
@@ -152,6 +155,7 @@ export const createClientFollowUp = async ({
 };
 
 export const updateClientFollowUp = async (id, { followUpAt, note }) => {
+  await assertSessionScope(AUTH_SCOPES.CLIENTS_WRITE);
   if (!followUpAt) {
     throw new Error("Follow-up date and time are required.");
   }
@@ -176,6 +180,7 @@ export const updateClientFollowUp = async (id, { followUpAt, note }) => {
 };
 
 export const postponeClientFollowUp = async (id, followUpAt) => {
+  await assertSessionScope(AUTH_SCOPES.CLIENTS_WRITE);
   if (!followUpAt) {
     throw new Error("Date and time are required.");
   }
@@ -198,6 +203,7 @@ export const postponeClientFollowUp = async (id, followUpAt) => {
 };
 
 export const dismissClientFollowUp = async (id) => {
+  await assertSessionScope(AUTH_SCOPES.CLIENTS_WRITE);
   const { data, error } = await supabase
     .from("client_follow_ups")
     .update({
@@ -213,6 +219,7 @@ export const dismissClientFollowUp = async (id) => {
 };
 
 export const deleteClientFollowUp = async (id) => {
+  await assertSessionScope(AUTH_SCOPES.CLIENTS_WRITE);
   const { error } = await supabase.from("client_follow_ups").delete().eq("id", id);
   if (error) throw error;
 };

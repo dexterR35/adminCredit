@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import PropTypes from 'prop-types'
 import { HiXMark } from 'react-icons/hi2'
 import {
   Button,
@@ -57,6 +58,10 @@ function ElapsedTimer({ running }) {
       {String(secs).padStart(2, '0')}s
     </span>
   )
+}
+
+ElapsedTimer.propTypes = {
+  running: PropTypes.bool,
 }
 
 export default function LoadersSection() {

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { Card, CardBody } from './index.js'
 import { cx } from './utils.js'
 
@@ -53,4 +54,24 @@ export function DemoCard({ title, subtitle, children, className = '' }) {
       <CardBody>{children}</CardBody>
     </Card>
   )
+}
+
+SourceFiles.propTypes = {
+  files: PropTypes.arrayOf(PropTypes.string),
+}
+
+UiCheckSection.propTypes = {
+  id: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  sources: PropTypes.arrayOf(PropTypes.string),
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired,
+}
+
+DemoCard.propTypes = {
+  title: PropTypes.node,
+  subtitle: PropTypes.node,
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string,
 }

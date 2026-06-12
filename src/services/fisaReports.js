@@ -16,6 +16,8 @@ import {
 } from "../utils/followUpDates";
 import { isFisaReportStatus, isInProgressClientStatus, normalizeFisaStatus } from "./fisaReportStatus";
 import { getFisaReportAttachmentMeta } from "../utils/fisaReportDocuments";
+import { AUTH_SCOPES, createRequestContext } from "../utils/authSecurity";
+import { assertSessionScope } from "./auth";
 
 const pickActiveFollowUp = (followUps = []) =>
   followUps
@@ -130,13 +132,18 @@ export const resolveFisaReportUserId = async (formData, sessionUserId, { isAdmin
 };
 
 export const addFisaReport = async (formData, userId, options = {}) => {
+  const actor = await assertSessionScope(AUTH_SCOPES.FISA_WRITE);
   const targetUserId = await resolveFisaReportUserId(formData, userId, options);
   const safeForm = sanitizeDeepStrings(formData);
   assertFormDataSize(safeForm);
+  const requestContext = createRequestContext(actor, "fisa:create");
 
   const payload = {
     user_id: targetUserId,
-    form_data: safeForm,
+    form_data: {
+      ...safeForm,
+      security: requestContext,
+    },
     client_full_name: sanitizeText(safeForm.clientFullName, { maxLength: 120, trim: true }),
     client_cnp: sanitizeCnp(safeForm.clientCNP),
     phone: assertRomanianMobilePhone(safeForm.phone),
@@ -152,12 +159,111 @@ export const addFisaReport = async (formData, userId, options = {}) => {
   return data.id;
 };
 
+export const updateFisaReportData = async (id, formData, options = {}) => {
+  const actor = await assertSessionScope(AUTH_SCOPES.FISA_WRITE);
+  const targetUserId = await resolveFisaReportUserId(formData, actor.id, options);
+  const safeForm = sanitizeDeepStrings(formData);
+  assertFormDataSize(safeForm);
+
+  const payloadForm = {
+    ...safeForm,
+    security: createRequestContext(actor, "fisa:data:update"),
+  };
+
+  const { data, error } = await supabase
+    .from("fisa_reports")
+    .update({
+      user_id: targetUserId,
+      form_data: payloadForm,
+      client_full_name: sanitizeText(safeForm.clientFullName, { maxLength: 120, trim: true }),
+      client_cnp: sanitizeCnp(safeForm.clientCNP),
+      phone: assertRomanianMobilePhone(safeForm.phone),
+      email: safeForm.email ? sanitizeEmail(safeForm.email) : null,
+      today_date: sanitizeText(safeForm.todayDate, { maxLength: 20, trim: true }),
+      pdf_url: sanitizeUrl(safeForm.pdfUrl),
+      photo_url: sanitizeUrl(safeForm.photoUrl),
+      user_status: normalizeFisaStatus(safeForm.userStatus || "In Progress"),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select(FISA_LIST_COLUMNS)
+    .single();
+
+  if (error) throw error;
+  return mapFisaReportRow(data);
+};
+
+export const assignFisaReportToUser = async (reportId, assignedUserId) => {
+  const actor = await assertSessionScope(AUTH_SCOPES.USERS_ASSIGN);
+
+  if (!isValidUuid(reportId)) {
+    throw new Error("Invalid report selected.");
+  }
+  if (!isValidUuid(assignedUserId)) {
+    throw new Error("Invalid consultant selected.");
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, username, email, role")
+    .eq("id", assignedUserId)
+    .in("role", ["admin", "consultant"])
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+  if (!profile) throw new Error("Selected consultant was not found.");
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("fisa_reports")
+    .select("form_data")
+    .eq("id", reportId)
+    .maybeSingle();
+
+  if (fetchError) throw fetchError;
+  if (!existing) throw new Error("Report not found.");
+
+  const formData = {
+    ...(existing.form_data || {}),
+    user: profile.id,
+    userName: profile.username || profile.email?.split("@")[0] || "User",
+    security: createRequestContext(actor, "fisa:assign"),
+  };
+
+  const { data, error } = await supabase
+    .from("fisa_reports")
+    .update({
+      user_id: profile.id,
+      form_data: formData,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", reportId)
+    .select(FISA_LIST_COLUMNS)
+    .single();
+
+  if (error) throw error;
+
+  const { error: followUpError } = await supabase
+    .from("client_follow_ups")
+    .update({
+      user_id: profile.id,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("fisa_report_id", reportId)
+    .is("dismissed_at", null);
+
+  if (followUpError) throw followUpError;
+
+  return mapFisaReportRow(data);
+};
+
 export const deleteFisaReport = async (id) => {
+  await assertSessionScope(AUTH_SCOPES.FISA_DELETE);
   const { error } = await supabase.from("fisa_reports").delete().eq("id", id);
   if (error) throw error;
 };
 
 export const updateFisaReportStatus = async (id, status) => {
+  const actor = await assertSessionScope(AUTH_SCOPES.FISA_WRITE);
   const normalized = normalizeFisaStatus(status);
   if (!isFisaReportStatus(normalized)) {
     throw new Error("Invalid report status.");
@@ -175,6 +281,7 @@ export const updateFisaReportStatus = async (id, status) => {
   const formData = {
     ...(existing.form_data || {}),
     userStatus: normalized,
+    security: createRequestContext(actor, "fisa:status:update"),
   };
 
   const { data, error } = await supabase

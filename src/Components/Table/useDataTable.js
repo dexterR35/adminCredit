@@ -1,5 +1,3 @@
-import { useMemo } from "react";
-
 /**
  * Compose reusable table props for DataTable.
  * Row actions live in detail modals — pass onRowClick to open them.

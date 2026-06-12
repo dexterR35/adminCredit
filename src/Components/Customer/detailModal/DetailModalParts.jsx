@@ -143,6 +143,32 @@ DetailModalFooter.propTypes = {
   leading: PropTypes.node,
 };
 
+export const DetailSection = ({
+  title,
+  description,
+  children,
+  className = "",
+}) => (
+  <section className={className}>
+    <div className="mb-3">
+      <p className="text-xs font-medium uppercase tracking-wider text-gray-400">{title}</p>
+      {description ? (
+        <p className="mt-1 text-sm text-gray-500">{description}</p>
+      ) : null}
+    </div>
+    <div className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 sm:p-5">
+      {children}
+    </div>
+  </section>
+);
+
+DetailSection.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
 export const DetailStatusSelect = ({
   value,
   onChange,

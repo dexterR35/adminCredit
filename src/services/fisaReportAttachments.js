@@ -1,6 +1,8 @@
 import { supabase } from "../supabase/client";
 import { sanitizeText } from "../utils/sanitize";
 import { validateClientAttachmentFile } from "../utils/fileUpload";
+import { AUTH_SCOPES } from "../utils/authSecurity";
+import { assertSessionScope } from "./auth";
 
 const STORAGE_BUCKET = "creditimg";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
@@ -51,6 +53,7 @@ export const fetchFisaReportAttachments = async (fisaReportId) => {
 };
 
 export const uploadFisaReportAttachment = async (fisaReportId, file) => {
+  await assertSessionScope(AUTH_SCOPES.FISA_WRITE);
   const { extension, mimeType } = await validateClientAttachmentFile(file);
   const attachmentId = crypto.randomUUID();
   const storagePath = `fisa-docs/${fisaReportId}/${attachmentId}.${extension}`;
@@ -89,6 +92,7 @@ export const uploadFisaReportAttachment = async (fisaReportId, file) => {
 };
 
 export const deleteFisaReportAttachment = async (attachment) => {
+  await assertSessionScope(AUTH_SCOPES.FISA_DELETE);
   if (!attachment?.id || !attachment?.storagePath) {
     throw new Error("Invalid attachment.");
   }

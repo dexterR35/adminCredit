@@ -7,6 +7,7 @@ export {
 export {
   DetailModalShell,
   DetailModalFooter,
+  DetailSection,
   DetailStatusSelect,
   DetailDocumentsSection,
 } from "./DetailModalParts";

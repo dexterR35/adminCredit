@@ -17,6 +17,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ErrorBoundary } from "./Components/ErrorBoundary";
 import { getRouterBasename } from "./utils/router";
+import { AUTH_SCOPES, hasScope } from "./utils/authSecurity";
 
 const LoadingScreen = () => (
   <div className="flex h-screen items-center justify-center bg-gray-50">
@@ -33,11 +34,27 @@ const RootRedirect = () => {
   return user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />;
 };
 
-const ProtectedLayout = () => {
+const ForbiddenScreen = () => (
+  <div className="flex h-screen items-center justify-center bg-gray-50 p-4">
+    <div className="max-w-md rounded-xl border border-gray-200 bg-white p-6 text-center shadow-soft">
+      <h1 className="text-lg font-semibold text-gray-900">Access denied</h1>
+      <p className="mt-2 text-sm text-gray-500">
+        Your account does not have permission to open this page.
+      </p>
+    </div>
+  </div>
+);
+
+const ProtectedLayout = ({ scope }) => {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
+  if (scope && !hasScope(user, scope)) return <ForbiddenScreen />;
   return <MainLayout />;
+};
+
+ProtectedLayout.propTypes = {
+  scope: PropTypes.string,
 };
 
 const PublicRoute = ({ children }) => {
@@ -78,11 +95,26 @@ const router = createBrowserRouter(
           ),
         },
         {
-          element: <ProtectedLayout />,
+          element: <ProtectedLayout scope={AUTH_SCOPES.DASHBOARD_READ} />,
           children: [
             { path: "/home", element: <HomePage /> },
+          ],
+        },
+        {
+          element: <ProtectedLayout scope={AUTH_SCOPES.CLIENTS_READ} />,
+          children: [
             { path: "/customers", element: <ClientsWebPage /> },
+          ],
+        },
+        {
+          element: <ProtectedLayout scope={AUTH_SCOPES.CONTRACTS_READ} />,
+          children: [
             { path: "/contract", element: <ContractTable /> },
+          ],
+        },
+        {
+          element: <ProtectedLayout scope={AUTH_SCOPES.FISA_WRITE} />,
+          children: [
             { path: "/newraport", element: <FormUser /> },
           ],
         },

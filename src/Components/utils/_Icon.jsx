@@ -1,6 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { FcHome, FcOk, FcFinePrint, FcMediumPriority, FcReading, FcOvertime, FcPlanner, FcAbout, FcBearish, FcBusinessContact, FcHighPriority, FcBusinessman, FcCollaboration, FcDebt, FcAreaChart, FcCallback, FcAlarmClock, FcAssistant, FcAdvertising } from "react-icons/fc";
+import { FcHome, FcOk, FcFinePrint, FcMediumPriority, FcReading, FcOvertime, FcPlanner, FcAbout, FcBearish, FcBusinessContact, FcHighPriority, FcBusinessman, FcCollaboration, FcDebt, FcAreaChart, FcCallback, FcAlarmClock, FcAssistant } from "react-icons/fc";
 
 import { IoCreateOutline, IoLogOutOutline } from "react-icons/io5";
 const iconMap = {
